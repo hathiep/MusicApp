@@ -54,17 +54,11 @@ public class HomeFragment extends Fragment {
 
     private void setOnclick() {
         btnPlay.setOnClickListener(view -> {
-            if (isPlaying) {
-                getActivity().startService(new Intent(getActivity(), BackgroundSoundService.class).setAction("ACTION_PAUSE"));
-            } else {
-                getActivity().startService(new Intent(getActivity(), BackgroundSoundService.class).setAction("ACTION_PLAY"));
-            }
+            String action = isPlaying ? "ACTION_PAUSE" : "ACTION_PLAY";
+            getActivity().startService(new Intent(getActivity(), BackgroundSoundService.class).setAction(action));
 
-            // Gửi thông báo sau khi cập nhật trạng thái isPlaying
+            // Cập nhật trạng thái nút
             isPlaying = !isPlaying;
-            sendNotificationMedia();
-
-            // Cập nhật giao diện nút
             btnPlay.setText(isPlaying ? "Pause" : "Play");
             btnPlay.setBackgroundColor(ContextCompat.getColor(getContext(), isPlaying ? R.color.red : R.color.blue));
         });

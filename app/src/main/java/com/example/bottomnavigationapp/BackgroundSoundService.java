@@ -1,12 +1,16 @@
 package com.example.bottomnavigationapp;
 
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.IBinder;
 
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 
 public class BackgroundSoundService extends Service {
     public static final String CHANNEL_ID = "BackgroundMusicService";
@@ -34,9 +38,11 @@ public class BackgroundSoundService extends Service {
             switch (intent.getAction()) {
                 case "ACTION_PLAY":
                     playAudio();
+                    updateNotification(true); // Cập nhật thông báo khi đang phát
                     break;
                 case "ACTION_PAUSE":
                     pauseAudio();
+                    updateNotification(false); // Cập nhật thông báo khi tạm dừng
                     break;
             }
         }
@@ -85,5 +91,40 @@ public class BackgroundSoundService extends Service {
             mediaPlayer = null;
         }
         handler.removeCallbacks(updateProgress);
+    }
+
+    private void updateNotification(boolean isPlaying) {
+        Intent intent = new Intent(this, HomeFragment.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        String action = isPlaying ? "ACTION_PAUSE" : "ACTION_PLAY";
+        int icon = isPlaying ? R.drawable.ic_pause : R.drawable.ic_play;
+        String title = isPlaying ? "Pause" : "Play";
+
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.image_backround);
+
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_launcher_background)
+                .setSubText("Music Tina")
+                .setContentTitle("Title of song")
+                .setContentText("Single of song")
+                .setLargeIcon(bitmap)
+                .addAction(R.drawable.ic_previous, "Previous", getPendingIntent("ACTION_PREVIOUS", 0))
+                .addAction(icon, title, getPendingIntent(action, 1))  // Nút Play/Pause
+                .addAction(R.drawable.ic_next, "Next", getPendingIntent("ACTION_NEXT", 2))
+                .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
+                        .setShowActionsInCompactView(1))
+                .setContentIntent(pendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_LOW);
+
+        startForeground(1, notificationBuilder.build());
+    }
+
+    private PendingIntent getPendingIntent(String action, int requestCode) {
+        Intent intent = new Intent(this, BackgroundSoundService.class);
+        intent.setAction(action);
+        return PendingIntent.getService(this, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 }
