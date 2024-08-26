@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">BottomNavigationApp</string>
+    <string name="app_name">Music Tina</string>
     <string name="navigation_home">Trang chủ</string>
     <string name="navigation_notification">Thông báo</string>
     <string name="navigation_account">Tài khoản</string>

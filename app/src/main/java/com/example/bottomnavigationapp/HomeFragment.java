@@ -5,6 +5,7 @@ import static com.example.bottomnavigationapp.BackgroundSoundService.CHANNEL_ID;
 import android.annotation.SuppressLint;
 
 import androidx.core.content.ContextCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.media.app.NotificationCompat.MediaStyle;
 
 import androidx.core.app.NotificationCompat;
@@ -12,7 +13,10 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
@@ -44,6 +48,7 @@ public class HomeFragment extends Fragment {
         init(view);
         createNotificationChannel();
         setOnclick();
+        registerReceiver();
 
         return view;
     }
@@ -64,45 +69,28 @@ public class HomeFragment extends Fragment {
         });
     }
 
-
-    private PendingIntent getPendingIntent(String action) {
-        Intent intent = new Intent(getActivity(), BackgroundSoundService.class);
-        intent.setAction(action);
-        return PendingIntent.getService(getActivity(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+    private void registerReceiver() {
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(playStateReceiver,
+                new IntentFilter("UPDATE_PLAY_STATE"));
     }
 
-    @OptIn(markerClass = UnstableApi.class)
-    @SuppressLint("MissingPermission")
-    private void sendNotificationMedia() {
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.image_backround);
+    private BroadcastReceiver playStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent != null && intent.hasExtra("isPlaying")) {
+                isPlaying = intent.getBooleanExtra("isPlaying", false);
+                btnPlay.setText(isPlaying ? "Pause" : "Play");
+                btnPlay.setBackgroundColor(ContextCompat.getColor(getContext(), isPlaying ? R.color.red : R.color.blue));
+            }
+        }
+    };
 
-        // Khởi tạo MediaSessionCompat
-        @SuppressLint("RestrictedApi") MediaSessionCompat mediaSessionCompat = new MediaSessionCompat(requireContext(), "tag");
-
-        // Xác định hành động nút play/pause dựa trên trạng thái hiện tại
-        String action = isPlaying ? "ACTION_PAUSE" : "ACTION_PLAY";
-        int icon = isPlaying ? R.drawable.ic_pause : R.drawable.ic_play;
-        String title = isPlaying ? "Pause" : "Play";
-
-        // Xây dựng thông báo
-        Notification notification = new NotificationCompat.Builder(requireContext(), CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_launcher_background)
-                .setSubText("Music Tina")
-                .setContentTitle("Title of song")
-                .setContentText("Single of song")
-                .setLargeIcon(bitmap)
-                .addAction(R.drawable.ic_previous, "Previous", getPendingIntent("ACTION_PREVIOUS")) // #0
-                .addAction(icon, title, getPendingIntent(action))  // #1: Play/Pause button
-                .addAction(R.drawable.ic_next, "Next", getPendingIntent("ACTION_NEXT"))     // #2
-                .setStyle(new MediaStyle()
-                        .setShowActionsInCompactView(1 /* #1: play/pause button */))
-                .setPriority(NotificationCompat.PRIORITY_LOW)
-                .build();
-
-        // Gửi thông báo
-        NotificationManagerCompat managerCompat = NotificationManagerCompat.from(requireContext());
-        managerCompat.notify(1, notification);
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(playStateReceiver);
     }
+
 
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

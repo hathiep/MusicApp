@@ -11,6 +11,7 @@ import android.os.IBinder;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 public class BackgroundSoundService extends Service {
     public static final String CHANNEL_ID = "BackgroundMusicService";
@@ -64,6 +65,8 @@ public class BackgroundSoundService extends Service {
         }
 
         handler.post(updateProgress);
+        updateNotification(true);
+        sendBroadcastUpdate(true);
     }
 
     private void pauseAudio() {
@@ -72,6 +75,8 @@ public class BackgroundSoundService extends Service {
             isPaused = true;
             handler.removeCallbacks(updateProgress);
         }
+        updateNotification(false);
+        sendBroadcastUpdate(false);
     }
 
     private Runnable updateProgress = new Runnable() {
@@ -106,7 +111,7 @@ public class BackgroundSoundService extends Service {
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.image_backround);
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_launcher_background)
+                .setSmallIcon(R.drawable.ic_logo)
                 .setSubText("Music Tina")
                 .setContentTitle("Title of song")
                 .setContentText("Single of song")
@@ -126,5 +131,11 @@ public class BackgroundSoundService extends Service {
         Intent intent = new Intent(this, BackgroundSoundService.class);
         intent.setAction(action);
         return PendingIntent.getService(this, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+    }
+
+    private void sendBroadcastUpdate(boolean isPlaying) {
+        Intent intent = new Intent("UPDATE_PLAY_STATE");
+        intent.putExtra("isPlaying", isPlaying);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 }
