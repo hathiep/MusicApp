@@ -22,7 +22,8 @@ public class BackgroundSoundService extends Service {
     private MediaPlayer mediaPlayer;
     private boolean isPaused = false;
     private Handler handler = new Handler();
-    private String audioPath;
+    private Song currentSong;
+    private String audioPath, title, artist;
 
     @Nullable
     @Override
@@ -33,51 +34,59 @@ public class BackgroundSoundService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        // Khởi tạo MediaPlayer khi onCreate Service
-        if (audioPath != null && !audioPath.isEmpty()) {
-            mediaPlayer = MediaPlayer.create(this, Uri.parse(audioPath));
-        }
-
-        // Kiểm tra xem MediaPlayer đã khởi tạo thành công chưa
-        if (mediaPlayer != null) {
-            mediaPlayer.setLooping(true); // Loop the sound
-        }
+        // Không khởi tạo MediaPlayer tại onCreate, chỉ khởi tạo khi cần
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(TAG, "Received Intent with Action: " + intent.getAction());  // Thêm log ở đây để kiểm tra
         if (intent != null && intent.getAction() != null) {
-            // Nhận đường dẫn audio từ Intent
-            String newAudioPath = intent.getStringExtra("AUDIO_PATH");
+            Song song = intent.getParcelableExtra("SONG");
+            if (song != null) {
+                currentSong = song;
+                Log.d(TAG, "Song received: " + song.getTitle() + " by " + song.getArtist());
+                String newAudioPath = song.getAudioPath();
+                title = song.getTitle();
+                artist = song.getArtist();
 
-            if (newAudioPath != null && !newAudioPath.equals(audioPath)) { // Chỉ khởi tạo lại MediaPlayer nếu đường dẫn mới khác
-                if (mediaPlayer != null) {
-                    mediaPlayer.release(); // Giải phóng MediaPlayer cũ nếu tồn tại
+                if (newAudioPath != null && !newAudioPath.equals(audioPath)) {
+                    if (mediaPlayer != null) {
+                        mediaPlayer.release();
+                    }
+                    audioPath = newAudioPath;
+                    mediaPlayer = MediaPlayer.create(this, Uri.parse(audioPath));
+                    if (mediaPlayer != null) {
+                        mediaPlayer.setLooping(true);
+                        mediaPlayer.setVolume(100, 100);
+                    } else {
+                        Log.e("BackgroundSoundService", "MediaPlayer could not be created with the provided audio path: " + audioPath);
+                        stopSelf();
+                    }
                 }
-                audioPath = newAudioPath;
-                mediaPlayer = MediaPlayer.create(this, Uri.parse(audioPath));
-                if (mediaPlayer != null) {
-                    mediaPlayer.setLooping(true);
-                    mediaPlayer.setVolume(100, 100);
-                } else {
-                    Log.e("BackgroundSoundService", "MediaPlayer could not be created with the provided audio path: " + audioPath);
-                    stopSelf();
+
+                switch (intent.getAction()) {
+                    case "ACTION_PLAY":
+                        playAudio();
+                        break;
+                    case "ACTION_PAUSE":
+                        pauseAudio();
+                        break;
                 }
             }
-
-            switch (intent.getAction()) {
-                case "ACTION_PLAY":
-                    playAudio();
-                    break;
-                case "ACTION_PAUSE":
-                    pauseAudio();
-                    break;
+            else {
+                Log.e(TAG, "No Song object received.");  // Thêm log để kiểm tra nếu đối tượng Song không được nhận
             }
         }
         return START_STICKY;
     }
 
+
     private void playAudio() {
+        if (mediaPlayer == null) {
+            Log.e("BackgroundSoundService", "MediaPlayer is not initialized.");
+            return;
+        }
+
         if (isPaused) {
             mediaPlayer.start();
             isPaused = false;
@@ -117,6 +126,7 @@ public class BackgroundSoundService extends Service {
             mediaPlayer = null;
         }
         handler.removeCallbacks(updateProgress);
+        super.onDestroy();
     }
 
     private void updateNotification(boolean isPlaying) {
@@ -127,18 +137,18 @@ public class BackgroundSoundService extends Service {
 
         String action = isPlaying ? "ACTION_PAUSE" : "ACTION_PLAY";
         int icon = isPlaying ? R.drawable.ic_pause : R.drawable.ic_play;
-        String title = isPlaying ? "Pause" : "Play";
+        String status = isPlaying ? "Pause" : "Play";
 
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.image_background);
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_logo)
                 .setSubText("Music Tina")
-                .setContentTitle("Chúng ta của tương lai")
-                .setContentText("Sơn Tùng MTP")
+                .setContentTitle(title)
+                .setContentText(artist)
                 .setLargeIcon(bitmap)
                 .addAction(R.drawable.ic_previous, "Previous", getPendingIntent("ACTION_PREVIOUS", 0))
-                .addAction(icon, title, getPendingIntent(action, 1))  // Nút Play/Pause
+                .addAction(icon, status, getPendingIntent(action, 1))  // Nút Play/Pause
                 .addAction(R.drawable.ic_next, "Next", getPendingIntent("ACTION_NEXT", 2))
                 .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
                         .setShowActionsInCompactView(1))
@@ -151,8 +161,10 @@ public class BackgroundSoundService extends Service {
     private PendingIntent getPendingIntent(String action, int requestCode) {
         Intent intent = new Intent(this, BackgroundSoundService.class);
         intent.setAction(action);
+        intent.putExtra("SONG", currentSong);
         return PendingIntent.getService(this, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
+
 
     private void sendBroadcastUpdate(boolean isPlaying) {
         Intent intent = new Intent("UPDATE_PLAY_STATE");

@@ -20,7 +20,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -32,12 +34,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HomeFragment extends Fragment {
-
+    private LinearLayout layoutPlaying;
+    private TextView tvTitle, tvArtist;
     private ImageView imvPlay;
     private boolean isPlaying = false;
     private ListView listView;
     private SongAdapter adapter;
     private List<Song> songList = new ArrayList<>();
+    private Song currentSong;  // Thêm biến để lưu song hiện tại
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -54,30 +58,65 @@ public class HomeFragment extends Fragment {
     }
 
     private void init(View view) {
+        layoutPlaying = view.findViewById(R.id.layout_playing);
+        tvTitle = view.findViewById(R.id.tv_title);
+        tvArtist = view.findViewById(R.id.tv_artist);
         imvPlay = view.findViewById(R.id.imv_play);
         listView = view.findViewById(R.id.listView);
 
         adapter = new SongAdapter(requireContext(), songList);
         listView.setAdapter(adapter);
+
+        // Thiết lập sự kiện click cho item trong ListView
+        listView.setOnItemClickListener((parent, view1, position, id) -> {
+            currentSong = songList.get(position);  // Lưu song hiện tại
+            layoutPlaying.setVisibility(View.VISIBLE); // Hiển thị trình đang phát
+            updatePlayButton();  // Cập nhật nút play/tạm dừng
+
+            // Phát bài hát đã chọn
+            startPlayingCurrentSong();
+        });
+    }
+
+    private void updateInforPlaying(Song song){
+        tvTitle.setText(song.getTitle());
+        tvArtist.setText(song.getArtist());
+    }
+
+    private void updatePlayButton() {
+        imvPlay.setImageResource(isPlaying ? R.drawable.ic_pause : R.drawable.ic_play);
+    }
+
+    private void startPlayingCurrentSong() {
+        if (currentSong != null) {
+            Intent serviceIntent = new Intent(getActivity(), BackgroundSoundService.class);
+            serviceIntent.setAction("ACTION_PLAY");
+            serviceIntent.putExtra("SONG", currentSong);  // Truyền đối tượng Song
+            getActivity().startService(serviceIntent);
+
+            isPlaying = true;
+            updateInforPlaying(currentSong);
+            updatePlayButton();  // Cập nhật nút play/tạm dừng
+        }
     }
 
     private void setOnclick() {
         imvPlay.setOnClickListener(view -> {
-            if (!songList.isEmpty()) {
+            if (currentSong != null) {  // Kiểm tra nếu có song hiện tại
                 String action = isPlaying ? "ACTION_PAUSE" : "ACTION_PLAY";
-                Song firstSong = songList.get(0);  // Play the first song in the list
 
                 Intent serviceIntent = new Intent(getActivity(), BackgroundSoundService.class);
                 serviceIntent.setAction(action);
-                serviceIntent.putExtra("AUDIO_PATH", firstSong.getAudioPath());
+                serviceIntent.putExtra("SONG", currentSong);  // Truyền đối tượng Song
 
                 getActivity().startService(serviceIntent);
 
                 isPlaying = !isPlaying;
-                imvPlay.setImageResource(isPlaying ? R.drawable.ic_pause : R.drawable.ic_play);
+                updatePlayButton();  // Cập nhật nút play/tạm dừng
             }
         });
     }
+
 
     private void loadSongsFromFirestore() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();

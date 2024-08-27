@@ -1,20 +1,43 @@
 package com.example.bottomnavigationapp;
 
-public class Song {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class Song implements Parcelable {
     private String id;
     private String title;
     private String artist;
     private String audioPath;
 
-
     public Song() {
+        // Constructor mặc định cần thiết cho Firestore
     }
 
-    public Song(String id, String title, String artist) {
+    public Song(String id, String title, String artist, String audioPath) {
         this.id = id;
         this.title = title;
         this.artist = artist;
+        this.audioPath = audioPath;
     }
+
+    protected Song(Parcel in) {
+        id = in.readString();
+        title = in.readString();
+        artist = in.readString();
+        audioPath = in.readString();
+    }
+
+    public static final Creator<Song> CREATOR = new Creator<Song>() {
+        @Override
+        public Song createFromParcel(Parcel in) {
+            return new Song(in);
+        }
+
+        @Override
+        public Song[] newArray(int size) {
+            return new Song[size];
+        }
+    };
 
     public String getId() {
         return id;
@@ -46,5 +69,18 @@ public class Song {
 
     public void setAudioPath(String audioPath) {
         this.audioPath = audioPath;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(title);
+        dest.writeString(artist);
+        dest.writeString(audioPath);
     }
 }
