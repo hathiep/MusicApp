@@ -1,5 +1,6 @@
 package com.example.bottomnavigationapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -95,4 +96,13 @@ public class MainActivity extends AppCompatActivity {
 
         transaction.commit();
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Dừng dịch vụ phát nhạc
+        Intent serviceIntent = new Intent(this, BackgroundSoundService.class);
+        stopService(serviceIntent);
+    }
+
 }
