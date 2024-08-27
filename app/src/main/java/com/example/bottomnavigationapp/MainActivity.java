@@ -16,6 +16,11 @@ public class MainActivity extends AppCompatActivity {
 
     private BottomNavigationView bottomNavigationView;
 
+    // Khai báo các Fragment để sử dụng trong Activity
+    private Fragment homeFragment;
+    private Fragment notificationFragment;
+    private Fragment accountFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,40 +37,62 @@ public class MainActivity extends AppCompatActivity {
         setOnMenuClick();
     }
 
-    private void init(){
+    private void init() {
         bottomNavigationView = findViewById(R.id.bottom_navigation);
-        loadFragment(new HomeFragment());
+
+        // Khởi tạo các Fragment
+        homeFragment = new HomeFragment();
+        notificationFragment = new NotificationFragment();
+        accountFragment = new AccountFragment();
+
+        // Thêm các Fragment vào FragmentTransaction và hiển thị HomeFragment mặc định
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.frame_container, homeFragment)
+                .commit();
     }
 
-    private void setOnMenuClick(){
+    private void setOnMenuClick() {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
-            Fragment fragment;
-            if(itemId == R.id.navigation_home){
-                fragment = new HomeFragment();
-                loadFragment(fragment);
+            if (itemId == R.id.navigation_home) {
+                showFragment(homeFragment);
                 return true;
             }
 
-            if(itemId == R.id.navigation_notification){
-                fragment = new NotificationFragment();
-                loadFragment(fragment);
+            if (itemId == R.id.navigation_notification) {
+                if (!notificationFragment.isAdded()) {
+                    getSupportFragmentManager().beginTransaction()
+                            .add(R.id.frame_container, notificationFragment)
+                            .commit();
+                }
+                showFragment(notificationFragment);
                 return true;
             }
 
-            if(itemId == R.id.navigation_account){
-                fragment = new AccountFragment();
-                loadFragment(fragment);
+            if (itemId == R.id.navigation_account) {
+                if (!accountFragment.isAdded()) {
+                    getSupportFragmentManager().beginTransaction()
+                            .add(R.id.frame_container, accountFragment)
+                            .commit();
+                }
+                showFragment(accountFragment);
                 return true;
             }
             return false;
         });
     }
 
-    private void loadFragment(Fragment fragment) {
+    private void showFragment(Fragment fragmentToShow) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.frame_container, fragment);
-        transaction.addToBackStack(null);
+
+        // Hide all fragments
+        if (homeFragment.isAdded()) transaction.hide(homeFragment);
+        if (notificationFragment.isAdded()) transaction.hide(notificationFragment);
+        if (accountFragment.isAdded()) transaction.hide(accountFragment);
+
+        // Show the selected fragment
+        transaction.show(fragmentToShow);
+
         transaction.commit();
     }
 }
