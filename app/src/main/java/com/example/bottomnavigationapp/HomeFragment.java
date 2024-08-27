@@ -72,7 +72,10 @@ public class HomeFragment extends Fragment {
 
     private void setOnclick() {
         // Thiết lập sự kiện click cho item trong ListView
-        listView.setOnItemClickListener((parent, view1, position, id) -> {
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            SongAdapter adapter = (SongAdapter) parent.getAdapter();
+            adapter.setSelectedPosition(position); // Cập nhật vị trí của item được chọn
+
             currentSong = songList.get(position);  // Lưu song hiện tại
             layoutPlaying.setVisibility(View.VISIBLE); // Hiển thị trình đang phát
             updatePlayButton();  // Cập nhật nút play/tạm dừng
@@ -128,9 +131,10 @@ public class HomeFragment extends Fragment {
         int currentIndex = songList.indexOf(currentSong);
         if (currentIndex > 0) {
             currentSong = songList.get(currentIndex - 1);
+            adapter.setSelectedPosition(currentIndex - 1); // Cập nhật vị trí item hiện tại
             startPlayingCurrentSong();
         } else {
-            // Handle case when there's no previous song (e.g., show a message or disable button)
+            // Xử lý trường hợp không có bài hát trước (e.g., thông báo hoặc vô hiệu hóa nút)
         }
     }
 
@@ -138,9 +142,10 @@ public class HomeFragment extends Fragment {
         int currentIndex = songList.indexOf(currentSong);
         if (currentIndex < songList.size() - 1) {
             currentSong = songList.get(currentIndex + 1);
+            adapter.setSelectedPosition(currentIndex + 1); // Cập nhật vị trí item hiện tại
             startPlayingCurrentSong();
         } else {
-            // Handle case when there's no next song (e.g., show a message or disable button)
+            // Xử lý trường hợp không có bài hát tiếp theo (e.g., thông báo hoặc vô hiệu hóa nút)
         }
     }
 

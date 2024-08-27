@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_activated="true" android:drawable="@drawable/item_bg_seleted"/> <!-- Khi chọn -->
+    <item android:drawable="@drawable/item_bg_normal"/> <!-- Khi không chọn -->
+</selector>
