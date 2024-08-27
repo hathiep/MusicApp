@@ -5,6 +5,7 @@ import static com.example.bottomnavigationapp.BackgroundSoundService.CHANNEL_ID;
 import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import android.animation.ObjectAnimator;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
@@ -36,12 +37,13 @@ import java.util.List;
 public class HomeFragment extends Fragment {
     private LinearLayout layoutPlaying;
     private TextView tvTitle, tvArtist;
-    private ImageView imvPlay, imvPrevious, imvNext;
+    private ImageView imvImagePlaying, imvPlay, imvPrevious, imvNext;
     private boolean isPlaying = false;
     private ListView listView;
     private SongAdapter adapter;
     private List<Song> songList = new ArrayList<>();
     private Song currentSong;  // Thêm biến để lưu song hiện tại
+    private ObjectAnimator rotateAnimator;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -59,6 +61,7 @@ public class HomeFragment extends Fragment {
 
     private void init(View view) {
         layoutPlaying = view.findViewById(R.id.layout_playing);
+        imvImagePlaying = view.findViewById(R.id.imv_image_playing);
         tvTitle = view.findViewById(R.id.tv_title);
         tvArtist = view.findViewById(R.id.tv_artist);
         imvPlay = view.findViewById(R.id.imv_play);
@@ -68,6 +71,11 @@ public class HomeFragment extends Fragment {
 
         adapter = new SongAdapter(requireContext(), songList);
         listView.setAdapter(adapter);
+
+        rotateAnimator = ObjectAnimator.ofFloat(imvImagePlaying, "rotation", 0f, 360f);
+        rotateAnimator.setDuration(10000); // thời gian quay là 10 giây
+        rotateAnimator.setRepeatCount(ObjectAnimator.INFINITE);
+        rotateAnimator.setRepeatMode(ObjectAnimator.RESTART);
     }
 
     private void setOnclick() {
@@ -93,6 +101,18 @@ public class HomeFragment extends Fragment {
                 serviceIntent.putExtra("SONG", currentSong);  // Truyền đối tượng Song
 
                 getActivity().startService(serviceIntent);
+
+                if (isPlaying) {
+                    // Tạm dừng hiệu ứng quay
+                    rotateAnimator.pause();
+                } else {
+                    // Tiếp tục hoặc bắt đầu lại hiệu ứng quay
+                    if (!rotateAnimator.isStarted()) {
+                        rotateAnimator.start();
+                    } else {
+                        rotateAnimator.resume();
+                    }
+                }
 
                 isPlaying = !isPlaying;
                 updatePlayButton();  // Cập nhật nút play/tạm dừng
@@ -124,6 +144,14 @@ public class HomeFragment extends Fragment {
             updateInforPlaying(currentSong);
             updatePlayButton();  // Cập nhật nút play/tạm dừng
             updateNavigationButtons();  // Cập nhật trạng thái của các nút điều hướng
+
+            // Dừng animation hiện tại nếu nó đang chạy
+            rotateAnimator.end();
+
+            // Reset lại animation để bắt đầu từ đầu
+            rotateAnimator.setFloatValues(0f, 360f);
+            rotateAnimator.start();
+
         }
     }
 

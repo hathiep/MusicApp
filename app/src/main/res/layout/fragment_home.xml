@@ -29,7 +29,7 @@
         android:visibility="gone">
 
         <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/item_image"
+            android:id="@+id/imv_image_playing"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginRight="10dp"
