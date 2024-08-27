@@ -4,9 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingHorizontal="10dp"
+    android:layout_marginBottom="140dp"
     tools:context=".HomeFragment">
 
-    <!-- TODO: Update blank fragment layout -->
     <TextView
         android:id="@+id/title"
         android:layout_width="match_parent"
@@ -16,17 +16,12 @@
         android:textSize="20sp"
         android:gravity="center_horizontal"/>
 
-    <ListView
-        android:id="@+id/listView"
-        android:layout_below="@+id/title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_marginTop="50dp"
+        android:layout_marginBottom="10dp"
         android:padding="10dp"
         android:background="@color/white"
         android:orientation="horizontal"
@@ -39,6 +34,7 @@
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/tv_title"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
@@ -47,10 +43,11 @@
                 android:textStyle="bold"/>
 
             <TextView
+                android:id="@+id/tv_artist"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
-                android:text="Single of song"
+                android:text="Artist of song"
                 android:textSize="14dp"/>
 
         </LinearLayout>
@@ -91,5 +88,11 @@
         </LinearLayout>
 
     </LinearLayout>
+
+    <ListView
+        android:id="@+id/listView"
+        android:layout_below="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 
 </RelativeLayout>
