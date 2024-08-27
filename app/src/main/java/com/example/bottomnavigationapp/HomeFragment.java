@@ -36,7 +36,7 @@ import java.util.List;
 public class HomeFragment extends Fragment {
     private LinearLayout layoutPlaying;
     private TextView tvTitle, tvArtist;
-    private ImageView imvPlay;
+    private ImageView imvPlay, imvPrevious, imvNext;
     private boolean isPlaying = false;
     private ListView listView;
     private SongAdapter adapter;
@@ -62,11 +62,15 @@ public class HomeFragment extends Fragment {
         tvTitle = view.findViewById(R.id.tv_title);
         tvArtist = view.findViewById(R.id.tv_artist);
         imvPlay = view.findViewById(R.id.imv_play);
+        imvPrevious = view.findViewById(R.id.imv_previous);
+        imvNext = view.findViewById(R.id.imv_next);
         listView = view.findViewById(R.id.listView);
 
         adapter = new SongAdapter(requireContext(), songList);
         listView.setAdapter(adapter);
+    }
 
+    private void setOnclick() {
         // Thiết lập sự kiện click cho item trong ListView
         listView.setOnItemClickListener((parent, view1, position, id) -> {
             currentSong = songList.get(position);  // Lưu song hiện tại
@@ -76,6 +80,25 @@ public class HomeFragment extends Fragment {
             // Phát bài hát đã chọn
             startPlayingCurrentSong();
         });
+
+        imvPlay.setOnClickListener(view -> {
+            if (currentSong != null) {
+                String action = isPlaying ? "ACTION_PAUSE" : "ACTION_PLAY";
+
+                Intent serviceIntent = new Intent(getActivity(), BackgroundSoundService.class);
+                serviceIntent.setAction(action);
+                serviceIntent.putExtra("SONG", currentSong);  // Truyền đối tượng Song
+
+                getActivity().startService(serviceIntent);
+
+                isPlaying = !isPlaying;
+                updatePlayButton();  // Cập nhật nút play/tạm dừng
+            }
+        });
+
+        imvPrevious.setOnClickListener(view -> startPlayingPreviousSong());
+
+        imvNext.setOnClickListener(view -> startPlayingNextSong());
     }
 
     private void updateInforPlaying(Song song){
@@ -97,26 +120,39 @@ public class HomeFragment extends Fragment {
             isPlaying = true;
             updateInforPlaying(currentSong);
             updatePlayButton();  // Cập nhật nút play/tạm dừng
+            updateNavigationButtons();  // Cập nhật trạng thái của các nút điều hướng
         }
     }
 
-    private void setOnclick() {
-        imvPlay.setOnClickListener(view -> {
-            if (currentSong != null) {  // Kiểm tra nếu có song hiện tại
-                String action = isPlaying ? "ACTION_PAUSE" : "ACTION_PLAY";
-
-                Intent serviceIntent = new Intent(getActivity(), BackgroundSoundService.class);
-                serviceIntent.setAction(action);
-                serviceIntent.putExtra("SONG", currentSong);  // Truyền đối tượng Song
-
-                getActivity().startService(serviceIntent);
-
-                isPlaying = !isPlaying;
-                updatePlayButton();  // Cập nhật nút play/tạm dừng
-            }
-        });
+    private void startPlayingPreviousSong() {
+        int currentIndex = songList.indexOf(currentSong);
+        if (currentIndex > 0) {
+            currentSong = songList.get(currentIndex - 1);
+            startPlayingCurrentSong();
+        } else {
+            // Handle case when there's no previous song (e.g., show a message or disable button)
+        }
     }
 
+    private void startPlayingNextSong() {
+        int currentIndex = songList.indexOf(currentSong);
+        if (currentIndex < songList.size() - 1) {
+            currentSong = songList.get(currentIndex + 1);
+            startPlayingCurrentSong();
+        } else {
+            // Handle case when there's no next song (e.g., show a message or disable button)
+        }
+    }
+
+    private void updateNavigationButtons() {
+        int currentIndex = songList.indexOf(currentSong);
+
+        // Vô hiệu hóa nút Previous nếu là bài hát đầu tiên
+        imvPrevious.setEnabled(currentIndex > 0);
+
+        // Vô hiệu hóa nút Next nếu là bài hát cuối cùng
+        imvNext.setEnabled(currentIndex < songList.size() - 1);
+    }
 
     private void loadSongsFromFirestore() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
