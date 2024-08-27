@@ -2,32 +2,19 @@ package com.example.bottomnavigationapp;
 
 import static com.example.bottomnavigationapp.BackgroundSoundService.CHANNEL_ID;
 
-import android.annotation.SuppressLint;
-
 import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.media.app.NotificationCompat.MediaStyle;
 
-import androidx.core.app.NotificationCompat;
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 
-import androidx.annotation.OptIn;
-import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.Fragment;
-import androidx.media.app.NotificationCompat.MediaStyle;
-import androidx.media3.common.util.UnstableApi;
-import androidx.media3.session.legacy.MediaSessionCompat;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -60,7 +47,13 @@ public class HomeFragment extends Fragment {
     private void setOnclick() {
         btnPlay.setOnClickListener(view -> {
             String action = isPlaying ? "ACTION_PAUSE" : "ACTION_PLAY";
-            getActivity().startService(new Intent(getActivity(), BackgroundSoundService.class).setAction(action));
+
+            // Thêm đường dẫn file audio vào Intent
+            Intent serviceIntent = new Intent(getActivity(), BackgroundSoundService.class);
+            serviceIntent.setAction(action);
+            serviceIntent.putExtra("AUDIO_PATH", "android.resource://" + getActivity().getPackageName() + "/" + R.raw.audio1);
+
+            getActivity().startService(serviceIntent);
 
             // Cập nhật trạng thái nút
             isPlaying = !isPlaying;
@@ -68,6 +61,7 @@ public class HomeFragment extends Fragment {
             btnPlay.setBackgroundColor(ContextCompat.getColor(getContext(), isPlaying ? R.color.red : R.color.blue));
         });
     }
+
 
     private void registerReceiver() {
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(playStateReceiver,

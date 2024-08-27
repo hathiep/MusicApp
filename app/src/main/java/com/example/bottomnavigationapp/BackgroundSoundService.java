@@ -1,13 +1,17 @@
 package com.example.bottomnavigationapp;
 
+import static android.content.ContentValues.TAG;
+
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -18,6 +22,7 @@ public class BackgroundSoundService extends Service {
     private MediaPlayer mediaPlayer;
     private boolean isPaused = false;
     private Handler handler = new Handler();
+    private String audioPath;
 
     @Nullable
     @Override
@@ -28,22 +33,44 @@ public class BackgroundSoundService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        mediaPlayer = MediaPlayer.create(this, R.raw.audio1);
-        mediaPlayer.setLooping(true);
-        mediaPlayer.setVolume(100, 100);
+        // Khởi tạo MediaPlayer khi onCreate Service
+        if (audioPath != null && !audioPath.isEmpty()) {
+            mediaPlayer = MediaPlayer.create(this, Uri.parse(audioPath));
+        }
+
+        // Kiểm tra xem MediaPlayer đã khởi tạo thành công chưa
+        if (mediaPlayer != null) {
+            mediaPlayer.setLooping(true); // Loop the sound
+        }
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null && intent.getAction() != null) {
+            // Nhận đường dẫn audio từ Intent
+            String newAudioPath = intent.getStringExtra("AUDIO_PATH");
+
+            if (newAudioPath != null && !newAudioPath.equals(audioPath)) { // Chỉ khởi tạo lại MediaPlayer nếu đường dẫn mới khác
+                if (mediaPlayer != null) {
+                    mediaPlayer.release(); // Giải phóng MediaPlayer cũ nếu tồn tại
+                }
+                audioPath = newAudioPath;
+                mediaPlayer = MediaPlayer.create(this, Uri.parse(audioPath));
+                if (mediaPlayer != null) {
+                    mediaPlayer.setLooping(true);
+                    mediaPlayer.setVolume(100, 100);
+                } else {
+                    Log.e("BackgroundSoundService", "MediaPlayer could not be created with the provided audio path: " + audioPath);
+                    stopSelf();
+                }
+            }
+
             switch (intent.getAction()) {
                 case "ACTION_PLAY":
                     playAudio();
-                    updateNotification(true); // Cập nhật thông báo khi đang phát
                     break;
                 case "ACTION_PAUSE":
                     pauseAudio();
-                    updateNotification(false); // Cập nhật thông báo khi tạm dừng
                     break;
             }
         }
@@ -51,11 +78,6 @@ public class BackgroundSoundService extends Service {
     }
 
     private void playAudio() {
-        if (mediaPlayer == null) {
-            mediaPlayer = MediaPlayer.create(this, R.raw.audio1);
-            mediaPlayer.setLooping(true);
-            mediaPlayer.setVolume(100, 100);
-        }
 
         if (isPaused) {
             mediaPlayer.start();
@@ -108,13 +130,13 @@ public class BackgroundSoundService extends Service {
         int icon = isPlaying ? R.drawable.ic_pause : R.drawable.ic_play;
         String title = isPlaying ? "Pause" : "Play";
 
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.image_backround);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.image_background);
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_logo)
                 .setSubText("Music Tina")
-                .setContentTitle("Title of song")
-                .setContentText("Single of song")
+                .setContentTitle("Chúng ta của tương lai")
+                .setContentText("Sơn Tùng MTP")
                 .setLargeIcon(bitmap)
                 .addAction(R.drawable.ic_previous, "Previous", getPendingIntent("ACTION_PREVIOUS", 0))
                 .addAction(icon, title, getPendingIntent(action, 1))  // Nút Play/Pause
