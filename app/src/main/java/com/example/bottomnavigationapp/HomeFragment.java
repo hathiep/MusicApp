@@ -149,9 +149,12 @@ public class HomeFragment extends Fragment {
 
         // Vô hiệu hóa nút Previous nếu là bài hát đầu tiên
         imvPrevious.setEnabled(currentIndex > 0);
+        imvPrevious.setBackgroundTintList(getResources().getColorStateList(currentIndex > 0 ? R.color.black : R.color.gray));
 
         // Vô hiệu hóa nút Next nếu là bài hát cuối cùng
         imvNext.setEnabled(currentIndex < songList.size() - 1);
+        imvNext.setBackgroundTintList(getResources().getColorStateList(currentIndex < songList.size() - 1 ? R.color.black : R.color.gray));
+
     }
 
     private void loadSongsFromFirestore() {
@@ -190,16 +193,27 @@ public class HomeFragment extends Fragment {
     }
 
     private void registerReceiver() {
-        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(playStateReceiver,
-                new IntentFilter("UPDATE_PLAY_STATE"));
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("UPDATE_PLAY_STATE");
+        filter.addAction("ACTION_PREVIOUS");
+        filter.addAction("ACTION_NEXT");
+
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(playStateReceiver, filter);
     }
 
     private BroadcastReceiver playStateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent != null && intent.hasExtra("isPlaying")) {
-                isPlaying = intent.getBooleanExtra("isPlaying", false);
-                imvPlay.setImageResource(isPlaying ? R.drawable.ic_pause : R.drawable.ic_play);
+            String action = intent.getAction();
+            if ("UPDATE_PLAY_STATE".equals(action)) {
+                if (intent.hasExtra("isPlaying")) {
+                    isPlaying = intent.getBooleanExtra("isPlaying", false);
+                    updatePlayButton();
+                }
+            } else if ("ACTION_PREVIOUS".equals(action)) {
+                startPlayingPreviousSong();
+            } else if ("ACTION_NEXT".equals(action)) {
+                startPlayingNextSong();
             }
         }
     };

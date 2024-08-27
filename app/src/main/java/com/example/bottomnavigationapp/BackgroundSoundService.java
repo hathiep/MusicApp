@@ -71,6 +71,12 @@ public class BackgroundSoundService extends Service {
                     case "ACTION_PAUSE":
                         pauseAudio();
                         break;
+                    case "ACTION_PREVIOUS":
+                        sendBroadcastPrevious();
+                        break;
+                    case "ACTION_NEXT":
+                        sendBroadcastNext();
+                        break;
                 }
             }
             else {
@@ -113,7 +119,7 @@ public class BackgroundSoundService extends Service {
         @Override
         public void run() {
             if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-                handler.postDelayed(this, 1000);
+                handler.postDelayed(this, 500);
             }
         }
     };
@@ -171,4 +177,15 @@ public class BackgroundSoundService extends Service {
         intent.putExtra("isPlaying", isPlaying);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
+
+    private void sendBroadcastPrevious() {
+        Intent intent = new Intent("ACTION_PREVIOUS");
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
+    private void sendBroadcastNext() {
+        Intent intent = new Intent("ACTION_NEXT");
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
 }
