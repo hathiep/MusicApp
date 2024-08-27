@@ -78,7 +78,6 @@ public class BackgroundSoundService extends Service {
     }
 
     private void playAudio() {
-
         if (isPaused) {
             mediaPlayer.start();
             isPaused = false;

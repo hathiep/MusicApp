@@ -20,10 +20,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 
 public class HomeFragment extends Fragment {
 
-    private Button btnPlay;
+    private ImageView imvPlay;
     private boolean isPlaying = false;
 
     @Override
@@ -41,11 +42,11 @@ public class HomeFragment extends Fragment {
     }
 
     private void init(View view) {
-        btnPlay = view.findViewById(R.id.btn_play);
+        imvPlay = view.findViewById(R.id.imv_play);
     }
 
     private void setOnclick() {
-        btnPlay.setOnClickListener(view -> {
+        imvPlay.setOnClickListener(view -> {
             String action = isPlaying ? "ACTION_PAUSE" : "ACTION_PLAY";
 
             // Thêm đường dẫn file audio vào Intent
@@ -57,8 +58,7 @@ public class HomeFragment extends Fragment {
 
             // Cập nhật trạng thái nút
             isPlaying = !isPlaying;
-            btnPlay.setText(isPlaying ? "Pause" : "Play");
-            btnPlay.setBackgroundColor(ContextCompat.getColor(getContext(), isPlaying ? R.color.red : R.color.blue));
+            imvPlay.setImageResource(isPlaying ? R.drawable.ic_pause : R.drawable.ic_play);
         });
     }
 
@@ -73,8 +73,7 @@ public class HomeFragment extends Fragment {
         public void onReceive(Context context, Intent intent) {
             if (intent != null && intent.hasExtra("isPlaying")) {
                 isPlaying = intent.getBooleanExtra("isPlaying", false);
-                btnPlay.setText(isPlaying ? "Pause" : "Play");
-                btnPlay.setBackgroundColor(ContextCompat.getColor(getContext(), isPlaying ? R.color.red : R.color.blue));
+                imvPlay.setImageResource(isPlaying ? R.drawable.ic_pause : R.drawable.ic_play);
             }
         }
     };
