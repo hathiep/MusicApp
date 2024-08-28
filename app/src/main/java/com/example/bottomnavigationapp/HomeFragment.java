@@ -159,9 +159,6 @@ public class HomeFragment extends Fragment {
                 sendActionToService("ACTION_PAUSE");
                 sendActionToService("ACTION_SEEK", currentMediaPosition);
                 sendActionToService("ACTION_PLAY");
-
-                // Tiếp tục cập nhật SeekBar
-                seekBarHandler.post(updateProgress);
             }
         });
     }
