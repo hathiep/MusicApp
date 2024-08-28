@@ -17,12 +17,14 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.google.firebase.firestore.CollectionReference;
@@ -44,6 +46,8 @@ public class HomeFragment extends Fragment {
     private List<Song> songList = new ArrayList<>();
     private Song currentSong;  // Thêm biến để lưu song hiện tại
     private ObjectAnimator rotateAnimator;
+    private SeekBar seekBar;
+    private Handler seekBarHandler = new Handler();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -67,6 +71,7 @@ public class HomeFragment extends Fragment {
         imvPlay = view.findViewById(R.id.imv_play);
         imvPrevious = view.findViewById(R.id.imv_previous);
         imvNext = view.findViewById(R.id.imv_next);
+        seekBar = view.findViewById(R.id.seekBar);
         listView = view.findViewById(R.id.listView);
 
         adapter = new SongAdapter(requireContext(), songList);
@@ -122,6 +127,28 @@ public class HomeFragment extends Fragment {
         imvPrevious.setOnClickListener(view -> startPlayingPreviousSong());
 
         imvNext.setOnClickListener(view -> startPlayingNextSong());
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser && currentSong != null) {
+                    Intent serviceIntent = new Intent(getActivity(), BackgroundSoundService.class);
+                    serviceIntent.setAction("ACTION_SEEK");
+                    serviceIntent.putExtra("NEW_POSITION", progress);
+                    getActivity().startService(serviceIntent);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // Not used
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // Not used
+            }
+        });
     }
 
     private void updateInforPlaying(Song song){
@@ -152,6 +179,7 @@ public class HomeFragment extends Fragment {
             rotateAnimator.setFloatValues(0f, 360f);
             rotateAnimator.start();
 
+            seekBar.setProgress(0);
         }
     }
 
@@ -230,6 +258,7 @@ public class HomeFragment extends Fragment {
         filter.addAction("UPDATE_PLAY_STATE");
         filter.addAction("ACTION_PREVIOUS");
         filter.addAction("ACTION_NEXT");
+        filter.addAction("UPDATE_SEEKBAR");
 
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(playStateReceiver, filter);
     }
@@ -247,6 +276,11 @@ public class HomeFragment extends Fragment {
                 startPlayingPreviousSong();
             } else if ("ACTION_NEXT".equals(action)) {
                 startPlayingNextSong();
+            } else if ("UPDATE_SEEKBAR".equals(action)) {
+                int duration = intent.getIntExtra("DURATION", 0);
+                int currentPosition = intent.getIntExtra("CURRENT_POSITION", 0);
+                seekBar.setMax(duration);
+                seekBar.setProgress(currentPosition);
             }
         }
     };

@@ -66,6 +66,13 @@
                 android:ellipsize="end"
                 android:maxLines="1"/>
 
+            <SeekBar
+                android:id="@+id/seekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="100"
+                android:padding="10dp" />
+
         </LinearLayout>
 
         <LinearLayout

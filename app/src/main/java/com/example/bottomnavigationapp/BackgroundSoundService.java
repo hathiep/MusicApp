@@ -71,6 +71,10 @@ public class BackgroundSoundService extends Service {
                     case "ACTION_PAUSE":
                         pauseAudio();
                         break;
+                    case "ACTION_SEEK":
+                        int newPosition = intent.getIntExtra("NEW_POSITION", 0);
+                        mediaPlayer.seekTo(newPosition);
+                        break;
                     case "ACTION_PREVIOUS":
                         sendBroadcastPrevious();
                         break;
@@ -119,6 +123,14 @@ public class BackgroundSoundService extends Service {
         @Override
         public void run() {
             if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                int currentPosition = mediaPlayer.getCurrentPosition();
+                int duration = mediaPlayer.getDuration();
+
+                Intent intent = new Intent("UPDATE_SEEKBAR");
+                intent.putExtra("CURRENT_POSITION", currentPosition);
+                intent.putExtra("DURATION", duration);
+                LocalBroadcastManager.getInstance(BackgroundSoundService.this).sendBroadcast(intent);
+
                 handler.postDelayed(this, 500);
             }
         }
