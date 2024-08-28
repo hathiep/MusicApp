@@ -23,7 +23,8 @@ public class BackgroundSoundService extends Service {
     private boolean isPaused = false;
     private Handler handler = new Handler();
     private Song currentSong;
-    private String audioPath, title, artist;
+    private String audioPath;
+    private int pausedPosition = 0;
 
     @Nullable
     @Override
@@ -39,15 +40,12 @@ public class BackgroundSoundService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "Received Intent with Action: " + intent.getAction());  // Thêm log ở đây để kiểm tra
         if (intent != null && intent.getAction() != null) {
             Song song = intent.getParcelableExtra("SONG");
+            pausedPosition = intent.getIntExtra("MEDIA_POSITION", 0); // Lấy vị trí khi bắt đầu phát
             if (song != null) {
                 currentSong = song;
-                Log.d(TAG, "Song received: " + song.getTitle() + " by " + song.getArtist());
                 String newAudioPath = song.getAudioPath();
-                title = song.getTitle();
-                artist = song.getArtist();
 
                 if (newAudioPath != null && !newAudioPath.equals(audioPath)) {
                     if (mediaPlayer != null) {
@@ -72,8 +70,12 @@ public class BackgroundSoundService extends Service {
                         pauseAudio();
                         break;
                     case "ACTION_SEEK":
-                        int newPosition = intent.getIntExtra("NEW_POSITION", 0);
-                        mediaPlayer.seekTo(newPosition);
+                        int newPosition = intent.getIntExtra("MEDIA_POSITION", 0);
+                        if (mediaPlayer != null) {
+                            mediaPlayer.seekTo(newPosition); // Phát từ vị trí được lưu
+                            pausedPosition = newPosition;
+                            handler.removeCallbacks(updateProgress); // Dừng cập nhật hiện tại
+                        }
                         break;
                     case "ACTION_PREVIOUS":
                         sendBroadcastPrevious();
@@ -82,9 +84,6 @@ public class BackgroundSoundService extends Service {
                         sendBroadcastNext();
                         break;
                 }
-            }
-            else {
-                Log.e(TAG, "No Song object received.");  // Thêm log để kiểm tra nếu đối tượng Song không được nhận
             }
         }
         return START_STICKY;
@@ -98,9 +97,11 @@ public class BackgroundSoundService extends Service {
         }
 
         if (isPaused) {
+            mediaPlayer.seekTo(pausedPosition); // Phát từ vị trí đã lưu khi tạm dừng
             mediaPlayer.start();
             isPaused = false;
         } else if (!mediaPlayer.isPlaying()) {
+            mediaPlayer.seekTo(pausedPosition); // Phát từ vị trí đã lưu khi tạm dừng
             mediaPlayer.start();
         }
 
@@ -111,13 +112,17 @@ public class BackgroundSoundService extends Service {
 
     private void pauseAudio() {
         if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            pausedPosition = mediaPlayer.getCurrentPosition(); // Lưu vị trí hiện tại
             mediaPlayer.pause();
             isPaused = true;
-            handler.removeCallbacks(updateProgress);
+            Log.d("BackgroundSoundService", "Media paused at position: " + pausedPosition);
+        } else {
+            Log.d("BackgroundSoundService", "MediaPlayer is either null or not playing");
         }
         updateNotification(false);
         sendBroadcastUpdate(false);
     }
+
 
     private Runnable updateProgress = new Runnable() {
         @Override
@@ -131,7 +136,7 @@ public class BackgroundSoundService extends Service {
                 intent.putExtra("DURATION", duration);
                 LocalBroadcastManager.getInstance(BackgroundSoundService.this).sendBroadcast(intent);
 
-                handler.postDelayed(this, 500);
+                handler.postDelayed(this, 1000);
             }
         }
     };
@@ -162,8 +167,8 @@ public class BackgroundSoundService extends Service {
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_logo)
                 .setSubText("Music Tina")
-                .setContentTitle(title)
-                .setContentText(artist)
+                .setContentTitle(currentSong != null ? currentSong.getTitle() : "No Song Playing")
+                .setContentText(currentSong != null ? currentSong.getArtist() : "")
                 .setLargeIcon(bitmap)
                 .addAction(R.drawable.ic_previous, "Previous", getPendingIntent("ACTION_PREVIOUS", 0))
                 .addAction(icon, status, getPendingIntent(action, 1))  // Nút Play/Pause
@@ -183,7 +188,6 @@ public class BackgroundSoundService extends Service {
         return PendingIntent.getService(this, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
-
     private void sendBroadcastUpdate(boolean isPlaying) {
         Intent intent = new Intent("UPDATE_PLAY_STATE");
         intent.putExtra("isPlaying", isPlaying);
@@ -199,5 +203,4 @@ public class BackgroundSoundService extends Service {
         Intent intent = new Intent("ACTION_NEXT");
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
-
 }
