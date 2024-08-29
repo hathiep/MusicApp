@@ -116,7 +116,9 @@ public class BackgroundSoundService extends Service {
             pausedPosition = mediaPlayer.getCurrentPosition(); // Lưu vị trí hiện tại
             mediaPlayer.pause();
             isPaused = true;
+            Log.d("BackgroundSoundService", "Media paused at position: " + pausedPosition);
         } else {
+            Log.d("BackgroundSoundService", "MediaPlayer is either null or not playing");
         }
         updateNotification(false);
         sendBroadcastUpdate(false, pausedPosition);

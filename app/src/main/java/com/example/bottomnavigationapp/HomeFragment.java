@@ -3,6 +3,8 @@ package com.example.bottomnavigationapp;
 import static android.content.ContentValues.TAG;
 import static com.example.bottomnavigationapp.BackgroundSoundService.CHANNEL_ID;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -18,12 +20,14 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import android.os.Handler;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -35,11 +39,13 @@ import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.List;
+import android.util.TypedValue;
+
 
 public class HomeFragment extends Fragment {
-    private LinearLayout layoutPlaying;
+    private ConstraintLayout layoutPlaying;
     private TextView tvTitle, tvArtist, tvPosition, tvDuration;
-    private ImageView imvImagePlaying, imvPlay, imvPrevious, imvNext;
+    private ImageView imvPullDown, imvImagePlaying, imvPlay, imvPrevious, imvNext;
     private boolean isPlaying = false;
     private ListView listView;
     private SongAdapter adapter;
@@ -65,6 +71,7 @@ public class HomeFragment extends Fragment {
 
     private void init(View view) {
         layoutPlaying = view.findViewById(R.id.layout_playing);
+        imvPullDown = view.findViewById(R.id.imv_pull_down);
         imvImagePlaying = view.findViewById(R.id.imv_image_playing);
         tvTitle = view.findViewById(R.id.tv_title);
         tvArtist = view.findViewById(R.id.tv_artist);
@@ -148,6 +155,12 @@ public class HomeFragment extends Fragment {
                 sendActionToService("ACTION_PLAY");
             }
         });
+
+        // Bắt sự kiện click vào title để mở rộng layout
+        tvTitle.setOnClickListener(view -> expandPlayingLayout());
+
+        // Sự kiện thu nhỏ layout khi click vào imv_pull_down
+        imvPullDown.setOnClickListener(view -> collapsePlayingLayout());
     }
 
     private void sendActionToService(String action) {
@@ -345,6 +358,126 @@ public class HomeFragment extends Fragment {
         LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(playStateReceiver);
     }
 
+    private void expandPlayingLayout() {
+        // Hiển thị imvPullDown
+        imvPullDown.setVisibility(View.VISIBLE);
+
+        // Đặt chiều cao của layoutPlaying thành MATCH_PARENT
+        ViewGroup.LayoutParams params = layoutPlaying.getLayoutParams();
+        params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+        layoutPlaying.setLayoutParams(params);
+
+        // Cập nhật các thành phần con của layoutPlaying để căn giữa và sắp xếp từ trên xuống dưới
+        ConstraintSet constraintSet = new ConstraintSet();
+        constraintSet.clone(layoutPlaying);
+
+        // Căn giữa imvPullDown theo chiều ngang và đặt ở trên cùng
+        constraintSet.connect(imvPullDown.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, dpToPx(getContext(), 16));
+        constraintSet.connect(imvPullDown.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, dpToPx(getContext(), 16));
+        constraintSet.connect(imvPullDown.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, dpToPx(getContext(), 16));
+        constraintSet.setHorizontalBias(imvPullDown.getId(), 0.5f);
+
+        // Căn giữa tvTitle theo chiều ngang và đặt dưới imvPullDown
+        constraintSet.connect(tvTitle.getId(), ConstraintSet.TOP, imvPullDown.getId(), ConstraintSet.BOTTOM, dpToPx(getContext(), 16));
+        constraintSet.connect(tvTitle.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, dpToPx(getContext(), 16));
+        constraintSet.connect(tvTitle.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, dpToPx(getContext(), 16));
+        constraintSet.setHorizontalBias(tvTitle.getId(), 0.5f);
+        tvTitle.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+
+        // Căn giữa imvImagePlaying theo chiều ngang và đặt dưới tvTitle
+        constraintSet.connect(imvImagePlaying.getId(), ConstraintSet.TOP, tvArtist.getId(), ConstraintSet.BOTTOM, dpToPx(getContext(), 20));
+        constraintSet.connect(imvImagePlaying.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, dpToPx(getContext(), 16));
+        constraintSet.connect(imvImagePlaying.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, dpToPx(getContext(), 16));
+
+        // Căn giữa tvArtist theo chiều ngang và đặt dưới imvImagePlaying
+        constraintSet.connect(tvArtist.getId(), ConstraintSet.TOP, tvTitle.getId(), ConstraintSet.BOTTOM, dpToPx(getContext(), 20));
+        constraintSet.connect(tvArtist.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, dpToPx(getContext(), 16));
+        constraintSet.connect(tvArtist.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, dpToPx(getContext(), 16));
+        constraintSet.setHorizontalBias(tvArtist.getId(), 0.5f);
+        tvArtist.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+
+        // Đặt các action buttons dưới tvArtist
+        constraintSet.connect(imvPrevious.getId(), ConstraintSet.TOP, imvImagePlaying.getId(), ConstraintSet.BOTTOM, dpToPx(getContext(), 100));
+        constraintSet.connect(imvPrevious.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, dpToPx(getContext(), 16));
+
+        constraintSet.connect(imvPlay.getId(), ConstraintSet.TOP, imvImagePlaying.getId(), ConstraintSet.BOTTOM, dpToPx(getContext(), 100));
+        constraintSet.connect(imvPlay.getId(), ConstraintSet.START, imvPrevious.getId(), ConstraintSet.END, dpToPx(getContext(), 16));
+
+        constraintSet.connect(imvNext.getId(), ConstraintSet.TOP, imvImagePlaying.getId(), ConstraintSet.BOTTOM, dpToPx(getContext(), 100));
+        constraintSet.connect(imvNext.getId(), ConstraintSet.START, imvPlay.getId(), ConstraintSet.END, dpToPx(getContext(), 16));
+        constraintSet.connect(imvNext.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, dpToPx(getContext(), 16));
+
+        // Đặt seekBar và tvPosition, tvDuration theo chiều ngang dưới các action buttons
+        constraintSet.connect(seekBar.getId(), ConstraintSet.TOP, imvPrevious.getId(), ConstraintSet.BOTTOM, dpToPx(getContext(), 20));
+        constraintSet.connect(seekBar.getId(), ConstraintSet.START, tvPosition.getId(), ConstraintSet.END, dpToPx(getContext(), 8));
+        constraintSet.connect(seekBar.getId(), ConstraintSet.END, tvDuration.getId(), ConstraintSet.START, dpToPx(getContext(), 8));
+        constraintSet.setHorizontalBias(seekBar.getId(), 0.5f);
+
+        constraintSet.connect(tvPosition.getId(), ConstraintSet.TOP, seekBar.getId(), ConstraintSet.BOTTOM, dpToPx(getContext(), -20));
+        constraintSet.connect(tvPosition.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, dpToPx(getContext(), 16));
+
+        constraintSet.connect(tvDuration.getId(), ConstraintSet.TOP, seekBar.getId(), ConstraintSet.BOTTOM, dpToPx(getContext(), -20));
+        constraintSet.connect(tvDuration.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, dpToPx(getContext(), 16));
+
+        // Cập nhật lại các constraint
+        constraintSet.applyTo(layoutPlaying);
+    }
+
+    private void collapsePlayingLayout() {
+        // Ẩn imv_pull_down
+        imvPullDown.setVisibility(View.GONE);
+
+        ViewGroup.LayoutParams params = layoutPlaying.getLayoutParams();
+        params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        layoutPlaying.setLayoutParams(params);
+
+        // Khôi phục lại bố cục ban đầu của layoutPlaying
+        ConstraintSet constraintSet = new ConstraintSet();
+        constraintSet.clone(layoutPlaying);
+
+        // Căn lại các thành phần về trạng thái ban đầu
+        constraintSet.connect(imvImagePlaying.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
+        constraintSet.connect(imvImagePlaying.getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);
+        constraintSet.connect(imvImagePlaying.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START);
+
+        constraintSet.connect(tvTitle.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
+        constraintSet.connect(tvTitle.getId(), ConstraintSet.START, imvImagePlaying.getId(), ConstraintSet.END, 10);
+        tvTitle.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+
+        constraintSet.connect(tvArtist.getId(), ConstraintSet.TOP, tvTitle.getId(), ConstraintSet.BOTTOM);
+        constraintSet.connect(tvArtist.getId(), ConstraintSet.START, imvImagePlaying.getId(), ConstraintSet.END, 10);
+        tvArtist.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+
+        constraintSet.connect(imvPrevious.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
+        constraintSet.connect(imvPrevious.getId(), ConstraintSet.BOTTOM, tvArtist.getId(), ConstraintSet.BOTTOM);
+        constraintSet.connect(imvPrevious.getId(), ConstraintSet.END, imvPlay.getId(), ConstraintSet.START);
+
+        constraintSet.connect(imvPlay.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
+        constraintSet.connect(imvPlay.getId(), ConstraintSet.BOTTOM, tvArtist.getId(), ConstraintSet.BOTTOM);
+        constraintSet.connect(imvPlay.getId(), ConstraintSet.END, imvNext.getId(), ConstraintSet.START);
+
+        constraintSet.connect(imvNext.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
+        constraintSet.connect(imvNext.getId(), ConstraintSet.BOTTOM, tvArtist.getId(), ConstraintSet.BOTTOM);
+        constraintSet.connect(imvNext.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
+
+        constraintSet.connect(seekBar.getId(), ConstraintSet.TOP, tvArtist.getId(), ConstraintSet.BOTTOM);
+        constraintSet.connect(seekBar.getId(), ConstraintSet.START, tvPosition.getId(), ConstraintSet.END);
+        constraintSet.connect(seekBar.getId(), ConstraintSet.END, tvDuration.getId(), ConstraintSet.START);
+
+        constraintSet.connect(tvPosition.getId(), ConstraintSet.TOP, tvArtist.getId(), ConstraintSet.BOTTOM);
+        constraintSet.connect(tvPosition.getId(), ConstraintSet.START, tvTitle.getId(), ConstraintSet.START);
+
+        constraintSet.connect(tvDuration.getId(), ConstraintSet.TOP, tvArtist.getId(), ConstraintSet.BOTTOM);
+        constraintSet.connect(tvDuration.getId(), ConstraintSet.END, imvNext.getId(), ConstraintSet.END);
+
+        // Áp dụng các thay đổi
+        constraintSet.applyTo(layoutPlaying);
+    }
+
+    public int dpToPx(Context context, int dp) {
+        return Math.round(dp * context.getResources().getDisplayMetrics().density);
+    }
+
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
@@ -358,5 +491,4 @@ public class HomeFragment extends Fragment {
             }
         }
     }
-
 }
