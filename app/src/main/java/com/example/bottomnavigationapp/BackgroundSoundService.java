@@ -42,7 +42,7 @@ public class BackgroundSoundService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null && intent.getAction() != null) {
             Song song = intent.getParcelableExtra("SONG");
-            pausedPosition = intent.getIntExtra("MEDIA_POSITION", 0); // Lấy vị trí khi bắt đầu phát
+            pausedPosition = intent.getIntExtra("MEDIA_POSITION", pausedPosition); // Lấy vị trí khi bắt đầu phát
             if (song != null) {
                 currentSong = song;
                 String newAudioPath = song.getAudioPath();
@@ -97,6 +97,7 @@ public class BackgroundSoundService extends Service {
         }
 
         if (isPaused) {
+            Log.e("A", "PausedPosition: " + pausedPosition);
             mediaPlayer.seekTo(pausedPosition); // Phát từ vị trí đã lưu khi tạm dừng
             mediaPlayer.start();
             isPaused = false;
@@ -107,7 +108,7 @@ public class BackgroundSoundService extends Service {
 
         handler.post(updateProgress);
         updateNotification(true);
-        sendBroadcastUpdate(true);
+        sendBroadcastUpdate(true, mediaPlayer.getCurrentPosition());
     }
 
     private void pauseAudio() {
@@ -115,12 +116,10 @@ public class BackgroundSoundService extends Service {
             pausedPosition = mediaPlayer.getCurrentPosition(); // Lưu vị trí hiện tại
             mediaPlayer.pause();
             isPaused = true;
-            Log.d("BackgroundSoundService", "Media paused at position: " + pausedPosition);
         } else {
-            Log.d("BackgroundSoundService", "MediaPlayer is either null or not playing");
         }
         updateNotification(false);
-        sendBroadcastUpdate(false);
+        sendBroadcastUpdate(false, pausedPosition);
     }
 
 
@@ -185,12 +184,14 @@ public class BackgroundSoundService extends Service {
         Intent intent = new Intent(this, BackgroundSoundService.class);
         intent.setAction(action);
         intent.putExtra("SONG", currentSong);
+        intent.putExtra("CURRENT_POSITION", mediaPlayer.getCurrentPosition());
         return PendingIntent.getService(this, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
-    private void sendBroadcastUpdate(boolean isPlaying) {
+    private void sendBroadcastUpdate(boolean isPlaying, int position) {
         Intent intent = new Intent("UPDATE_PLAY_STATE");
         intent.putExtra("isPlaying", isPlaying);
+        intent.putExtra("CURRENT_POSITION", position);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 

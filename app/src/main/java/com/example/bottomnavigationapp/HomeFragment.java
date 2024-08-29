@@ -107,21 +107,8 @@ public class HomeFragment extends Fragment {
             if (currentSong != null) {
                 String action = isPlaying ? "ACTION_PAUSE" : "ACTION_PLAY";
 
-                currentMediaPosition = seekBar.getProgress();
                 sendActionToService(action);
                 registerReceiver();
-
-                if (isPlaying) {
-                    // Tạm dừng hiệu ứng quay
-                    rotateAnimator.pause();
-                } else {
-                    // Tiếp tục hoặc bắt đầu lại hiệu ứng quay
-                    if (!rotateAnimator.isStarted()) {
-                        rotateAnimator.start();
-                    } else {
-                        rotateAnimator.resume();
-                    }
-                }
 
                 isPlaying = !isPlaying;
                 updatePlayButton();  // Cập nhật nút play/tạm dừng
@@ -167,8 +154,6 @@ public class HomeFragment extends Fragment {
         Intent intent = new Intent(getContext(), BackgroundSoundService.class);
         intent.setAction(action);
         intent.putExtra("SONG", currentSong);  // Truyền đối tượng Song
-        intent.putExtra("MEDIA_POSITION", currentMediaPosition); // Truyền vị trí hiện tại
-        Log.d("ServiceIntent", "Sending action: " + action);
         getContext().startService(intent);
     }
 
@@ -177,7 +162,6 @@ public class HomeFragment extends Fragment {
         intent.setAction(action);
         intent.putExtra("SONG", currentSong);  // Truyền đối tượng Song
         intent.putExtra("MEDIA_POSITION", position);
-        Log.d("ServiceIntent", "Sending action: " + action + " with position: " + position);
         getContext().startService(intent);
     }
 
@@ -186,8 +170,23 @@ public class HomeFragment extends Fragment {
         tvArtist.setText(song.getArtist());
     }
 
+    private void updateImagePlaying(Boolean isPlaying){
+        if (isPlaying) {
+            // Tạm dừng hiệu ứng quay
+            rotateAnimator.pause();
+        } else {
+            // Tiếp tục hoặc bắt đầu lại hiệu ứng quay
+            if (!rotateAnimator.isStarted()) {
+                rotateAnimator.start();
+            } else {
+                rotateAnimator.resume();
+            }
+        }
+    }
+
     private void updatePlayButton() {
         imvPlay.setImageResource(isPlaying ? R.drawable.ic_pause : R.drawable.ic_play);
+        updateImagePlaying(!isPlaying);
     }
 
     private void startPlayingCurrentSong() {
