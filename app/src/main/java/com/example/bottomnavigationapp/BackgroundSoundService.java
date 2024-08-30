@@ -137,7 +137,7 @@ public class BackgroundSoundService extends Service {
                 intent.putExtra("DURATION", duration);
                 LocalBroadcastManager.getInstance(BackgroundSoundService.this).sendBroadcast(intent);
 
-                handler.postDelayed(this, 1000);
+                handler.postDelayed(this, 100);
             }
         }
     };

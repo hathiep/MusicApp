@@ -58,7 +58,7 @@ public class HomeFragment extends Fragment {
     private SeekBar seekBar;
     private Handler seekBarHandler;
     private int currentMediaPosition = 0; // Biến lưu vị trí hiện tại của media
-    private boolean isUserSeeking;
+    private boolean isUserSeeking, seekbarStarted;
     private ViewSwitcher viewSwitcher;
     private View collapsedView, expandedView;
     private float currentRotation = 0f;
@@ -103,6 +103,7 @@ public class HomeFragment extends Fragment {
         rotateAnimator.setRepeatMode(ObjectAnimator.RESTART);
         rotateAnimator.setInterpolator(new LinearInterpolator()); // Sử dụng LinearInterpolator để quay đều
 
+        seekbarStarted = false;
         seekBarHandler = new Handler();
     }
 
@@ -141,6 +142,15 @@ public class HomeFragment extends Fragment {
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (!seekbarStarted) {
+                    // Dừng animation hiện tại nếu nó đang chạy
+                    rotateAnimator.end();
+                    // Reset lại animation để bắt đầu từ đầu
+                    rotateAnimator.setFloatValues(0f, 360f);
+                    rotateAnimator.start();
+                    // Đánh dấu rằng SeekBar đã thay đổi
+                    seekbarStarted = true;
+                }
                 if (fromUser) {
                     // Khi người dùng kéo SeekBar, cập nhật vị trí hiển thị nhưng không thay đổi tiến trình phát nhạc
                     isUserSeeking = true;
@@ -229,14 +239,7 @@ public class HomeFragment extends Fragment {
             updateInforPlaying(currentSong);
             updatePlayButton();  // Cập nhật nút play/tạm dừng
             updateNavigationButtons();  // Cập nhật trạng thái của các nút điều hướng
-
-            // Dừng animation hiện tại nếu nó đang chạy
-            rotateAnimator.end();
-
-            // Reset lại animation để bắt đầu từ đầu
-            rotateAnimator.setFloatValues(0f, 360f);
-            rotateAnimator.start();
-
+            seekbarStarted = false;
         }
     }
 
@@ -376,9 +379,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void updatePlayingLayout(int i, View view) {
-        listView.setVisibility(i==1 ? View.GONE : View.VISIBLE);
         saveCurrentRotation();
-        viewSwitcher.setDisplayedChild(i);
         imvImagePlaying = view.findViewById(R.id.imv_image_playing);
         tvTitle = view.findViewById(R.id.tv_title);
         tvArtist = view.findViewById(R.id.tv_artist);
@@ -398,6 +399,8 @@ public class HomeFragment extends Fragment {
         updatePlayButton();
         updateNavigationButtons();
         setOnclick();
+        viewSwitcher.setDisplayedChild(i);
+        listView.setVisibility(i==1 ? View.GONE : View.VISIBLE);
     }
 
     private void saveCurrentRotation() {
