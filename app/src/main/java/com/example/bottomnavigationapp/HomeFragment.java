@@ -24,6 +24,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -100,6 +101,7 @@ public class HomeFragment extends Fragment {
         rotateAnimator.setDuration(10000); // thời gian quay là 10 giây
         rotateAnimator.setRepeatCount(ObjectAnimator.INFINITE);
         rotateAnimator.setRepeatMode(ObjectAnimator.RESTART);
+        rotateAnimator.setInterpolator(new LinearInterpolator()); // Sử dụng LinearInterpolator để quay đều
 
         seekBarHandler = new Handler();
     }
@@ -166,11 +168,12 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        // Bắt sự kiện click vào title để mở rộng layout
-        if (viewSwitcher.getCurrentView().getId() == R.id.layout_playing_collapsed) tvTitle.setOnClickListener(view -> expandPlayingLayout());
+        // Bắt sự kiện click vào layoutPlaying để mở rộng
+        if (viewSwitcher.getCurrentView().getId() == R.id.layout_playing_collapsed)
+            viewSwitcher.getChildAt(0).setOnClickListener(view -> updatePlayingLayout(1, expandedView));
 
         // Sự kiện thu nhỏ layout khi click vào imv_pull_down
-        imvPullDown.setOnClickListener(view -> collapsePlayingLayout());
+        imvPullDown.setOnClickListener(view -> updatePlayingLayout(0, collapsedView));
     }
 
     private void sendActionToService(String action) {
@@ -372,47 +375,24 @@ public class HomeFragment extends Fragment {
         LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(playStateReceiver);
     }
 
-    private void expandPlayingLayout() {
-        listView.setVisibility(View.GONE);
+    private void updatePlayingLayout(int i, View view) {
+        listView.setVisibility(i==1 ? View.GONE : View.VISIBLE);
         saveCurrentRotation();
-        viewSwitcher.setDisplayedChild(1);
-        imvImagePlaying = expandedView.findViewById(R.id.imv_image_playing);
-        tvTitle = expandedView.findViewById(R.id.tv_title);
-        tvArtist = expandedView.findViewById(R.id.tv_artist);
-        tvPosition = expandedView.findViewById(R.id.tv_position);
-        tvDuration = expandedView.findViewById(R.id.tv_duration);
-        imvPlay = expandedView.findViewById(R.id.imv_play);
-        imvPrevious = expandedView.findViewById(R.id.imv_previous);
-        imvNext = expandedView.findViewById(R.id.imv_next);
-        seekBar = expandedView.findViewById(R.id.seekBar);
+        viewSwitcher.setDisplayedChild(i);
+        imvImagePlaying = view.findViewById(R.id.imv_image_playing);
+        tvTitle = view.findViewById(R.id.tv_title);
+        tvArtist = view.findViewById(R.id.tv_artist);
+        tvPosition = view.findViewById(R.id.tv_position);
+        tvDuration = view.findViewById(R.id.tv_duration);
+        imvPlay = view.findViewById(R.id.imv_play);
+        imvPrevious = view.findViewById(R.id.imv_previous);
+        imvNext = view.findViewById(R.id.imv_next);
+        seekBar = view.findViewById(R.id.seekBar);
         rotateAnimator.pause();
         rotateAnimator = ObjectAnimator.ofFloat(imvImagePlaying, "rotation", 0f, 360f);
         rotateAnimator.setDuration(10000); // thời gian quay là 10 giây
         rotateAnimator.setRepeatCount(ObjectAnimator.INFINITE);
-        restoreRotation();
-        updateInforPlaying(currentSong);
-        updatePlayButton();
-        updateNavigationButtons();
-        setOnclick();
-    }
-
-    private void collapsePlayingLayout() {
-        listView.setVisibility(View.VISIBLE);
-        saveCurrentRotation();
-        viewSwitcher.setDisplayedChild(0);
-        imvImagePlaying = collapsedView.findViewById(R.id.imv_image_playing);
-        tvTitle = collapsedView.findViewById(R.id.tv_title);
-        tvArtist = collapsedView.findViewById(R.id.tv_artist);
-        tvPosition = collapsedView.findViewById(R.id.tv_position);
-        tvDuration = collapsedView.findViewById(R.id.tv_duration);
-        imvPlay = collapsedView.findViewById(R.id.imv_play);
-        imvPrevious = collapsedView.findViewById(R.id.imv_previous);
-        imvNext = collapsedView.findViewById(R.id.imv_next);
-        seekBar = collapsedView.findViewById(R.id.seekBar);
-        rotateAnimator.pause();
-        rotateAnimator = ObjectAnimator.ofFloat(imvImagePlaying, "rotation", 0f, 360f);
-        rotateAnimator.setDuration(10000); // thời gian quay là 10 giây
-        rotateAnimator.setRepeatCount(ObjectAnimator.INFINITE);
+        rotateAnimator.setInterpolator(new LinearInterpolator()); // Sử dụng LinearInterpolator để quay đều
         restoreRotation();
         updateInforPlaying(currentSong);
         updatePlayButton();
