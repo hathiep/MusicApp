@@ -1,6 +1,4 @@
-package com.example.bottomnavigationapp;
-
-import static android.content.ContentValues.TAG;
+package com.example.bottomnavigationapp.homeFragment;
 
 import android.app.PendingIntent;
 import android.app.Service;
@@ -16,6 +14,9 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import com.example.bottomnavigationapp.R;
+import com.example.bottomnavigationapp.Song;
 
 public class BackgroundSoundService extends Service {
     public static final String CHANNEL_ID = "BackgroundMusicService";
@@ -137,7 +138,7 @@ public class BackgroundSoundService extends Service {
                 intent.putExtra("DURATION", duration);
                 LocalBroadcastManager.getInstance(BackgroundSoundService.this).sendBroadcast(intent);
 
-                handler.postDelayed(this, 1000);
+                handler.postDelayed(this, 100);
             }
         }
     };
