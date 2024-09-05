@@ -46,7 +46,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
     //    private LinearLayout layoutPlaying;
     private EditText edtSearch;
     private TextView tvNoSong, tvTitle, tvArtist, tvPosition, tvDuration;
-    private ImageView imvDelete, imvSearch, imvCancel, imvPullDown, imvImagePlaying, imvPlay, imvPrevious, imvNext;
+    private ImageView imvDelete, imvSearch, imvPullDown, imvImagePlaying, imvPlay, imvPrevious, imvNext, imvCancel, imvRepeat;
     private boolean isPlaying = false;
     private RelativeLayout.LayoutParams listViewLayoutParams;
     private ListView listView;
@@ -57,7 +57,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
     private SeekBar seekBar;
     private Handler seekBarHandler;
     private int currentMediaPosition = 0;
-    private boolean isUserSeeking, seekbarStarted;
+    private boolean isUserSeeking, seekbarStarted, isRepeat;
     private ViewSwitcher viewSwitcher;
     private View collapsedView, expandedView;
     private float currentRotation = 0f;
@@ -85,7 +85,6 @@ public class HomeFragment extends Fragment implements HomeContract.View {
         viewSwitcher = view.findViewById(R.id.view_switcher);
         collapsedView = viewSwitcher.getChildAt(0);
         expandedView = viewSwitcher.getChildAt(1);
-        imvCancel = collapsedView.findViewById(R.id.imv_cancel);
         imvPullDown = view.findViewById(R.id.imv_pull_down);
         imvImagePlaying = collapsedView.findViewById(R.id.imv_image_playing);
         tvTitle = collapsedView.findViewById(R.id.tv_title);
@@ -95,6 +94,8 @@ public class HomeFragment extends Fragment implements HomeContract.View {
         imvPlay = collapsedView.findViewById(R.id.imv_play);
         imvPrevious = collapsedView.findViewById(R.id.imv_previous);
         imvNext = collapsedView.findViewById(R.id.imv_next);
+        imvCancel = collapsedView.findViewById(R.id.imv_cancel);
+        imvRepeat = collapsedView.findViewById(R.id.imv_repeat);
         seekBar = collapsedView.findViewById(R.id.seekBar);
         listView = view.findViewById(R.id.listView);
 
@@ -110,6 +111,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
 
         seekbarStarted = false;
         seekBarHandler = new Handler();
+        isRepeat = false;
     }
 
     private void setOnclick() {
@@ -176,9 +178,13 @@ public class HomeFragment extends Fragment implements HomeContract.View {
             listViewLayoutParams.setMargins(0, 0, 0, 0);
             adapter.setSelectedPosition(-1);
             adapter.notifyDataSetChanged();
-            Intent intent = new Intent(getActivity(), BackgroundSoundService.class);
-            getActivity().stopService(intent);
+            presenter.onCancelClicked();
         });
+
+        imvRepeat.setOnClickListener(view -> {
+            presenter.onRepeatClicked();
+        });
+
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -331,6 +337,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
         filter.addAction("UPDATE_PLAY_STATE");
         filter.addAction("ACTION_PREVIOUS");
         filter.addAction("ACTION_NEXT");
+        filter.addAction("UPDATE_REPEAT_STATE");
         filter.addAction("UPDATE_SEEKBAR");
 
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(playStateReceiver, filter);
@@ -349,6 +356,8 @@ public class HomeFragment extends Fragment implements HomeContract.View {
                 presenter.onPreviousClicked();
             } else if ("ACTION_NEXT".equals(action)) {
                 presenter.onNextClicked();
+            } else if ("UPDATE_REPEAT_STATE".equals(action)) {
+                isRepeat = intent.getBooleanExtra("IS_REPEATING", false);;
             } else if ("UPDATE_SEEKBAR".equals(action)) {
                 int duration = intent.getIntExtra("DURATION", 0);
                 int currentPosition = intent.getIntExtra("CURRENT_POSITION", 0);

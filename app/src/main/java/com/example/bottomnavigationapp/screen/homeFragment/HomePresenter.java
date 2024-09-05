@@ -131,6 +131,16 @@ public class HomePresenter implements HomeContract.Presenter {
     }
 
     @Override
+    public void onCancelClicked() {
+        stopService();
+    }
+
+    @Override
+    public void onRepeatClicked() {
+        sendActionToService("ACTION_TOGGLE_REPEAT");
+    }
+
+    @Override
     public void onSeekBarStopTrackingTouch(int position) {
         sendActionToService("ACTION_PAUSE");
         sendActionToService("ACTION_SEEK", position);
@@ -156,6 +166,11 @@ public class HomePresenter implements HomeContract.Presenter {
             view.updatePreNextButton();
             isPlaying = true;
         }
+    }
+
+    private void stopService() {
+        Intent intent = new Intent(view.getContext(), BackgroundSoundService.class);
+        view.getContext().stopService(intent);
     }
 
     private void sendActionToService(String action) {

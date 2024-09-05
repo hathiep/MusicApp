@@ -44,7 +44,8 @@ public class BackgroundSoundService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null && intent.getAction() != null) {
             Song song = intent.getParcelableExtra("SONG");
-            pausedPosition = intent.getIntExtra("MEDIA_POSITION", pausedPosition); // Lấy vị trí khi bắt đầu phát
+            pausedPosition = intent.getIntExtra("MEDIA_POSITION", pausedPosition);
+
             if (song != null) {
                 currentSong = song;
                 String newAudioPath = song.getAudioPath();
@@ -56,41 +57,48 @@ public class BackgroundSoundService extends Service {
                     audioPath = newAudioPath;
                     mediaPlayer = MediaPlayer.create(this, Uri.parse(audioPath));
                     if (mediaPlayer != null) {
-                        mediaPlayer.setLooping(true);
                         mediaPlayer.setVolume(100, 100);
+
+                        // Thêm sự kiện khi bài hát kết thúc
+                        mediaPlayer.setOnCompletionListener(mp -> {
+                            // Gửi broadcast để chuyển bài tiếp theo
+                            sendBroadcastNext();
+                        });
                     } else {
                         Log.e("BackgroundSoundService", "MediaPlayer could not be created with the provided audio path: " + audioPath);
                         stopSelf();
                     }
                 }
+            }
 
-                switch (intent.getAction()) {
-                    case "ACTION_PLAY":
-                        playAudio();
-                        break;
-                    case "ACTION_PAUSE":
-                        pauseAudio();
-                        break;
-                    case "ACTION_SEEK":
-                        int newPosition = intent.getIntExtra("MEDIA_POSITION", 0);
-                        if (mediaPlayer != null) {
-                            mediaPlayer.seekTo(newPosition); // Phát từ vị trí được lưu
-                            pausedPosition = newPosition;
-                            handler.removeCallbacks(updateProgress); // Dừng cập nhật hiện tại
-                        }
-                        break;
-                    case "ACTION_PREVIOUS":
-                        sendBroadcastPrevious();
-                        break;
-                    case "ACTION_NEXT":
-                        sendBroadcastNext();
-                        break;
-                }
+            switch (intent.getAction()) {
+                case "ACTION_PLAY":
+                    playAudio();
+                    break;
+                case "ACTION_PAUSE":
+                    pauseAudio();
+                    break;
+                case "ACTION_SEEK":
+                    int newPosition = intent.getIntExtra("MEDIA_POSITION", 0);
+                    if (mediaPlayer != null) {
+                        mediaPlayer.seekTo(newPosition);
+                        pausedPosition = newPosition;
+                        handler.removeCallbacks(updateProgress);
+                    }
+                    break;
+                case "ACTION_PREVIOUS":
+                    sendBroadcastPrevious();
+                    break;
+                case "ACTION_NEXT":
+                    sendBroadcastNext();
+                    break;
+                case "ACTION_TOGGLE_REPEAT": // New action to handle repeat toggle
+                    toggleRepeat();
+                    break;
             }
         }
         return START_STICKY;
     }
-
 
     private void playAudio() {
         if (mediaPlayer == null) {
@@ -126,6 +134,17 @@ public class BackgroundSoundService extends Service {
         sendBroadcastUpdate(false, pausedPosition);
     }
 
+    private void toggleRepeat() {
+        if (mediaPlayer != null) {
+            boolean isRepeating = mediaPlayer.isLooping();
+            mediaPlayer.setLooping(!isRepeating);
+
+            // Optional: Send broadcast or update notification to reflect repeat state
+            Intent intent = new Intent("UPDATE_REPEAT_STATE");
+            intent.putExtra("IS_REPEATING", !isRepeating);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        }
+    }
 
     private Runnable updateProgress = new Runnable() {
         @Override
