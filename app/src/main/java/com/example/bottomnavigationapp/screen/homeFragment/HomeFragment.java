@@ -125,8 +125,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
             public void afterTextChanged(Editable s) {
                 if (s.length() == 0) {
                     imvDelete.setVisibility(View.GONE);
-                    songList.clear();
-                    adapter.notifyDataSetChanged();
+                    updateSearch();
                 }
             }
         });
@@ -135,8 +134,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
 
         imvDelete.setOnClickListener(view -> {
             edtSearch.setText("");
-            songList.clear();
-            adapter.notifyDataSetChanged();
+            updateSearch();
         });
 
         imvSearch.setOnClickListener(view -> {
@@ -197,120 +195,6 @@ public class HomeFragment extends Fragment implements HomeContract.View {
         imvPullDown.setOnClickListener(view -> updatePlayingLayout(0, collapsedView));
     }
 
-    private Runnable updateProgress = new Runnable() {
-        @Override
-        public void run() {
-            if (currentSong != null && isPlaying && !isUserSeeking) {
-                // Cập nhật SeekBar dựa trên tiến trình hiện tại
-                seekBar.setProgress(currentMediaPosition);
-                tvPosition.setText(formatTime(currentMediaPosition));
-                seekBarHandler.postDelayed(this, 1000); // Tiếp tục cập nhật mỗi giây
-            }
-        }
-    };
-
-
-    private void registerReceiver() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("UPDATE_PLAY_STATE");
-        filter.addAction("ACTION_PREVIOUS");
-        filter.addAction("ACTION_NEXT");
-        filter.addAction("UPDATE_SEEKBAR");
-
-        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(playStateReceiver, filter);
-    }
-
-    private BroadcastReceiver playStateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if ("UPDATE_PLAY_STATE".equals(action)) {
-                if (intent.hasExtra("isPlaying")) {
-                    isPlaying = intent.getBooleanExtra("isPlaying", false);
-                    updatePlayButton(isPlaying);
-                }
-            } else if ("ACTION_PREVIOUS".equals(action)) {
-                presenter.onPreviousClicked();
-            } else if ("ACTION_NEXT".equals(action)) {
-                presenter.onNextClicked();
-            } else if ("UPDATE_SEEKBAR".equals(action)) {
-                int duration = intent.getIntExtra("DURATION", 0);
-                int currentPosition = intent.getIntExtra("CURRENT_POSITION", 0);
-                seekBar.setMax(duration);
-                if(!isUserSeeking) {
-                    seekBar.setProgress(currentPosition);
-                    tvPosition.setText(formatTime(currentPosition));
-                }
-                tvDuration.setText(formatTime(duration));
-            }
-        }
-    };
-
-    private String formatTime(int milliseconds) {
-        int minutes = (milliseconds / 1000) / 60;
-        int seconds = (milliseconds / 1000) % 60;
-        return String.format("%02d:%02d", minutes, seconds);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(playStateReceiver);
-    }
-
-    private void updatePlayingLayout(int i, View view) {
-        saveCurrentRotation();
-        imvImagePlaying = view.findViewById(R.id.imv_image_playing);
-        tvTitle = view.findViewById(R.id.tv_title);
-        tvArtist = view.findViewById(R.id.tv_artist);
-        tvPosition = view.findViewById(R.id.tv_position);
-        tvDuration = view.findViewById(R.id.tv_duration);
-        imvPlay = view.findViewById(R.id.imv_play);
-        imvPrevious = view.findViewById(R.id.imv_previous);
-        imvNext = view.findViewById(R.id.imv_next);
-        seekBar = view.findViewById(R.id.seekBar);
-        rotateAnimator.pause();
-        rotateAnimator = ObjectAnimator.ofFloat(imvImagePlaying, "rotation", 0f, 360f);
-        rotateAnimator.setDuration(10000); // thời gian quay là 10 giây
-        rotateAnimator.setRepeatCount(ObjectAnimator.INFINITE);
-        rotateAnimator.setInterpolator(new LinearInterpolator()); // Sử dụng LinearInterpolator để quay đều
-        restoreRotation();
-        updatePlayingSongInfo(currentSong);
-        updatePlayButton(isPlaying);
-        updatePreNextButton();
-        setOnclick();
-        viewSwitcher.setDisplayedChild(i);
-        listView.setVisibility(i==1 ? View.GONE : View.VISIBLE);
-    }
-
-    private void saveCurrentRotation() {
-        if (rotateAnimator != null) {
-            currentRotation = (float) rotateAnimator.getAnimatedValue();
-            rotateAnimator.cancel(); // Dừng animation hiện tại
-        }
-    }
-
-    private void restoreRotation() {
-        if (rotateAnimator != null) {
-            rotateAnimator.setFloatValues(currentRotation, 360f + currentRotation);
-            rotateAnimator.start();
-        }
-    }
-
-    private void createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(
-                    CHANNEL_ID,
-                    "Background Sound Channel",
-                    NotificationManager.IMPORTANCE_LOW
-            );
-            NotificationManager manager = requireContext().getSystemService(NotificationManager.class);
-            if (manager != null) {
-                manager.createNotificationChannel(channel);
-            }
-        }
-    }
-
     @Override
     public void showSongs(List<Song> songs) {
         songList.clear();
@@ -365,12 +249,10 @@ public class HomeFragment extends Fragment implements HomeContract.View {
         int currentIndex = songList.indexOf(currentSong);
 
         // Vô hiệu hóa nút Previous nếu là bài hát đầu tiên
-        imvPrevious.setEnabled(currentIndex > 0);
-        imvPrevious.setBackgroundTintList(getResources().getColorStateList(currentIndex > 0 ? R.color.black : R.color.gray));
+        updateActionButton(imvPrevious, currentIndex > 0);
 
         // Vô hiệu hóa nút Next nếu là bài hát cuối cùng
-        imvNext.setEnabled(currentIndex < songList.size() - 1);
-        imvNext.setBackgroundTintList(getResources().getColorStateList(currentIndex < songList.size() - 1 ? R.color.black : R.color.gray));
+        updateActionButton(imvNext, currentIndex < songList.size() - 1);
     }
 
     @Override
@@ -407,4 +289,131 @@ public class HomeFragment extends Fragment implements HomeContract.View {
     public void updateAdapter(int position){
         adapter.setSelectedPosition(position); // Cập nhật vị trí item hiện tại
     }
+
+    private void updateSearch(){
+        songList.clear();
+        adapter.notifyDataSetChanged();
+        updateActionButton(imvPrevious, false);
+        updateActionButton(imvNext, false);
+    }
+
+    private void updateActionButton(ImageView imv, boolean status){
+        imv.setEnabled(status);
+        imv.setBackgroundTintList(getResources().getColorStateList(status ? R.color.black : R.color.gray));
+    }
+
+    private Runnable updateProgress = new Runnable() {
+        @Override
+        public void run() {
+            if (currentSong != null && isPlaying && !isUserSeeking) {
+                // Cập nhật SeekBar dựa trên tiến trình hiện tại
+                seekBar.setProgress(currentMediaPosition);
+                tvPosition.setText(formatTime(currentMediaPosition));
+                seekBarHandler.postDelayed(this, 1000); // Tiếp tục cập nhật mỗi giây
+            }
+        }
+    };
+
+
+    private void registerReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("UPDATE_PLAY_STATE");
+        filter.addAction("ACTION_PREVIOUS");
+        filter.addAction("ACTION_NEXT");
+        filter.addAction("UPDATE_SEEKBAR");
+
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(playStateReceiver, filter);
+    }
+
+    private BroadcastReceiver playStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if ("UPDATE_PLAY_STATE".equals(action)) {
+                if (intent.hasExtra("isPlaying")) {
+                    isPlaying = intent.getBooleanExtra("isPlaying", false);
+                    updatePlayButton(isPlaying);
+                }
+            } else if ("ACTION_PREVIOUS".equals(action)) {
+                presenter.onPreviousClicked();
+            } else if ("ACTION_NEXT".equals(action)) {
+                presenter.onNextClicked();
+            } else if ("UPDATE_SEEKBAR".equals(action)) {
+                int duration = intent.getIntExtra("DURATION", 0);
+                int currentPosition = intent.getIntExtra("CURRENT_POSITION", 0);
+                seekBar.setMax(duration);
+                if(!isUserSeeking) {
+                    seekBar.setProgress(currentPosition);
+                    tvPosition.setText(formatTime(currentPosition));
+                }
+                tvDuration.setText(formatTime(duration));
+            }
+        }
+    };
+
+    private void updatePlayingLayout(int i, View view) {
+        saveCurrentRotation();
+        imvImagePlaying = view.findViewById(R.id.imv_image_playing);
+        tvTitle = view.findViewById(R.id.tv_title);
+        tvArtist = view.findViewById(R.id.tv_artist);
+        tvPosition = view.findViewById(R.id.tv_position);
+        tvDuration = view.findViewById(R.id.tv_duration);
+        imvPlay = view.findViewById(R.id.imv_play);
+        imvPrevious = view.findViewById(R.id.imv_previous);
+        imvNext = view.findViewById(R.id.imv_next);
+        seekBar = view.findViewById(R.id.seekBar);
+        rotateAnimator.pause();
+        rotateAnimator = ObjectAnimator.ofFloat(imvImagePlaying, "rotation", 0f, 360f);
+        rotateAnimator.setDuration(10000); // thời gian quay là 10 giây
+        rotateAnimator.setRepeatCount(ObjectAnimator.INFINITE);
+        rotateAnimator.setInterpolator(new LinearInterpolator()); // Sử dụng LinearInterpolator để quay đều
+        restoreRotation();
+        updatePlayingSongInfo(currentSong);
+        updatePlayButton(isPlaying);
+        updatePreNextButton();
+        setOnclick();
+        viewSwitcher.setDisplayedChild(i);
+        listView.setVisibility(i==1 ? View.GONE : View.VISIBLE);
+    }
+
+    private void saveCurrentRotation() {
+        if (rotateAnimator != null) {
+            currentRotation = (float) rotateAnimator.getAnimatedValue();
+            rotateAnimator.cancel(); // Dừng animation hiện tại
+        }
+    }
+
+    private void restoreRotation() {
+        if (rotateAnimator != null) {
+            rotateAnimator.setFloatValues(currentRotation, 360f + currentRotation);
+            rotateAnimator.start();
+        }
+    }
+
+    private String formatTime(int milliseconds) {
+        int minutes = (milliseconds / 1000) / 60;
+        int seconds = (milliseconds / 1000) % 60;
+        return String.format("%02d:%02d", minutes, seconds);
+    }
+
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                    CHANNEL_ID,
+                    "Background Sound Channel",
+                    NotificationManager.IMPORTANCE_LOW
+            );
+            NotificationManager manager = requireContext().getSystemService(NotificationManager.class);
+            if (manager != null) {
+                manager.createNotificationChannel(channel);
+            }
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(playStateReceiver);
+    }
+
 }
