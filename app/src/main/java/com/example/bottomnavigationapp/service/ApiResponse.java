@@ -16,6 +16,7 @@ public class ApiResponse {
         private String artistName;
         private String previewUrl;
         private String trackId;
+        private String artworkUrl100;  // Thêm thuộc tính image
 
         public String getTrackName() {
             return trackName;
@@ -47,6 +48,14 @@ public class ApiResponse {
 
         public void setTrackId(String trackId) {
             this.trackId = trackId;
+        }
+
+        public String getArtworkUrl100() {
+            return artworkUrl100;
+        }
+
+        public void setArtworkUrl100(String artworkUrl100) {
+            this.artworkUrl100 = artworkUrl100;
         }
     }
 }

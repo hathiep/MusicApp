@@ -8,15 +8,17 @@ public class Song implements Parcelable {
     private String title;
     private String artist;
     private String audioPath;
+    private String imageUrl;  // Thêm thuộc tính image
 
     public Song() {
     }
 
-    public Song(String id, String title, String artist, String audioPath) {
+    public Song(String id, String title, String artist, String audioPath, String imageUrl) {
         this.id = id;
         this.title = title;
         this.artist = artist;
         this.audioPath = audioPath;
+        this.imageUrl = imageUrl;  // Khởi tạo image
     }
 
     protected Song(Parcel in) {
@@ -24,6 +26,7 @@ public class Song implements Parcelable {
         title = in.readString();
         artist = in.readString();
         audioPath = in.readString();
+        imageUrl = in.readString();  // Đọc image từ Parcel
     }
 
     public static final Creator<Song> CREATOR = new Creator<Song>() {
@@ -70,6 +73,14 @@ public class Song implements Parcelable {
         this.audioPath = audioPath;
     }
 
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -81,5 +92,6 @@ public class Song implements Parcelable {
         dest.writeString(title);
         dest.writeString(artist);
         dest.writeString(audioPath);
+        dest.writeString(imageUrl);  // Ghi image vào Parcel
     }
 }

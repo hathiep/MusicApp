@@ -3,7 +3,7 @@
     <string name="navigation_home">Trang chủ</string>
     <string name="navigation_notification">Thông báo</string>
     <string name="navigation_account">Tài khoản</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="search_artist">Nhập tên ca sĩ</string>
+    <string name="no_song">Không tìm thấy bài hát nào!</string>
 
 </resources>

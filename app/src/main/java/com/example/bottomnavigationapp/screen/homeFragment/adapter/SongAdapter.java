@@ -5,10 +5,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
 
+import com.bumptech.glide.Glide;
 import com.example.bottomnavigationapp.R;
 import com.example.bottomnavigationapp.model.Song;
 
@@ -34,26 +36,33 @@ public class SongAdapter extends ArrayAdapter<Song> {
 
         Song song = songs.get(position);
 
+        ImageView songImage = convertView.findViewById(R.id.song_image);
         TextView songTitle = convertView.findViewById(R.id.song_title);
         TextView songArtist = convertView.findViewById(R.id.song_artist);
+
+        // Sử dụng Glide để tải và hiển thị ảnh từ URL
+        Glide.with(context)
+                .load(song.getImageUrl()) // URL của ảnh
+                .placeholder(R.drawable.ic_logo) // Ảnh placeholder khi đang tải
+                .error(R.drawable.ic_logo) // Ảnh hiển thị khi lỗi tải
+                .into(songImage); // Đưa ảnh vào ImageView
 
         songTitle.setText(song.getTitle());
         songArtist.setText(song.getArtist());
 
         // Thay đổi nền của CardView dựa trên vị trí đã chọn
         if (position == selectedPosition) {
-            convertView.setBackgroundResource(R.drawable.item_bg_seleted);
+            convertView.setBackgroundResource(R.drawable.item_bg_selected);
             songTitle.setTextColor(ContextCompat.getColor(context, R.color.white)); // Màu text khi chọn
             songArtist.setTextColor(ContextCompat.getColor(context, R.color.white)); // Màu text khi chọn
         } else {
             convertView.setBackgroundResource(R.drawable.item_bg_normal);
-            songTitle.setTextColor(ContextCompat.getColor(context, R.color.black)); // Màu text khi chọn
-            songArtist.setTextColor(ContextCompat.getColor(context, R.color.black)); // Màu text khi chọn
+            songTitle.setTextColor(ContextCompat.getColor(context, R.color.black)); // Màu text mặc định
+            songArtist.setTextColor(ContextCompat.getColor(context, R.color.black)); // Màu text mặc định
         }
 
         return convertView;
     }
-
 
     public void setSelectedPosition(int position) {
         selectedPosition = position;

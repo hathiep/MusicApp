@@ -29,11 +29,11 @@ public class HomePresenter implements HomeContract.Presenter {
     }
 
     @Override
-    public void loadSongs() {
+    public void loadSongs(String artist) {
         view.showLoadingIndicator(true);
 
         ApiService apiService = RetrofitClient.getClient("https://itunes.apple.com/").create(ApiService.class);
-        Call<ApiResponse> call = apiService.searchSongs("sontungmtp", "music", "musicTrack");
+        Call<ApiResponse> call = apiService.searchSongs(artist, "music", "musicTrack");
 
         call.enqueue(new retrofit2.Callback<ApiResponse>() {
             @Override
@@ -43,7 +43,7 @@ public class HomePresenter implements HomeContract.Presenter {
                     if (response.body() != null) {
                         for (ApiResponse.Result result : response.body().getResults()) {
                             // Tạo đối tượng Song từ dữ liệu trả về
-                            Song song = new Song(result.getTrackId(), result.getTrackName(), result.getArtistName(), result.getPreviewUrl());
+                            Song song = new Song(result.getTrackId(), result.getTrackName(), result.getArtistName(), result.getPreviewUrl(), result.getArtworkUrl100());
                             songList.add(song);
                         }
                     }
@@ -51,30 +51,15 @@ public class HomePresenter implements HomeContract.Presenter {
                     view.showSongs(songList);
                 } else {
                     view.showLoadingIndicator(false);
-                    // Xử lý lỗi ở đây, chẳng hạn như hiển thị thông báo lỗi
                 }
             }
 
             @Override
             public void onFailure(Call<ApiResponse> call, Throwable t) {
                 view.showLoadingIndicator(false);
-                // Xử lý lỗi ở đây, chẳng hạn như hiển thị thông báo lỗi
             }
         });
     }
-
-
-
-//    private void fetchAudioPaths() {
-//        // Assuming the API provides direct URLs for audio files, otherwise you might need to use Firebase Storage as in the original code
-//        for (Song song : songList) {
-//            // Here you would handle audio paths if necessary
-//            // If you have URLs directly from the API, you can skip this step
-//        }
-//        view.showLoadingIndicator(false);
-//        view.showSongs(songList);
-//    }
-
 
 //    @Override
 //    public void loadSongs() {

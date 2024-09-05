@@ -19,7 +19,7 @@ public interface HomeContract {
     }
 
     interface Presenter {
-        void loadSongs();
+        void loadSongs(String artist);
         void onPlayPauseClicked();
         void onPreviousClicked();
         void onNextClicked();

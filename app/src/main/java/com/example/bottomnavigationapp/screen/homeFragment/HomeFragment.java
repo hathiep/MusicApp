@@ -15,10 +15,13 @@ import android.os.Build;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -26,6 +29,7 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.bottomnavigationapp.R;
 import com.example.bottomnavigationapp.model.Song;
 import com.example.bottomnavigationapp.screen.homeFragment.adapter.SongAdapter;
@@ -33,13 +37,15 @@ import com.example.bottomnavigationapp.screen.homeFragment.adapter.SongAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 
 public class HomeFragment extends Fragment implements HomeContract.View {
     //    private LinearLayout layoutPlaying;
-    private TextView tvTitle, tvArtist, tvPosition, tvDuration;
-    private ImageView imvPullDown, imvImagePlaying, imvPlay, imvPrevious, imvNext;
+    private EditText edtSearch;
+    private TextView tvNoSong, tvTitle, tvArtist, tvPosition, tvDuration;
+    private ImageView imvDelete, imvSearch, imvPullDown, imvImagePlaying, imvPlay, imvPrevious, imvNext;
     private boolean isPlaying = false;
     private RelativeLayout.LayoutParams listViewLayoutParams;
     private ListView listView;
@@ -70,6 +76,10 @@ public class HomeFragment extends Fragment implements HomeContract.View {
     }
 
     private void init(View view) {
+        edtSearch = view.findViewById(R.id.edt_search);
+        imvSearch = view.findViewById(R.id.imv_search);
+        imvDelete = view.findViewById(R.id.imv_delete);
+        tvNoSong = view.findViewById(R.id.tv_no_song);
         progressBar = view.findViewById(R.id.progressBar);
         viewSwitcher = view.findViewById(R.id.view_switcher);
         collapsedView = viewSwitcher.getChildAt(0);
@@ -87,7 +97,6 @@ public class HomeFragment extends Fragment implements HomeContract.View {
         listView = view.findViewById(R.id.listView);
 
         presenter = new HomePresenter(this);
-        presenter.loadSongs();
         adapter = new SongAdapter(requireContext(), songList);
         listView.setAdapter(adapter);
 
@@ -102,6 +111,44 @@ public class HomeFragment extends Fragment implements HomeContract.View {
     }
 
     private void setOnclick() {
+        edtSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                imvDelete.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (s.length() == 0) {
+                    imvDelete.setVisibility(View.GONE);
+                    songList.clear();
+                    adapter.notifyDataSetChanged();
+                }
+            }
+        });
+
+        edtSearch.setOnClickListener(view -> edtSearch.setCursorVisible(true));
+
+        imvDelete.setOnClickListener(view -> {
+            edtSearch.setText("");
+            songList.clear();
+            adapter.notifyDataSetChanged();
+        });
+
+        imvSearch.setOnClickListener(view -> {
+            String artist = edtSearch.getText().toString().trim();
+            if(artist.equals(""))
+                Toast.makeText(getContext(), "Vui lòng nhập tên ca sĩ", Toast.LENGTH_SHORT).show();
+            else{
+                presenter.loadSongs(artist);
+                edtSearch.setCursorVisible(false);
+            }
+        });
+
         listViewLayoutParams = (RelativeLayout.LayoutParams) listView.getLayoutParams();
         // Thiết lập sự kiện click cho item trong ListView
         listView.setOnItemClickListener((parent, view, position, id) -> {
@@ -268,6 +315,14 @@ public class HomeFragment extends Fragment implements HomeContract.View {
     public void showSongs(List<Song> songs) {
         songList.clear();
         songList.addAll(songs);
+        if(songs.isEmpty()){
+            listView.setVisibility(View.GONE);
+            tvNoSong.setVisibility(View.VISIBLE);
+        }
+        else {
+            listView.setVisibility(View.VISIBLE);
+            tvNoSong.setVisibility(View.GONE);
+        }
         adapter.notifyDataSetChanged();
     }
 
@@ -278,6 +333,12 @@ public class HomeFragment extends Fragment implements HomeContract.View {
 
     @Override
     public void updatePlayingSongInfo(Song song) {
+        // Sử dụng Glide để tải và hiển thị ảnh từ URL
+        Glide.with(this)
+                .load(song.getImageUrl()) // URL của ảnh
+                .placeholder(R.drawable.ic_logo) // Ảnh placeholder khi đang tải
+                .error(R.drawable.ic_logo) // Ảnh hiển thị khi lỗi tải
+                .into(imvImagePlaying); // Đưa ảnh vào ImageView
         tvTitle.setText(song.getTitle());
         tvArtist.setText(song.getArtist());
     }

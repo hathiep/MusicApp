@@ -4,24 +4,65 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_marginBottom="140dp"
+    android:layout_marginBottom="135dp"
     tools:context=".screen.homeFragment.HomeFragment">
 
-    <TextView
-        android:id="@+id/title"
+    <LinearLayout
+        android:id="@+id/layout_search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/navigation_home"
-        android:layout_marginTop="20dp"
-        android:textSize="20sp"
-        android:gravity="center_horizontal"/>
+        android:orientation="horizontal"
+        android:layout_margin="10dp"
+        android:padding="5dp"
+        android:gravity="center"
+        android:background="@drawable/border">
+
+        <EditText
+            android:id="@+id/edt_search"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:background="@drawable/border_white"
+            android:hint="@string/search_artist"
+            android:paddingHorizontal="10dp"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
+            android:inputType="text"
+            android:ellipsize="end"/>
+
+        <ImageView
+            android:id="@+id/imv_delete"
+            android:layout_width="30dp"
+            android:layout_height="25dp"
+            android:src="@drawable/ic_delete"
+            android:visibility="gone"/>
+
+        <ImageView
+            android:id="@+id/imv_search"
+            android:layout_width="40dp"
+            android:layout_height="30dp"
+            android:src="@drawable/ic_search"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_no_song"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/layout_search"
+        android:text="@string/no_song"
+        android:textSize="16sp"
+        android:gravity="center"
+        android:visibility="gone"/>
 
     <ListView
         android:id="@+id/listView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/title"
-        android:layout_marginTop="20dp"
+        android:layout_below="@+id/layout_search"
+        android:layout_marginTop="5dp"
         android:paddingHorizontal="10dp"
         android:divider="@color/gray"
         android:dividerHeight="1dp" />
@@ -30,7 +71,7 @@
         android:id="@+id/progressBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="60dp"
         android:gravity="center_vertical"
         android:visibility="gone" />
 

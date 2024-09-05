@@ -13,7 +13,7 @@
         android:padding="10dp">
 
         <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/item_image"
+            android:id="@+id/song_image"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:background="@color/gray"
