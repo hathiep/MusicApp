@@ -33,6 +33,7 @@ import com.bumptech.glide.Glide;
 import com.example.bottomnavigationapp.R;
 import com.example.bottomnavigationapp.model.Song;
 import com.example.bottomnavigationapp.screen.homeFragment.adapter.SongAdapter;
+import com.example.bottomnavigationapp.service.BackgroundSoundService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +46,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
     //    private LinearLayout layoutPlaying;
     private EditText edtSearch;
     private TextView tvNoSong, tvTitle, tvArtist, tvPosition, tvDuration;
-    private ImageView imvDelete, imvSearch, imvPullDown, imvImagePlaying, imvPlay, imvPrevious, imvNext;
+    private ImageView imvDelete, imvSearch, imvCancel, imvPullDown, imvImagePlaying, imvPlay, imvPrevious, imvNext;
     private boolean isPlaying = false;
     private RelativeLayout.LayoutParams listViewLayoutParams;
     private ListView listView;
@@ -84,6 +85,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
         viewSwitcher = view.findViewById(R.id.view_switcher);
         collapsedView = viewSwitcher.getChildAt(0);
         expandedView = viewSwitcher.getChildAt(1);
+        imvCancel = collapsedView.findViewById(R.id.imv_cancel);
         imvPullDown = view.findViewById(R.id.imv_pull_down);
         imvImagePlaying = collapsedView.findViewById(R.id.imv_image_playing);
         tvTitle = collapsedView.findViewById(R.id.tv_title);
@@ -168,6 +170,15 @@ public class HomeFragment extends Fragment implements HomeContract.View {
         });
         imvPrevious.setOnClickListener(view -> presenter.onPreviousClicked());
         imvNext.setOnClickListener(view -> presenter.onNextClicked());
+
+        imvCancel.setOnClickListener(view -> {
+            viewSwitcher.setVisibility(View.GONE);
+            listViewLayoutParams.setMargins(0, 0, 0, 0);
+            adapter.setSelectedPosition(-1);
+            adapter.notifyDataSetChanged();
+            Intent intent = new Intent(getActivity(), BackgroundSoundService.class);
+            getActivity().stopService(intent);
+        });
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
