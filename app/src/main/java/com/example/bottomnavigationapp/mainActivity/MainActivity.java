@@ -3,11 +3,13 @@ package com.example.bottomnavigationapp.mainActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.bottomnavigationapp.service.BackgroundSoundService;
@@ -75,5 +77,21 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         // Dừng dịch vụ phát nhạc
         Intent serviceIntent = new Intent(this, BackgroundSoundService.class);
         stopService(serviceIntent);
+    }
+
+    @Override
+    public void onBackPressed() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setMessage(R.string.cancel_app)
+                .setPositiveButton(R.string.yes, (dialog, which) -> finish())
+                .setNegativeButton(R.string.no, null);
+
+        AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(dialogInterface -> {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.red));
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setAllCaps(true);
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setAllCaps(true);
+        });
+        dialog.show();
     }
 }
