@@ -142,7 +142,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
         imvSearch.setOnClickListener(view -> {
             String artist = edtSearch.getText().toString().trim();
             if(artist.equals(""))
-                Toast.makeText(getContext(), "Vui lòng nhập tên ca sĩ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.toast_search, Toast.LENGTH_SHORT).show();
             else{
                 presenter.loadSongs(artist);
                 edtSearch.setCursorVisible(false);

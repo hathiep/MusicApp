@@ -6,8 +6,8 @@
     <string name="cancel_app">Bạn có chắc chắn muốn thoát ứng dụng không?</string>
     <string name="no">Không</string>
     <string name="yes">Có</string>
-    <string name="search_artist">Nhập tên ca sĩ</string>
+    <string name="search_song">Nhập tên bài hát/ca sĩ</string>
+    <string name="toast_search">Vui lòng nhập tên bài hát/ca sĩ</string>
     <string name="no_song">Không tìm thấy bài hát nào!</string>
-
 
 </resources>

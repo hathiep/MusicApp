@@ -24,7 +24,7 @@
             android:layout_height="40dp"
             android:layout_weight="1"
             android:background="@drawable/border_white"
-            android:hint="@string/search_artist"
+            android:hint="@string/search_song"
             android:paddingHorizontal="10dp"
             android:textColor="@color/black"
             android:textSize="16sp"
