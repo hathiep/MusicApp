@@ -10,7 +10,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.example.bottomnavigationapp.homeFragment.BackgroundSoundService;
+import com.example.bottomnavigationapp.service.BackgroundSoundService;
 import com.example.bottomnavigationapp.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 

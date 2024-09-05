@@ -1,6 +1,6 @@
-package com.example.bottomnavigationapp.homeFragment;
+package com.example.bottomnavigationapp.screen.homeFragment;
 
-import com.example.bottomnavigationapp.Song;
+import com.example.bottomnavigationapp.model.Song;
 import android.content.Context;
 
 import java.util.List;

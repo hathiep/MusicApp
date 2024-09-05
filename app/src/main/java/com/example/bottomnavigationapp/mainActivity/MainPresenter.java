@@ -2,9 +2,9 @@ package com.example.bottomnavigationapp.mainActivity;
 
 import androidx.fragment.app.Fragment;
 
-import com.example.bottomnavigationapp.accountFragment.AccountFragment;
-import com.example.bottomnavigationapp.homeFragment.HomeFragment;
-import com.example.bottomnavigationapp.notificationFragment.NotificationFragment;
+import com.example.bottomnavigationapp.screen.accountFragment.AccountFragment;
+import com.example.bottomnavigationapp.screen.homeFragment.HomeFragment;
+import com.example.bottomnavigationapp.screen.notificationFragment.NotificationFragment;
 import com.example.bottomnavigationapp.R;
 
 public class MainPresenter implements MainContract.Presenter {

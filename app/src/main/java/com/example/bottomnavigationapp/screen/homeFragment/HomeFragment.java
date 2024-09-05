@@ -1,11 +1,7 @@
-package com.example.bottomnavigationapp.homeFragment;
+package com.example.bottomnavigationapp.screen.homeFragment;
 
-import static android.content.ContentValues.TAG;
-import static com.example.bottomnavigationapp.homeFragment.BackgroundSoundService.CHANNEL_ID;
+import static com.example.bottomnavigationapp.service.BackgroundSoundService.CHANNEL_ID;
 
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.ConstraintSet;
-import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.animation.ObjectAnimator;
@@ -19,32 +15,23 @@ import android.os.Build;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import android.os.Handler;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.example.bottomnavigationapp.R;
-import com.example.bottomnavigationapp.Song;
-import com.example.bottomnavigationapp.SongAdapter;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
+import com.example.bottomnavigationapp.model.Song;
+import com.example.bottomnavigationapp.screen.homeFragment.adapter.SongAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
-import android.util.TypedValue;
+
 import android.widget.ViewSwitcher;
 
 

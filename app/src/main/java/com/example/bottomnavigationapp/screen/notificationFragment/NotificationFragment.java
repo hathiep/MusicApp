@@ -1,4 +1,4 @@
-package com.example.bottomnavigationapp.notificationFragment;
+package com.example.bottomnavigationapp.screen.notificationFragment;
 
 import android.os.Bundle;
 

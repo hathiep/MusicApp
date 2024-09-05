@@ -1,4 +1,4 @@
-package com.example.bottomnavigationapp;
+package com.example.bottomnavigationapp.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -10,7 +10,6 @@ public class Song implements Parcelable {
     private String audioPath;
 
     public Song() {
-        // Constructor mặc định cần thiết cho Firestore
     }
 
     public Song(String id, String title, String artist, String audioPath) {

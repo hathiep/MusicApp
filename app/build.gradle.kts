@@ -47,4 +47,7 @@ dependencies {
     implementation("androidx.core:core:1.12.0")
     implementation("androidx.media:media:1.7.0")
     implementation("androidx.media3:media3-session:1.0.0")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
 }

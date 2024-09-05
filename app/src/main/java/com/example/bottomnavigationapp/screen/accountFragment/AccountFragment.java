@@ -1,4 +1,4 @@
-package com.example.bottomnavigationapp.accountFragment;
+package com.example.bottomnavigationapp.screen.accountFragment;
 
 import android.os.Bundle;
 

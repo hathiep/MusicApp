@@ -1,14 +1,9 @@
-package com.example.bottomnavigationapp.homeFragment;
+package com.example.bottomnavigationapp.screen.homeFragment;
 
-import static android.content.ContentValues.TAG;
-
-import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
-import com.example.bottomnavigationapp.Song;
+import com.example.bottomnavigationapp.model.Song;
+import com.example.bottomnavigationapp.service.BackgroundSoundService;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;

@@ -1,4 +1,4 @@
-package com.example.bottomnavigationapp;
+package com.example.bottomnavigationapp.screen.homeFragment.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -8,6 +8,9 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
+
+import com.example.bottomnavigationapp.R;
+import com.example.bottomnavigationapp.model.Song;
 
 import java.util.List;
 

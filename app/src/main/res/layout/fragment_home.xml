@@ -6,7 +6,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:paddingHorizontal="10dp"
     android:layout_marginBottom="140dp"
-    tools:context=".homeFragment.HomeFragment">
+    tools:context=".screen.homeFragment.HomeFragment">
 
     <TextView
         android:id="@+id/title"
