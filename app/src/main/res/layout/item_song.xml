@@ -4,7 +4,6 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_marginHorizontal="10dp"
-    android:layout_marginVertical="50dp"
     android:background="@drawable/item_selector"> <!-- Áp dụng nền selector -->
 
     <LinearLayout
@@ -35,7 +34,8 @@
                 android:text="Title of song"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                android:ellipsize="end" />
+                android:ellipsize="end"
+                android:maxLines="1"/>
 
             <TextView
                 android:id="@+id/song_artist"
@@ -44,7 +44,8 @@
                 android:layout_below="@id/song_title"
                 android:text="Artist of song"
                 android:textSize="14sp"
-                android:ellipsize="end" />
+                android:ellipsize="end"
+                android:maxLines="1"/>
 
         </LinearLayout>
 

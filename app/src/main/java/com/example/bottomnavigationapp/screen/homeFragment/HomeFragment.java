@@ -22,6 +22,7 @@ import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -40,6 +41,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
     private TextView tvTitle, tvArtist, tvPosition, tvDuration;
     private ImageView imvPullDown, imvImagePlaying, imvPlay, imvPrevious, imvNext;
     private boolean isPlaying = false;
+    private RelativeLayout.LayoutParams listViewLayoutParams;
     private ListView listView;
     private SongAdapter adapter;
     private List<Song> songList = new ArrayList<>();
@@ -100,12 +102,15 @@ public class HomeFragment extends Fragment implements HomeContract.View {
     }
 
     private void setOnclick() {
+        listViewLayoutParams = (RelativeLayout.LayoutParams) listView.getLayoutParams();
         // Thiết lập sự kiện click cho item trong ListView
         listView.setOnItemClickListener((parent, view, position, id) -> {
             SongAdapter adapter = (SongAdapter) parent.getAdapter();
             adapter.setSelectedPosition(position); // Cập nhật vị trí của item được chọn
             currentSong = songList.get(position);  // Lưu song hiện tại
             viewSwitcher.setVisibility(View.VISIBLE);
+            listViewLayoutParams.setMargins(0, 0, 0, 290);
+            listView.setLayoutParams(listViewLayoutParams);
             updatePlayButton(isPlaying);  // Cập nhật nút play/tạm dừng
             updatePreNextButton();
             registerReceiver();

@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:paddingHorizontal="10dp"
     android:layout_marginBottom="140dp"
     tools:context=".screen.homeFragment.HomeFragment">
 
@@ -23,6 +22,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/title"
         android:layout_marginTop="20dp"
+        android:paddingHorizontal="10dp"
         android:divider="@color/gray"
         android:dividerHeight="1dp" />
 
@@ -39,6 +39,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
+        android:paddingHorizontal="5dp"
         android:visibility="gone">
 
         <LinearLayout
