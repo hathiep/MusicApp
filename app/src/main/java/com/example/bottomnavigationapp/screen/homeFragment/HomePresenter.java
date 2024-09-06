@@ -136,8 +136,8 @@ public class HomePresenter implements HomeContract.Presenter {
     }
 
     @Override
-    public void onRepeatClicked() {
-        sendActionToService("ACTION_TOGGLE_REPEAT");
+    public void onRepeatClicked(boolean isRepeat) {
+        sendActionToService("ACTION_TOGGLE_REPEAT", isRepeat);
     }
 
     @Override
@@ -177,6 +177,14 @@ public class HomePresenter implements HomeContract.Presenter {
         Intent intent = new Intent(view.getContext(), BackgroundSoundService.class);
         intent.setAction(action);
         intent.putExtra("SONG", currentSong);  // Truyền đối tượng Song
+        view.getContext().startService(intent);
+    }
+
+    private void sendActionToService(String action, boolean isRepeat) {
+        Intent intent = new Intent(view.getContext(), BackgroundSoundService.class);
+        intent.setAction(action);
+        intent.putExtra("SONG", currentSong);  // Truyền đối tượng Song
+        intent.putExtra("IS_REPEATING", isRepeat);
         view.getContext().startService(intent);
     }
 

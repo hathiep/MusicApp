@@ -22,7 +22,7 @@ import com.example.bottomnavigationapp.screen.homeFragment.HomeFragment;
 public class BackgroundSoundService extends Service {
     public static final String CHANNEL_ID = "BackgroundMusicService";
     private MediaPlayer mediaPlayer;
-    private boolean isPaused = false;
+    private boolean isPaused = false, isRepeat = false;
     private Handler handler = new Handler();
     private Song currentSong;
     private String audioPath;
@@ -58,8 +58,7 @@ public class BackgroundSoundService extends Service {
                     mediaPlayer = MediaPlayer.create(this, Uri.parse(audioPath));
                     if (mediaPlayer != null) {
                         mediaPlayer.setVolume(100, 100);
-
-                        // Thêm sự kiện khi bài hát kết thúc
+                        mediaPlayer.setLooping(isRepeat);
                         mediaPlayer.setOnCompletionListener(mp -> {
                             // Gửi broadcast để chuyển bài tiếp theo
                             sendBroadcastNext();
@@ -93,6 +92,7 @@ public class BackgroundSoundService extends Service {
                     sendBroadcastNext();
                     break;
                 case "ACTION_TOGGLE_REPEAT": // New action to handle repeat toggle
+                    isRepeat = intent.getBooleanExtra("IS_REPEATING", false);
                     toggleRepeat();
                     break;
             }
@@ -136,12 +136,11 @@ public class BackgroundSoundService extends Service {
 
     private void toggleRepeat() {
         if (mediaPlayer != null) {
-            boolean isRepeating = mediaPlayer.isLooping();
-            mediaPlayer.setLooping(!isRepeating);
+            mediaPlayer.setLooping(isRepeat);
 
             // Optional: Send broadcast or update notification to reflect repeat state
             Intent intent = new Intent("UPDATE_REPEAT_STATE");
-            intent.putExtra("IS_REPEATING", !isRepeating);
+            intent.putExtra("IS_REPEATING", isRepeat);
             LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         }
     }

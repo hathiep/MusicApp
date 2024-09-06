@@ -24,7 +24,7 @@ public interface HomeContract {
         void onPreviousClicked();
         void onNextClicked();
         void onCancelClicked();
-        void onRepeatClicked();
+        void onRepeatClicked(boolean isRepeat);
         void onSeekBarStopTrackingTouch(int position);
         void onSongSelected(Song song);
         Song getCurrentSong();

@@ -182,7 +182,8 @@ public class HomeFragment extends Fragment implements HomeContract.View {
         });
 
         imvRepeat.setOnClickListener(view -> {
-            presenter.onRepeatClicked();
+            imvRepeat.setImageResource(!isRepeat ? R.drawable.ic_repeat : R.drawable.ic_unrepeat);
+            presenter.onRepeatClicked(!isRepeat);
         });
 
 
