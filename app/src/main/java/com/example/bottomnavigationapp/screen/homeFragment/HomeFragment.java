@@ -171,26 +171,16 @@ public class HomeFragment extends Fragment implements HomeContract.View {
             presenter.onSongSelected(songList.get(position));
         });
 
-        imvPlay.setOnClickListener(view -> {
-            presenter.onPlayPauseClicked();
-        });
-        imvPrevious.setOnClickListener(view -> {
-            presenter.onPreviousClicked();
-        });
-        imvNext.setOnClickListener(view -> {
-            presenter.onNextClicked();
-        });
-
-        imvCancel.setOnClickListener(view -> {
-            presenter.onCancelClicked();
-        });
+        imvPlay.setOnClickListener(view -> presenter.onPlayPauseClicked());
+        imvPrevious.setOnClickListener(view -> presenter.onPreviousClicked());
+        imvNext.setOnClickListener(view -> presenter.onNextClicked());
+        imvCancel.setOnClickListener(view -> presenter.onCancelClicked());
 
         imvRepeat.setOnClickListener(view -> {
             isRepeat = !isRepeat;
             imvRepeat.setBackgroundResource(isRepeat ? R.drawable.ic_repeat : R.drawable.ic_unrepeat);
             presenter.onRepeatClicked(isRepeat);
         });
-
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
