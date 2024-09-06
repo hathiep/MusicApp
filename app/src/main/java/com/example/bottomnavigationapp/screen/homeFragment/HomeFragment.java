@@ -1,8 +1,10 @@
 package com.example.bottomnavigationapp.screen.homeFragment;
 
 import static android.content.ContentValues.TAG;
+import static androidx.core.content.ContextCompat.getSystemService;
 import static com.example.bottomnavigationapp.service.BackgroundSoundService.CHANNEL_ID;
 
+import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.animation.ObjectAnimator;
@@ -19,10 +21,13 @@ import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -139,23 +144,25 @@ public class HomeFragment extends Fragment implements HomeContract.View {
 
         edtSearch.setOnClickListener(view -> edtSearch.setCursorVisible(true));
 
+        edtSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                // Kiểm tra xem người dùng có nhấn nút "Tìm kiếm" trên bàn phím hay không
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    // Gọi hàm tìm kiếm
+                    performSearch();
+                    return true;
+                }
+                return false;
+            }
+        });
+
         imvDelete.setOnClickListener(view -> {
             edtSearch.setText("");
 //            updateSearch();
         });
 
-        imvSearch.setOnClickListener(view -> {
-            String artist = edtSearch.getText().toString().trim();
-            if(artist.equals(""))
-                Toast.makeText(getContext(), R.string.toast_search, Toast.LENGTH_SHORT).show();
-            else{
-                songList.clear();
-                adapter.setSelectedPosition(-1);
-                adapter.notifyDataSetChanged();
-                presenter.loadSongs(artist);
-                edtSearch.setCursorVisible(false);
-            }
-        });
+        imvSearch.setOnClickListener(view -> performSearch());
 
         listViewLayoutParams = (RelativeLayout.LayoutParams) listView.getLayoutParams();
         // Thiết lập sự kiện click cho item trong ListView
@@ -206,6 +213,30 @@ public class HomeFragment extends Fragment implements HomeContract.View {
 
         // Sự kiện thu nhỏ layout khi click vào imv_pull_down
         imvPullDown.setOnClickListener(view -> updatePlayingLayout(0, collapsedView));
+    }
+
+    private void performSearch(){
+        // Gọi hàm ẩn bàn phím
+        hideKeyboard();
+        String artist = edtSearch.getText().toString().trim();
+        if(artist.equals(""))
+            Toast.makeText(getContext(), R.string.toast_search, Toast.LENGTH_SHORT).show();
+        else{
+            songList.clear();
+            adapter.setSelectedPosition(-1);
+            adapter.notifyDataSetChanged();
+            presenter.loadSongs(artist);
+            edtSearch.setCursorVisible(false);
+        }
+    }
+
+    // Hàm ẩn bàn phím
+    private void hideKeyboard() {
+        View view = getActivity().getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) ContextCompat.getSystemService(getActivity(), InputMethodManager.class);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
     @Override
@@ -385,6 +416,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
         imvNext = view.findViewById(R.id.imv_next);
         imvCancel = view.findViewById(R.id.imv_cancel);
         imvRepeat = view.findViewById(R.id.imv_repeat);
+        imvRepeat.setBackgroundResource(isRepeat ? R.drawable.ic_repeat : R.drawable.ic_unrepeat);
         seekBar = view.findViewById(R.id.seekBar);
         rotateAnimator.pause();
         rotateAnimator = ObjectAnimator.ofFloat(imvImagePlaying, "rotation", 0f, 360f);
