@@ -132,7 +132,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
             public void afterTextChanged(Editable s) {
                 if (s.length() == 0) {
                     imvDelete.setVisibility(View.GONE);
-                    updateSearch();
+//                    updateSearch();
                 }
             }
         });
@@ -141,7 +141,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
 
         imvDelete.setOnClickListener(view -> {
             edtSearch.setText("");
-            updateSearch();
+//            updateSearch();
         });
 
         imvSearch.setOnClickListener(view -> {
@@ -150,6 +150,8 @@ public class HomeFragment extends Fragment implements HomeContract.View {
                 Toast.makeText(getContext(), R.string.toast_search, Toast.LENGTH_SHORT).show();
             else{
                 songList.clear();
+                adapter.setSelectedPosition(-1);
+                adapter.notifyDataSetChanged();
                 presenter.loadSongs(artist);
                 edtSearch.setCursorVisible(false);
             }
@@ -180,10 +182,6 @@ public class HomeFragment extends Fragment implements HomeContract.View {
         });
 
         imvCancel.setOnClickListener(view -> {
-            viewSwitcher.setVisibility(View.GONE);
-            listViewLayoutParams.setMargins(0, 0, 0, 0);
-            adapter.setSelectedPosition(-1);
-            adapter.notifyDataSetChanged();
             presenter.onCancelClicked();
         });
 
@@ -308,6 +306,14 @@ public class HomeFragment extends Fragment implements HomeContract.View {
         else {
             isUserSeeking = false;
         }
+    }
+
+    @Override
+    public void onCancelClicked(){
+        viewSwitcher.setVisibility(View.GONE);
+        listViewLayoutParams.setMargins(0, 0, 0, 0);
+        adapter.setSelectedPosition(-1);
+        adapter.notifyDataSetChanged();
     }
 
     @Override

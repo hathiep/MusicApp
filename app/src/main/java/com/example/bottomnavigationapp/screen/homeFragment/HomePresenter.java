@@ -33,6 +33,8 @@ public class HomePresenter implements HomeContract.Presenter {
 
     @Override
     public void loadSongs(String artist) {
+        stopService();
+        onCancelClicked();
         view.showLoadingIndicator(true);
 
         ApiService apiService = RetrofitClient.getClient("https://itunes.apple.com/").create(ApiService.class);
@@ -127,16 +129,18 @@ public class HomePresenter implements HomeContract.Presenter {
         if (currentIndex < songList.size() - 1) {
             currentSong = songList.get(currentIndex + 1);
             view.updateAdapter(currentIndex + 1);
+            startPlayingCurrentSong();
         }
         else {
-            currentSong = songList.get(0);
-            view.updateAdapter(0);
+            isPlaying = !isPlaying;
+            sendActionToService("ACTION_PAUSE", 0);
+            view.updatePlayButton(isPlaying);
         }
-        startPlayingCurrentSong();
     }
 
     @Override
     public void onCancelClicked() {
+        view.onCancelClicked();
         stopService();
     }
 

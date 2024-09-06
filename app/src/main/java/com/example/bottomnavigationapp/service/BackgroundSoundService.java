@@ -61,12 +61,11 @@ public class BackgroundSoundService extends Service {
                     mediaPlayer = MediaPlayer.create(this, Uri.parse(audioPath));
                     if (mediaPlayer != null) {
                         mediaPlayer.setVolume(100, 100);
-                        if(!isRepeat){
-                            mediaPlayer.setOnCompletionListener(mp -> {
-                                // Gửi broadcast để chuyển bài tiếp theo
-                                sendBroadcastNext();
-                            });
-                        }
+                        mediaPlayer.setLooping(isRepeat);
+                        mediaPlayer.setOnCompletionListener(mp -> {
+                            // Gửi broadcast để chuyển bài tiếp theo
+                            sendBroadcastNext();
+                        });
                     } else {
                         Log.e("BackgroundSoundService", "MediaPlayer could not be created with the provided audio path: " + audioPath);
                         stopSelf();

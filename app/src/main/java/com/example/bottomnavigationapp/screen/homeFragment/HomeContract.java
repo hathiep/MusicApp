@@ -14,6 +14,7 @@ public interface HomeContract {
         void updatePreNextButton();
         void updateSeekBar();
         void onSeekBarProgressChanged(int progress, boolean fromUser);
+        void onCancelClicked();
         void updateAdapter(int position);
         Context getContext();
     }
