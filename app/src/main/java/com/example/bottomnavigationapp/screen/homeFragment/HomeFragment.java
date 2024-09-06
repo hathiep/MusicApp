@@ -164,10 +164,10 @@ public class HomeFragment extends Fragment implements HomeContract.View {
             adapter.setSelectedPosition(position); // Cập nhật vị trí của item được chọn
             currentSong = songList.get(position);  // Lưu song hiện tại
             viewSwitcher.setVisibility(View.VISIBLE);
-            listViewLayoutParams.setMargins(0, 0, 0, 290);
+            listViewLayoutParams.setMargins(0, 0, 0, 300);
             listView.setLayoutParams(listViewLayoutParams);
             updatePlayButton(isPlaying);  // Cập nhật nút play/tạm dừng
-            updatePreNextButton();
+            updatePreNextButton(true);
             presenter.onSongSelected(songList.get(position));
         });
 
@@ -187,7 +187,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
 
         imvRepeat.setOnClickListener(view -> {
             isRepeat = !isRepeat;
-            imvRepeat.setImageResource(isRepeat ? R.drawable.ic_repeat : R.drawable.ic_unrepeat);
+            imvRepeat.setBackgroundResource(isRepeat ? R.drawable.ic_repeat : R.drawable.ic_unrepeat);
             presenter.onRepeatClicked(isRepeat);
         });
 
@@ -252,7 +252,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
 
     @Override
     public void updatePlayButton(boolean isPlaying) {
-        imvPlay.setImageResource(isPlaying ? R.drawable.ic_pause : R.drawable.ic_play);
+        imvPlay.setBackgroundResource(isPlaying ? R.drawable.ic_pause : R.drawable.ic_play);
         if (!isPlaying) {
             // Tạm dừng hiệu ứng quay
             rotateAnimator.pause();
@@ -267,15 +267,15 @@ public class HomeFragment extends Fragment implements HomeContract.View {
     }
 
     @Override
-    public void updatePreNextButton() {
+    public void updatePreNextButton(boolean isCollapsed) {
         currentSong = presenter.getCurrentSong();
         int currentIndex = songList.indexOf(currentSong);
 
         // Vô hiệu hóa nút Previous nếu là bài hát đầu tiên
-        updateActionButton(imvPrevious, currentIndex > 0);
+        updateActionButton(imvPrevious, isCollapsed, currentIndex > 0);
 
         // Vô hiệu hóa nút Next nếu là bài hát cuối cùng
-        updateActionButton(imvNext, currentIndex < songList.size() - 1);
+        updateActionButton(imvNext, isCollapsed, currentIndex < songList.size() - 1);
     }
 
     @Override
@@ -321,16 +321,18 @@ public class HomeFragment extends Fragment implements HomeContract.View {
         adapter.setSelectedPosition(position); // Cập nhật vị trí item hiện tại
     }
 
-    private void updateSearch(){
+    private void updateSearch(boolean isCollapsed){
         songList.clear();
         adapter.notifyDataSetChanged();
-        updateActionButton(imvPrevious, false);
-        updateActionButton(imvNext, false);
+        updateActionButton(imvPrevious, isCollapsed, false);
+        updateActionButton(imvNext, isCollapsed, false);
     }
 
-    private void updateActionButton(ImageView imv, boolean status){
+    private void updateActionButton(ImageView imv, boolean isCollapsed, boolean status){
+        int colorEnable = isCollapsed ? R.color.black : R.color.white;
+        int colorUnable = isCollapsed ? R.color.gray : R.color.gray2;
         imv.setEnabled(status);
-        imv.setBackgroundTintList(getResources().getColorStateList(status ? R.color.black : R.color.gray));
+        imv.setBackgroundTintList(getResources().getColorStateList(status ? colorEnable : colorUnable));
     }
 
     private Runnable updateProgress = new Runnable() {
@@ -391,6 +393,8 @@ public class HomeFragment extends Fragment implements HomeContract.View {
         imvPlay = view.findViewById(R.id.imv_play);
         imvPrevious = view.findViewById(R.id.imv_previous);
         imvNext = view.findViewById(R.id.imv_next);
+        imvCancel = view.findViewById(R.id.imv_cancel);
+        imvRepeat = view.findViewById(R.id.imv_repeat);
         seekBar = view.findViewById(R.id.seekBar);
         rotateAnimator.pause();
         rotateAnimator = ObjectAnimator.ofFloat(imvImagePlaying, "rotation", 0f, 360f);
@@ -400,7 +404,8 @@ public class HomeFragment extends Fragment implements HomeContract.View {
         restoreRotation();
         updatePlayingSongInfo(currentSong);
         updatePlayButton(isPlaying);
-        updatePreNextButton();
+        updatePreNextButton(i!=1);
+        presenter.setIsCollapsed(i!=1);
         setOnclick();
         viewSwitcher.setDisplayedChild(i);
         listView.setVisibility(i==1 ? View.GONE : View.VISIBLE);

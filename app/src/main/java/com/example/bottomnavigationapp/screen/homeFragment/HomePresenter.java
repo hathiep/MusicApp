@@ -25,7 +25,7 @@ public class HomePresenter implements HomeContract.Presenter {
     private final HomeContract.View view;
     private final List<Song> songList = new ArrayList<>();
     private Song currentSong;
-    private boolean isPlaying, isRepeat = false;
+    private boolean isPlaying, isRepeat = false, isCollapsed = true;
 
     public HomePresenter(HomeContract.View view) {
         this.view = view;
@@ -163,6 +163,11 @@ public class HomePresenter implements HomeContract.Presenter {
         startPlayingCurrentSong();
     }
 
+    @Override
+    public void setIsCollapsed(boolean collapsed) {
+        isCollapsed = collapsed;
+    }
+
     private void startPlayingCurrentSong() {
         if (currentSong != null) {
             view.updateSeekBar();
@@ -174,7 +179,7 @@ public class HomePresenter implements HomeContract.Presenter {
             view.getContext().startService(intent);
             view.updatePlayingSongInfo(currentSong);
             view.updatePlayButton(true);
-            view.updatePreNextButton();
+            view.updatePreNextButton(isCollapsed);
             isPlaying = true;
         }
     }
@@ -203,4 +208,5 @@ public class HomePresenter implements HomeContract.Presenter {
     public Song getCurrentSong() {
         return currentSong;
     }
+
 }

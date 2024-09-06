@@ -11,7 +11,7 @@ public interface HomeContract {
         void showLoadingIndicator(boolean show);
         void updatePlayingSongInfo(Song song);
         void updatePlayButton(boolean isPlaying);
-        void updatePreNextButton();
+        void updatePreNextButton(boolean isCollapsed);
         void updateSeekBar();
         void onSeekBarProgressChanged(int progress, boolean fromUser);
         void onCancelClicked();
@@ -28,6 +28,7 @@ public interface HomeContract {
         void onRepeatClicked(boolean isRepeat);
         void onSeekBarStopTrackingTouch(int position);
         void onSongSelected(Song song);
+        void setIsCollapsed(boolean isCollapsed);
         Song getCurrentSong();
     }
 }

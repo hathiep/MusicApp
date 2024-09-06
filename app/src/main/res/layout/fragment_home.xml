@@ -167,7 +167,7 @@
                             android:layout_width="40dp"
                             android:layout_height="40dp"
                             android:layout_gravity="center_vertical"
-                            android:src="@drawable/ic_play"
+                            android:background="@drawable/ic_play"
                             android:text="Play"
                             android:textSize="16sp"
                             android:textColor="@color/white"/>
@@ -235,7 +235,7 @@
                         android:id="@+id/imv_repeat"
                         android:layout_width="30dp"
                         android:layout_height="35dp"
-                        android:src="@drawable/ic_unrepeat"
+                        android:background="@drawable/ic_unrepeat"
                         android:text="Repeat"
                         android:textSize="16sp"
                         android:textColor="@color/white"/>
@@ -253,17 +253,37 @@
             android:layout_height="match_parent"
             android:padding="10dp"
             android:background="@drawable/border_corner"
+            android:backgroundTint="@android:color/holo_purple"
             android:orientation="vertical"
             android:gravity="center_vertical">
 
-            <ImageView
-                android:id="@+id/imv_pull_down"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center_horizontal"
-                android:src="@drawable/ic_pull_down"
-                android:visibility="visible"
-                tools:ignore="DuplicateIds,MissingConstraints" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/imv_pull_down"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_centerHorizontal="true"
+                    android:background="@drawable/ic_pull_down"
+                    android:backgroundTint="@color/white"
+                    android:visibility="visible"
+                    tools:ignore="DuplicateIds,MissingConstraints" />
+
+                <ImageView
+                    android:id="@+id/imv_cancel"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_alignParentRight="true"
+                    android:background="@drawable/ic_delete"
+                    android:backgroundTint="@color/white"
+                    android:text="Play"
+                    android:textSize="16sp"
+                    android:textColor="@color/white"
+                    tools:ignore="DuplicateIds" />
+
+            </RelativeLayout>
 
             <TextView
                 android:id="@+id/tv_title"
@@ -273,6 +293,7 @@
                 android:textSize="18dp"
                 android:textStyle="bold"
                 android:textAlignment="center"
+                android:textColor="@color/white"
                 android:ellipsize="end"
                 android:maxLines="1"
                 tools:ignore="DuplicateIds" />
@@ -283,6 +304,7 @@
                 android:layout_height="wrap_content"
                 android:text="Artist of song"
                 android:textSize="14dp"
+                android:textColor="@color/white"
                 android:ellipsize="end"
                 android:textAlignment="center"
                 android:maxLines="1"
@@ -306,44 +328,67 @@
                 android:layout_weight="1"
                 android:orientation="vertical">
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:id="@+id/imv_previous"
+                            android:layout_width="35dp"
+                            android:layout_height="35dp"
+                            android:background="@drawable/ic_previous"
+                            android:backgroundTint="@color/white"
+                            android:backgroundTintMode="src_in"
+                            android:text="Play"
+                            android:textSize="16sp"
+                            android:textColor="@color/white"
+                            tools:ignore="DuplicateIds" />
+
+                        <ImageView
+                            android:id="@+id/imv_play"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/ic_play"
+                            android:backgroundTint="@color/white"
+                            android:text="Play"
+                            android:textSize="16sp"
+                            android:textColor="@color/white"
+                            tools:ignore="DuplicateIds" />
+
+                        <ImageView
+                            android:id="@+id/imv_next"
+                            android:layout_width="35dp"
+                            android:layout_height="35dp"
+                            android:background="@drawable/ic_next"
+                            android:backgroundTint="@color/white"
+                            android:backgroundTintMode="src_in"
+                            android:text="Play"
+                            android:textSize="16sp"
+                            android:textColor="@color/white"
+                            tools:ignore="DuplicateIds" />
+
+                    </LinearLayout>
 
                     <ImageView
-                        android:id="@+id/imv_previous"
+                        android:id="@+id/imv_repeat"
                         android:layout_width="35dp"
                         android:layout_height="35dp"
-                        android:background="@drawable/ic_previous"
-                        android:text="Play"
+                        android:layout_alignParentRight="true"
+                        android:background="@drawable/ic_unrepeat"
+                        android:backgroundTint="@color/white"
+                        android:text="Repeat"
                         android:textSize="16sp"
                         android:textColor="@color/white"
                         tools:ignore="DuplicateIds" />
 
-                    <ImageView
-                        android:id="@+id/imv_play"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:src="@drawable/ic_play"
-                        android:text="Play"
-                        android:textSize="16sp"
-                        android:textColor="@color/white"
-                        tools:ignore="DuplicateIds" />
-
-                    <ImageView
-                        android:id="@+id/imv_next"
-                        android:layout_width="35dp"
-                        android:layout_height="35dp"
-                        android:background="@drawable/ic_next"
-                        android:text="Play"
-                        android:textSize="16sp"
-                        android:textColor="@color/white"
-                        tools:ignore="DuplicateIds" />
-
-                </LinearLayout>
+                </RelativeLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -359,6 +404,7 @@
                         android:gravity="center_vertical"
                         android:text="00:00"
                         android:textSize="14dp"
+                        android:textColor="@color/white"
                         android:ellipsize="end"
                         android:maxLines="1"
                         tools:ignore="DuplicateIds" />
@@ -368,6 +414,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:progressTint="@color/white"
+                        android:thumbTint="@color/white"
                         android:max="100"
                         android:paddingVertical="5dp"
                         tools:ignore="DuplicateIds" />
@@ -379,6 +427,7 @@
                         android:gravity="center_vertical"
                         android:text="00:00"
                         android:textSize="14dp"
+                        android:textColor="@color/white"
                         android:ellipsize="end"
                         android:maxLines="1"
                         tools:ignore="DuplicateIds" />
@@ -395,25 +444,29 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="14sp"
+                        android:textColor="@color/white"
                         android:text="Ngày phát hành: "/>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="14sp"
+                        android:textColor="@color/white"
                         android:text="Thể loại: "/>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="14sp"
-                        android:text="Album: "/>
+                        android:text="Album: "
+                        android:textColor="@color/white" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="14sp"
-                        android:text="Lời bài hát: "/>
+                        android:text="Lời bài hát: "
+                        android:textColor="@color/white" />
 
                 </LinearLayout>
 
