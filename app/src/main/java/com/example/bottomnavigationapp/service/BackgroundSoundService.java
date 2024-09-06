@@ -1,5 +1,7 @@
 package com.example.bottomnavigationapp.service;
 
+import static android.content.ContentValues.TAG;
+
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
@@ -45,6 +47,7 @@ public class BackgroundSoundService extends Service {
         if (intent != null && intent.getAction() != null) {
             Song song = intent.getParcelableExtra("SONG");
             pausedPosition = intent.getIntExtra("MEDIA_POSITION", pausedPosition);
+            isRepeat = intent.getBooleanExtra("IS_REPEATING", false);
 
             if (song != null) {
                 currentSong = song;
@@ -58,11 +61,12 @@ public class BackgroundSoundService extends Service {
                     mediaPlayer = MediaPlayer.create(this, Uri.parse(audioPath));
                     if (mediaPlayer != null) {
                         mediaPlayer.setVolume(100, 100);
-                        mediaPlayer.setLooping(isRepeat);
-                        mediaPlayer.setOnCompletionListener(mp -> {
-                            // Gửi broadcast để chuyển bài tiếp theo
-                            sendBroadcastNext();
-                        });
+                        if(!isRepeat){
+                            mediaPlayer.setOnCompletionListener(mp -> {
+                                // Gửi broadcast để chuyển bài tiếp theo
+                                sendBroadcastNext();
+                            });
+                        }
                     } else {
                         Log.e("BackgroundSoundService", "MediaPlayer could not be created with the provided audio path: " + audioPath);
                         stopSelf();
@@ -93,7 +97,7 @@ public class BackgroundSoundService extends Service {
                     break;
                 case "ACTION_TOGGLE_REPEAT": // New action to handle repeat toggle
                     isRepeat = intent.getBooleanExtra("IS_REPEATING", false);
-                    toggleRepeat();
+                    mediaPlayer.setLooping(isRepeat);
                     break;
             }
         }
@@ -132,17 +136,6 @@ public class BackgroundSoundService extends Service {
         }
         updateNotification(false);
         sendBroadcastUpdate(false, pausedPosition);
-    }
-
-    private void toggleRepeat() {
-        if (mediaPlayer != null) {
-            mediaPlayer.setLooping(isRepeat);
-
-            // Optional: Send broadcast or update notification to reflect repeat state
-            Intent intent = new Intent("UPDATE_REPEAT_STATE");
-            intent.putExtra("IS_REPEATING", isRepeat);
-            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-        }
     }
 
     private Runnable updateProgress = new Runnable() {
@@ -223,6 +216,7 @@ public class BackgroundSoundService extends Service {
     }
 
     private void sendBroadcastNext() {
+        Log.e(TAG, "BGSV: Sended BroadcastNext");
         Intent intent = new Intent("ACTION_NEXT");
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }

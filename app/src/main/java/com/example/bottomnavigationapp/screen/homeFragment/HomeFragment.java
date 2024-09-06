@@ -1,5 +1,6 @@
 package com.example.bottomnavigationapp.screen.homeFragment;
 
+import static android.content.ContentValues.TAG;
 import static com.example.bottomnavigationapp.service.BackgroundSoundService.CHANNEL_ID;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -17,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,17 +49,16 @@ public class HomeFragment extends Fragment implements HomeContract.View {
     private EditText edtSearch;
     private TextView tvNoSong, tvTitle, tvArtist, tvPosition, tvDuration;
     private ImageView imvDelete, imvSearch, imvPullDown, imvImagePlaying, imvPlay, imvPrevious, imvNext, imvCancel, imvRepeat;
-    private boolean isPlaying = false;
     private RelativeLayout.LayoutParams listViewLayoutParams;
     private ListView listView;
     private SongAdapter adapter;
-    private List<Song> songList = new ArrayList<>();
+    private List<Song> songList;
     private Song currentSong;
     private ObjectAnimator rotateAnimator;
     private SeekBar seekBar;
     private Handler seekBarHandler;
     private int currentMediaPosition = 0;
-    private boolean isUserSeeking, seekbarStarted, isRepeat;
+    private boolean isPlaying = false, isUserSeeking, seekbarStarted, isRepeat;
     private ViewSwitcher viewSwitcher;
     private View collapsedView, expandedView;
     private float currentRotation = 0f;
@@ -71,6 +72,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
 
         init(view);
         createNotificationChannel();
+        registerReceiver();
         setOnclick();
 
         return view;
@@ -100,6 +102,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
         listView = view.findViewById(R.id.listView);
 
         presenter = new HomePresenter(this);
+        songList = new ArrayList<>();
         adapter = new SongAdapter(requireContext(), songList);
         listView.setAdapter(adapter);
 
@@ -146,6 +149,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
             if(artist.equals(""))
                 Toast.makeText(getContext(), R.string.toast_search, Toast.LENGTH_SHORT).show();
             else{
+                songList.clear();
                 presenter.loadSongs(artist);
                 edtSearch.setCursorVisible(false);
             }
@@ -162,16 +166,18 @@ public class HomeFragment extends Fragment implements HomeContract.View {
             listView.setLayoutParams(listViewLayoutParams);
             updatePlayButton(isPlaying);  // Cập nhật nút play/tạm dừng
             updatePreNextButton();
-            registerReceiver();
             presenter.onSongSelected(songList.get(position));
         });
 
         imvPlay.setOnClickListener(view -> {
-            registerReceiver();
             presenter.onPlayPauseClicked();
         });
-        imvPrevious.setOnClickListener(view -> presenter.onPreviousClicked());
-        imvNext.setOnClickListener(view -> presenter.onNextClicked());
+        imvPrevious.setOnClickListener(view -> {
+            presenter.onPreviousClicked();
+        });
+        imvNext.setOnClickListener(view -> {
+            presenter.onNextClicked();
+        });
 
         imvCancel.setOnClickListener(view -> {
             viewSwitcher.setVisibility(View.GONE);
@@ -182,8 +188,9 @@ public class HomeFragment extends Fragment implements HomeContract.View {
         });
 
         imvRepeat.setOnClickListener(view -> {
-            imvRepeat.setImageResource(!isRepeat ? R.drawable.ic_repeat : R.drawable.ic_unrepeat);
-            presenter.onRepeatClicked(!isRepeat);
+            isRepeat = !isRepeat;
+            imvRepeat.setImageResource(isRepeat ? R.drawable.ic_repeat : R.drawable.ic_unrepeat);
+            presenter.onRepeatClicked(isRepeat);
         });
 
 
@@ -338,9 +345,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
         filter.addAction("UPDATE_PLAY_STATE");
         filter.addAction("ACTION_PREVIOUS");
         filter.addAction("ACTION_NEXT");
-        filter.addAction("UPDATE_REPEAT_STATE");
         filter.addAction("UPDATE_SEEKBAR");
-
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(playStateReceiver, filter);
     }
 
@@ -357,8 +362,6 @@ public class HomeFragment extends Fragment implements HomeContract.View {
                 presenter.onPreviousClicked();
             } else if ("ACTION_NEXT".equals(action)) {
                 presenter.onNextClicked();
-            } else if ("UPDATE_REPEAT_STATE".equals(action)) {
-                isRepeat = intent.getBooleanExtra("IS_REPEATING", false);;
             } else if ("UPDATE_SEEKBAR".equals(action)) {
                 int duration = intent.getIntExtra("DURATION", 0);
                 int currentPosition = intent.getIntExtra("CURRENT_POSITION", 0);
