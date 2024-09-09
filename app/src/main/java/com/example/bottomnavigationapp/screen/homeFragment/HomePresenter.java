@@ -32,13 +32,13 @@ public class HomePresenter implements HomeContract.Presenter {
     }
 
     @Override
-    public void loadSongs(String artist) {
+    public void loadSongs(String keyword) {
         stopService();
         onCancelClicked();
         view.showLoadingIndicator(true);
 
         ApiService apiService = RetrofitClient.getClient("https://itunes.apple.com/").create(ApiService.class);
-        Call<ApiResponse> call = apiService.searchSongs(artist, "music", "musicTrack");
+        Call<ApiResponse> call = apiService.searchSongs(keyword, "music", "musicTrack");
 
         call.enqueue(new retrofit2.Callback<ApiResponse>() {
             @Override
@@ -66,44 +66,6 @@ public class HomePresenter implements HomeContract.Presenter {
         });
     }
 
-//    @Override
-//    public void loadSongs() {
-//        view.showLoadingIndicator(true);
-//        FirebaseFirestore db = FirebaseFirestore.getInstance();
-//        db.collection("songs").get().addOnCompleteListener(task -> {
-//            if (task.isSuccessful()) {
-//                songList.clear();
-//                for (QueryDocumentSnapshot document : task.getResult()) {
-//                    Song song = document.toObject(Song.class);
-//                    song.setId(document.getId());
-//                    songList.add(song);
-//                }
-//
-//                fetchAudioPaths();
-//            } else {
-//                view.showLoadingIndicator(false);
-//                // Handle errors here, such as showing an error message
-//            }
-//        });
-//    }
-//
-//    private void fetchAudioPaths() {
-//        FirebaseStorage storage = FirebaseStorage.getInstance();
-//        StorageReference storageRef = storage.getReference().child("songs");
-//
-//        for (Song song : songList) {
-//            StorageReference songRef = storageRef.child(song.getId() + ".mp3");
-//            songRef.getDownloadUrl().addOnSuccessListener(uri -> {
-//                song.setAudioPath(uri.toString());
-//                view.showLoadingIndicator(false);
-//                view.showSongs(songList);
-//            }).addOnFailureListener(exception -> {
-//                view.showLoadingIndicator(false);
-//                // Handle errors here, such as showing an error message
-//            });
-//        }
-//    }
-
     @Override
     public void onPlayPauseClicked() {
         if (currentSong != null) {
@@ -130,8 +92,7 @@ public class HomePresenter implements HomeContract.Presenter {
             currentSong = songList.get(currentIndex + 1);
             view.updateAdapter(currentIndex + 1);
             startPlayingCurrentSong();
-        }
-        else {
+        } else {
             isPlaying = !isPlaying;
             sendActionToService("ACTION_PAUSE", 0);
             view.updatePlayButton(isPlaying);
@@ -210,3 +171,42 @@ public class HomePresenter implements HomeContract.Presenter {
     }
 
 }
+
+// Hàm lấy song từ firebase
+//    @Override
+//    public void loadSongs() {
+//        view.showLoadingIndicator(true);
+//        FirebaseFirestore db = FirebaseFirestore.getInstance();
+//        db.collection("songs").get().addOnCompleteListener(task -> {
+//            if (task.isSuccessful()) {
+//                songList.clear();
+//                for (QueryDocumentSnapshot document : task.getResult()) {
+//                    Song song = document.toObject(Song.class);
+//                    song.setId(document.getId());
+//                    songList.add(song);
+//                }
+//
+//                fetchAudioPaths();
+//            } else {
+//                view.showLoadingIndicator(false);
+//                // Handle errors here, such as showing an error message
+//            }
+//        });
+//    }
+//
+//    private void fetchAudioPaths() {
+//        FirebaseStorage storage = FirebaseStorage.getInstance();
+//        StorageReference storageRef = storage.getReference().child("songs");
+//
+//        for (Song song : songList) {
+//            StorageReference songRef = storageRef.child(song.getId() + ".mp3");
+//            songRef.getDownloadUrl().addOnSuccessListener(uri -> {
+//                song.setAudioPath(uri.toString());
+//                view.showLoadingIndicator(false);
+//                view.showSongs(songList);
+//            }).addOnFailureListener(exception -> {
+//                view.showLoadingIndicator(false);
+//                // Handle errors here, such as showing an error message
+//            });
+//        }
+//    }

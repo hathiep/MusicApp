@@ -16,11 +16,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
+
 import androidx.fragment.app.Fragment;
+
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,7 +41,6 @@ import com.bumptech.glide.Glide;
 import com.example.bottomnavigationapp.R;
 import com.example.bottomnavigationapp.model.Song;
 import com.example.bottomnavigationapp.screen.homeFragment.adapter.SongAdapter;
-import com.example.bottomnavigationapp.service.BackgroundSoundService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +50,6 @@ import android.widget.ViewSwitcher;
 
 
 public class HomeFragment extends Fragment implements HomeContract.View {
-    //    private LinearLayout layoutPlaying;
     private EditText edtSearch;
     private TextView tvNoSong, tvTitle, tvArtist, tvPosition, tvDuration;
     private ImageView imvDelete, imvSearch, imvPullDown, imvImagePlaying, imvPlay, imvPrevious, imvNext, imvCancel, imvRepeat;
@@ -71,8 +70,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
     private HomeContract.Presenter presenter;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
         init(view);
@@ -135,10 +133,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (s.length() == 0) {
-                    imvDelete.setVisibility(View.GONE);
-//                    updateSearch();
-                }
+                if (s.length() == 0) imvDelete.setVisibility(View.GONE);
             }
         });
 
@@ -157,10 +152,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
             }
         });
 
-        imvDelete.setOnClickListener(view -> {
-            edtSearch.setText("");
-//            updateSearch();
-        });
+        imvDelete.setOnClickListener(view -> edtSearch.setText(""));
 
         imvSearch.setOnClickListener(view -> performSearch());
 
@@ -171,7 +163,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
             adapter.setSelectedPosition(position); // Cập nhật vị trí của item được chọn
             currentSong = songList.get(position);  // Lưu song hiện tại
             viewSwitcher.setVisibility(View.VISIBLE);
-            listViewLayoutParams.setMargins(0, 0, 0, 300);
+            listViewLayoutParams.setMargins(0, 0, 0, 280);
             listView.setLayoutParams(listViewLayoutParams);
             updatePlayButton(isPlaying);  // Cập nhật nút play/tạm dừng
             updatePreNextButton(true);
@@ -215,13 +207,13 @@ public class HomeFragment extends Fragment implements HomeContract.View {
         imvPullDown.setOnClickListener(view -> updatePlayingLayout(0, collapsedView));
     }
 
-    private void performSearch(){
+    private void performSearch() {
         // Gọi hàm ẩn bàn phím
         hideKeyboard();
         String artist = edtSearch.getText().toString().trim();
-        if(artist.equals(""))
+        if (artist.equals(""))
             Toast.makeText(getContext(), R.string.toast_search, Toast.LENGTH_SHORT).show();
-        else{
+        else {
             songList.clear();
             adapter.setSelectedPosition(-1);
             adapter.notifyDataSetChanged();
@@ -243,11 +235,10 @@ public class HomeFragment extends Fragment implements HomeContract.View {
     public void showSongs(List<Song> songs) {
         songList.clear();
         songList.addAll(songs);
-        if(songs.isEmpty()){
+        if (songs.isEmpty()) {
             listView.setVisibility(View.GONE);
             tvNoSong.setVisibility(View.VISIBLE);
-        }
-        else {
+        } else {
             listView.setVisibility(View.VISIBLE);
             tvNoSong.setVisibility(View.GONE);
         }
@@ -262,8 +253,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
     @Override
     public void updatePlayingSongInfo(Song song) {
         // Sử dụng Glide để tải và hiển thị ảnh từ URL
-        Glide.with(this)
-                .load(song.getImageUrl()) // URL của ảnh
+        Glide.with(this).load(song.getImageUrl()) // URL của ảnh
                 .placeholder(R.drawable.ic_logo) // Ảnh placeholder khi đang tải
                 .error(R.drawable.ic_logo) // Ảnh hiển thị khi lỗi tải
                 .into(imvImagePlaying); // Đưa ảnh vào ImageView
@@ -323,14 +313,13 @@ public class HomeFragment extends Fragment implements HomeContract.View {
             currentMediaPosition = seekBar.getProgress();
             tvPosition.setText(formatTime(currentMediaPosition));
             seekBarHandler.removeCallbacks(updateProgress);
-        }
-        else {
+        } else {
             isUserSeeking = false;
         }
     }
 
     @Override
-    public void onCancelClicked(){
+    public void onCancelClicked() {
         viewSwitcher.setVisibility(View.GONE);
         listViewLayoutParams.setMargins(0, 0, 0, 0);
         adapter.setSelectedPosition(-1);
@@ -338,18 +327,11 @@ public class HomeFragment extends Fragment implements HomeContract.View {
     }
 
     @Override
-    public void updateAdapter(int position){
+    public void updateAdapter(int position) {
         adapter.setSelectedPosition(position); // Cập nhật vị trí item hiện tại
     }
 
-    private void updateSearch(boolean isCollapsed){
-        songList.clear();
-        adapter.notifyDataSetChanged();
-        updateActionButton(imvPrevious, isCollapsed, false);
-        updateActionButton(imvNext, isCollapsed, false);
-    }
-
-    private void updateActionButton(ImageView imv, boolean isCollapsed, boolean status){
+    private void updateActionButton(ImageView imv, boolean isCollapsed, boolean status) {
         int colorEnable = isCollapsed ? R.color.black : R.color.white;
         int colorUnable = isCollapsed ? R.color.gray : R.color.gray2;
         imv.setEnabled(status);
@@ -367,7 +349,6 @@ public class HomeFragment extends Fragment implements HomeContract.View {
             }
         }
     };
-
 
     private void registerReceiver() {
         IntentFilter filter = new IntentFilter();
@@ -395,7 +376,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
                 int duration = intent.getIntExtra("DURATION", 0);
                 int currentPosition = intent.getIntExtra("CURRENT_POSITION", 0);
                 seekBar.setMax(duration);
-                if(!isUserSeeking) {
+                if (!isUserSeeking) {
                     seekBar.setProgress(currentPosition);
                     tvPosition.setText(formatTime(currentPosition));
                 }
@@ -426,11 +407,11 @@ public class HomeFragment extends Fragment implements HomeContract.View {
         restoreRotation();
         updatePlayingSongInfo(currentSong);
         updatePlayButton(isPlaying);
-        updatePreNextButton(i!=1);
-        presenter.setIsCollapsed(i!=1);
+        updatePreNextButton(i != 1);
+        presenter.setIsCollapsed(i != 1);
         setOnclick();
         viewSwitcher.setDisplayedChild(i);
-        listView.setVisibility(i==1 ? View.GONE : View.VISIBLE);
+        listView.setVisibility(i == 1 ? View.GONE : View.VISIBLE);
     }
 
     private void saveCurrentRotation() {
@@ -455,11 +436,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
 
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(
-                    CHANNEL_ID,
-                    "Background Sound Channel",
-                    NotificationManager.IMPORTANCE_LOW
-            );
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "Background Sound Channel", NotificationManager.IMPORTANCE_LOW);
             NotificationManager manager = requireContext().getSystemService(NotificationManager.class);
             if (manager != null) {
                 manager.createNotificationChannel(channel);
