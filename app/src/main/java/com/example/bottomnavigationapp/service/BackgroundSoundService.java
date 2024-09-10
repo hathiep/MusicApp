@@ -29,6 +29,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.bottomnavigationapp.R;
+import com.example.bottomnavigationapp.mainActivity.MainActivity;
 import com.example.bottomnavigationapp.model.Song;
 import com.example.bottomnavigationapp.screen.homeFragment.HomeFragment;
 
@@ -229,6 +230,11 @@ public class BackgroundSoundService extends Service {
         int currentPosition = mediaPlayer != null ? mediaPlayer.getCurrentPosition() : 0;
         int duration = mediaPlayer != null ? mediaPlayer.getDuration() : 0;
         Log.e(TAG, "Current Position: " + currentPosition + ", Duration: " + duration);
+
+        Intent openAppIntent = new Intent(this, MainActivity.class);
+        openAppIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent contentPendingIntent = PendingIntent.getActivity(this, 0, openAppIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
         // Tạo intent để xử lý seek
         Intent seekIntent = new Intent(this, BackgroundSoundService.class);
         seekIntent.setAction("ACTION_SEEK"); // Hành động seek
@@ -268,7 +274,8 @@ public class BackgroundSoundService extends Service {
                         .setMediaSession(mediaSession.getSessionToken())
                         .setShowCancelButton(true))
                 .setPriority(NotificationCompat.PRIORITY_LOW)
-                .setContentIntent(seekPendingIntent);
+                .setContentIntent(seekPendingIntent)
+                .setContentIntent(contentPendingIntent);
 
         if (currentSong != null && currentSong.getImageUrl() != null) {
             Glide.with(this)
