@@ -75,6 +75,16 @@ public class BackgroundSoundService extends Service {
                     mediaPlayer.seekTo((int) pos);
                 }
             }
+
+            @Override
+            public void onSkipToNext() {
+                sendBroadcastNext();
+            }
+
+            @Override
+            public void onSkipToPrevious() {
+                sendBroadcastPrevious();
+            }
         });
         mediaSession.setActive(true);
     }
@@ -117,7 +127,7 @@ public class BackgroundSoundService extends Service {
                 case "ACTION_PAUSE":
                     pauseAudio();
                     break;
-                case "ACTION_SEEK_TO":
+                case "ACTION_SEEK":
                     int newPosition = intent.getIntExtra("MEDIA_POSITION", 0);
 
                     if (mediaPlayer != null && newPosition >= 0 && newPosition <= mediaPlayer.getDuration()) {
@@ -128,10 +138,10 @@ public class BackgroundSoundService extends Service {
                     }
 
                     break;
-                case "ACTION_SKIP_TO_PREVIOUS":
+                case "ACTION_PREVIOUS":
                     sendBroadcastPrevious();
                     break;
-                case "ACTION_SKIP_TO_NEXT":
+                case "ACTION_NEXT":
                     sendBroadcastNext();
                     break;
                 case "ACTION_TOGGLE_REPEAT": // New action to handle repeat toggle
@@ -221,7 +231,7 @@ public class BackgroundSoundService extends Service {
         Log.e(TAG, "Current Position: " + currentPosition + ", Duration: " + duration);
         // Tạo intent để xử lý seek
         Intent seekIntent = new Intent(this, BackgroundSoundService.class);
-        seekIntent.setAction("ACTION_SEEK_TO"); // Hành động seek
+        seekIntent.setAction("ACTION_SEEK"); // Hành động seek
         seekIntent.putExtra("MEDIA_POSITION", currentPosition); // Gửi vị trí hiện tại
 
         PendingIntent seekPendingIntent = PendingIntent.getService(this, 0, seekIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
@@ -250,9 +260,9 @@ public class BackgroundSoundService extends Service {
                 .setContentTitle(currentSong != null ? currentSong.getTitle() : "No Song Playing")
                 .setContentText(currentSong != null ? currentSong.getArtist() : "")
 //                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.image_background)) //Ảnh nền mặc định
-                .addAction(R.drawable.ic_previous, "Previous", getPendingIntent("ACTION_SKIP_TO_PREVIOUS", 0))
+                .addAction(R.drawable.ic_previous, "Previous", getPendingIntent("ACTION_PREVIOUS", 0))
                 .addAction(icon, isPlaying ? "Pause" : "Play", getPendingIntent(action, 1))  // Nút Play/Pause
-                .addAction(R.drawable.ic_next, "Next", getPendingIntent("ACTION_SKIP_TO_NEXT", 2))
+                .addAction(R.drawable.ic_next, "Next", getPendingIntent("ACTION_NEXT", 2))
                 .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
                         .setShowActionsInCompactView(0, 1, 2)
                         .setMediaSession(mediaSession.getSessionToken())
@@ -300,12 +310,12 @@ public class BackgroundSoundService extends Service {
     }
 
     private void sendBroadcastPrevious() {
-        Intent intent = new Intent("ACTION_SKIP_TO_PREVIOUS");
+        Intent intent = new Intent("ACTION_PREVIOUS");
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     private void sendBroadcastNext() {
-        Intent intent = new Intent("ACTION_SKIP_TO_NEXT");
+        Intent intent = new Intent("ACTION_NEXT");
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 }

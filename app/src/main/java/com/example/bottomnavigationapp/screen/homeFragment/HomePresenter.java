@@ -114,7 +114,7 @@ public class HomePresenter implements HomeContract.Presenter {
     @Override
     public void onSeekBarStopTrackingTouch(int position) {
         sendActionToService("ACTION_PAUSE");
-        sendActionToService("ACTION_SEEK_TO", position);
+        sendActionToService("ACTION_SEEK", position);
         sendActionToService("ACTION_PLAY");
     }
 
