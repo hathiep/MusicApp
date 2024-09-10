@@ -353,8 +353,8 @@ public class HomeFragment extends Fragment implements HomeContract.View {
     private void registerReceiver() {
         IntentFilter filter = new IntentFilter();
         filter.addAction("UPDATE_PLAY_STATE");
-        filter.addAction("ACTION_PREVIOUS");
-        filter.addAction("ACTION_NEXT");
+        filter.addAction("ACTION_SKIP_TO_PREVIOUS");
+        filter.addAction("ACTION_SKIP_TO_NEXT");
         filter.addAction("UPDATE_SEEKBAR");
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(playStateReceiver, filter);
     }
@@ -368,9 +368,9 @@ public class HomeFragment extends Fragment implements HomeContract.View {
                     isPlaying = intent.getBooleanExtra("isPlaying", false);
                     updatePlayButton(isPlaying);
                 }
-            } else if ("ACTION_PREVIOUS".equals(action)) {
+            } else if ("ACTION_SKIP_TO_PREVIOUS".equals(action)) {
                 presenter.onPreviousClicked();
-            } else if ("ACTION_NEXT".equals(action)) {
+            } else if ("ACTION_SKIP_TO_NEXT".equals(action)) {
                 presenter.onNextClicked();
             } else if ("UPDATE_SEEKBAR".equals(action)) {
                 int duration = intent.getIntExtra("DURATION", 0);

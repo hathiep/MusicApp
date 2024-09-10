@@ -1,6 +1,7 @@
 package com.example.bottomnavigationapp.service;
 
 import static android.content.ContentValues.TAG;
+import static android.support.v4.media.MediaMetadataCompat.*;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -9,11 +10,14 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.media.MediaMetadata;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -113,7 +117,7 @@ public class BackgroundSoundService extends Service {
                 case "ACTION_PAUSE":
                     pauseAudio();
                     break;
-                case "ACTION_SEEK":
+                case "ACTION_SEEK_TO":
                     int newPosition = intent.getIntExtra("MEDIA_POSITION", 0);
 
                     if (mediaPlayer != null && newPosition >= 0 && newPosition <= mediaPlayer.getDuration()) {
@@ -124,10 +128,10 @@ public class BackgroundSoundService extends Service {
                     }
 
                     break;
-                case "ACTION_PREVIOUS":
+                case "ACTION_SKIP_TO_PREVIOUS":
                     sendBroadcastPrevious();
                     break;
-                case "ACTION_NEXT":
+                case "ACTION_SKIP_TO_NEXT":
                     sendBroadcastNext();
                     break;
                 case "ACTION_TOGGLE_REPEAT": // New action to handle repeat toggle
@@ -181,9 +185,7 @@ public class BackgroundSoundService extends Service {
                 int duration = mediaPlayer.getDuration();
 
                 // Cập nhật progress của notification
-                notificationBuilder.setProgress(duration, currentPosition, false);
-                notificationManager.notify(1, notificationBuilder.build());
-                Log.e(TAG, "Sv - Position: " + currentPosition);
+                updateNotification(mediaPlayer.isPlaying());
 
                 // Gửi broadcast để cập nhật SeekBar trên UI
                 Intent intent = new Intent("UPDATE_SEEKBAR");
@@ -219,19 +221,38 @@ public class BackgroundSoundService extends Service {
         Log.e(TAG, "Current Position: " + currentPosition + ", Duration: " + duration);
         // Tạo intent để xử lý seek
         Intent seekIntent = new Intent(this, BackgroundSoundService.class);
-        seekIntent.setAction("ACTION_SEEK"); // Hành động seek
+        seekIntent.setAction("ACTION_SEEK_TO"); // Hành động seek
         seekIntent.putExtra("MEDIA_POSITION", currentPosition); // Gửi vị trí hiện tại
 
         PendingIntent seekPendingIntent = PendingIntent.getService(this, 0, seekIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
+        mediaSession.setPlaybackState(
+                new PlaybackStateCompat.Builder()
+                        .setState(
+                                isPlaying ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED,
+                                currentPosition,
+                                1
+                        )
+                        .setActions(PlaybackStateCompat.ACTION_SEEK_TO | PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_PAUSE |
+                                PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS | PlaybackStateCompat.ACTION_SKIP_TO_NEXT)
+                        .build()
+        );
+        mediaSession.setMetadata(
+                new Builder()
+                        .putString(MediaMetadata.METADATA_KEY_TITLE, currentSong.getTitle())
+                        .putString(MediaMetadata.METADATA_KEY_ARTIST, currentSong.getArtist())
+                        .putLong(MediaMetadata.METADATA_KEY_DURATION, duration) // 4
+
+                        .build()
+        );
         notificationBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_logo)
                 .setContentTitle(currentSong != null ? currentSong.getTitle() : "No Song Playing")
                 .setContentText(currentSong != null ? currentSong.getArtist() : "")
 //                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.image_background)) //Ảnh nền mặc định
-                .addAction(R.drawable.ic_previous, "Previous", getPendingIntent("ACTION_PREVIOUS", 0))
+                .addAction(R.drawable.ic_previous, "Previous", getPendingIntent("ACTION_SKIP_TO_PREVIOUS", 0))
                 .addAction(icon, isPlaying ? "Pause" : "Play", getPendingIntent(action, 1))  // Nút Play/Pause
-                .addAction(R.drawable.ic_next, "Next", getPendingIntent("ACTION_NEXT", 2))
+                .addAction(R.drawable.ic_next, "Next", getPendingIntent("ACTION_SKIP_TO_NEXT", 2))
                 .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
                         .setShowActionsInCompactView(0, 1, 2)
                         .setMediaSession(mediaSession.getSessionToken())
@@ -279,12 +300,12 @@ public class BackgroundSoundService extends Service {
     }
 
     private void sendBroadcastPrevious() {
-        Intent intent = new Intent("ACTION_PREVIOUS");
+        Intent intent = new Intent("ACTION_SKIP_TO_PREVIOUS");
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     private void sendBroadcastNext() {
-        Intent intent = new Intent("ACTION_NEXT");
+        Intent intent = new Intent("ACTION_SKIP_TO_NEXT");
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 }
