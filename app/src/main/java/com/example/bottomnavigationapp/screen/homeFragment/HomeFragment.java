@@ -22,6 +22,7 @@ import androidx.fragment.app.Fragment;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,7 +30,9 @@ import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Adapter;
 import android.widget.EditText;
+import android.widget.HeaderViewListAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -53,7 +56,6 @@ public class HomeFragment extends Fragment implements HomeContract.View {
     private EditText edtSearch;
     private TextView tvNoSong, tvTitle, tvArtist, tvPosition, tvDuration;
     private ImageView imvDelete, imvSearch, imvPullDown, imvImagePlaying, imvPlay, imvPrevious, imvNext, imvCancel, imvRepeat;
-    private RelativeLayout.LayoutParams listViewLayoutParams;
     private ListView listView;
     private SongAdapter adapter;
     private List<Song> songList;
@@ -64,7 +66,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
     private int currentMediaPosition = 0;
     private boolean isPlaying = false, isUserSeeking, seekbarStarted, isRepeat;
     private ViewSwitcher viewSwitcher;
-    private View collapsedView, expandedView;
+    private View collapsedView, expandedView, footerView;
     private float currentRotation = 0f;
     private ProgressBar progressBar;
     private HomeContract.Presenter presenter;
@@ -108,6 +110,8 @@ public class HomeFragment extends Fragment implements HomeContract.View {
         songList = new ArrayList<>();
         adapter = new SongAdapter(requireContext(), songList);
         listView.setAdapter(adapter);
+        footerView = getLayoutInflater().inflate(R.layout.footer_layout, null);
+        listView.addFooterView(footerView);
 
         rotateAnimator = ObjectAnimator.ofFloat(imvImagePlaying, "rotation", 0f, 360f);
         rotateAnimator.setDuration(10000); // thời gian quay là 10 giây
@@ -156,15 +160,19 @@ public class HomeFragment extends Fragment implements HomeContract.View {
 
         imvSearch.setOnClickListener(view -> performSearch());
 
-        listViewLayoutParams = (RelativeLayout.LayoutParams) listView.getLayoutParams();
         // Thiết lập sự kiện click cho item trong ListView
         listView.setOnItemClickListener((parent, view, position, id) -> {
-            SongAdapter adapter = (SongAdapter) parent.getAdapter();
+            Adapter currentAdapter = parent.getAdapter();
+            SongAdapter adapter;
+            if (currentAdapter instanceof HeaderViewListAdapter) {
+                HeaderViewListAdapter headerAdapter = (HeaderViewListAdapter) currentAdapter;
+                adapter = (SongAdapter) headerAdapter.getWrappedAdapter(); // Lấy adapter gốc
+            } else {
+                adapter = (SongAdapter) currentAdapter; // Trường hợp không có header/footer
+            }
             adapter.setSelectedPosition(position); // Cập nhật vị trí của item được chọn
             currentSong = songList.get(position);  // Lưu song hiện tại
             viewSwitcher.setVisibility(View.VISIBLE);
-            listViewLayoutParams.setMargins(0, 0, 0, 280);
-            listView.setLayoutParams(listViewLayoutParams);
             updatePlayButton(isPlaying);  // Cập nhật nút play/tạm dừng
             updatePreNextButton(true);
             presenter.onSongSelected(songList.get(position));
@@ -321,7 +329,6 @@ public class HomeFragment extends Fragment implements HomeContract.View {
     @Override
     public void onCancelClicked() {
         viewSwitcher.setVisibility(View.GONE);
-        listViewLayoutParams.setMargins(0, 0, 0, 0);
         adapter.setSelectedPosition(-1);
         adapter.notifyDataSetChanged();
     }

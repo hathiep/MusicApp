@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.provider.OpenableColumns;
 
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
