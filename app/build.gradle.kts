@@ -41,6 +41,7 @@ dependencies {
     implementation(libs.media3.session)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage)
+    implementation(libs.swiperefreshlayout)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

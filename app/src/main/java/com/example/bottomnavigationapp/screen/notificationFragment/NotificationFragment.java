@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NotificationFragment extends Fragment implements NotificationContract.View {
+    private SwipeRefreshLayout swipeRefreshLayout;
     private Button btnUpload;
     private static final int PICK_AUDIO_REQUEST = 1;
     private RecyclerView rcvAudios;
@@ -48,6 +50,7 @@ public class NotificationFragment extends Fragment implements NotificationContra
     }
 
     private void init(View view){
+        swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
         progressBar = view.findViewById(R.id.progressBar);
         btnUpload = view.findViewById(R.id.btn_upload);
         audioList = new ArrayList<>();
@@ -60,6 +63,14 @@ public class NotificationFragment extends Fragment implements NotificationContra
     }
 
     private void setOnclick(){
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            // Tải lại danh sách audio
+            presenter.loadAudioList();
+
+            // Ẩn vòng xoay sau khi làm mới dữ liệu
+            swipeRefreshLayout.setRefreshing(false);
+        });
+
         btnUpload.setOnClickListener(view -> {
             Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
             intent.setType("audio/*");

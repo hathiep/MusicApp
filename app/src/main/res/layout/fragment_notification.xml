@@ -33,11 +33,20 @@
         android:text="Upload audio"
         android:textSize="18sp"/>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rcv_audios"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="10dp"
-        android:layout_below="@+id/title"/>
+        android:layout_below="@+id/title">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rcv_audios"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="vertical" />
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
 
 </RelativeLayout>
