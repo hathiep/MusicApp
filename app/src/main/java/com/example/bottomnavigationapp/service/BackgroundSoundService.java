@@ -42,7 +42,6 @@ public class BackgroundSoundService extends Service {
     private String audioPath;
     private int pausedPosition = 0;
     private NotificationCompat.Builder notificationBuilder;
-    private NotificationManager notificationManager;
 
     @Nullable
     @Override
@@ -55,7 +54,6 @@ public class BackgroundSoundService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         mediaSession = new MediaSessionCompat(this, "BackgroundSoundService");
         mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
                 MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
@@ -72,9 +70,8 @@ public class BackgroundSoundService extends Service {
 
             @Override
             public void onSeekTo(long pos) {
-                if (mediaPlayer != null) {
-                    mediaPlayer.seekTo((int) pos);
-                }
+                seekAudio((int) pos);
+                playAudio();
             }
 
             @Override
@@ -129,15 +126,7 @@ public class BackgroundSoundService extends Service {
                     pauseAudio();
                     break;
                 case "ACTION_SEEK":
-                    int newPosition = intent.getIntExtra("MEDIA_POSITION", 0);
-
-                    if (mediaPlayer != null && newPosition >= 0 && newPosition <= mediaPlayer.getDuration()) {
-                        mediaPlayer.seekTo(newPosition);
-                        pausedPosition = newPosition;
-                        sendBroadcastUpdate(mediaPlayer.isPlaying(), mediaPlayer.getCurrentPosition());
-                        updateNotification(mediaPlayer.isPlaying());
-                    }
-
+                    seekAudio(intent.getIntExtra("MEDIA_POSITION", 0));
                     break;
                 case "ACTION_PREVIOUS":
                     sendBroadcastPrevious();
@@ -188,6 +177,15 @@ public class BackgroundSoundService extends Service {
         sendBroadcastUpdate(false, pausedPosition);
     }
 
+    private void seekAudio(int newPosition){
+        if (mediaPlayer != null && newPosition >= 0 && newPosition <= mediaPlayer.getDuration()) {
+            mediaPlayer.seekTo(newPosition);
+            pausedPosition = newPosition;
+            sendBroadcastUpdate(mediaPlayer.isPlaying(), mediaPlayer.getCurrentPosition());
+            updateNotification(mediaPlayer.isPlaying());
+        }
+    }
+
     private Runnable updateProgress = new Runnable() {
         @Override
         public void run() {
@@ -229,10 +227,11 @@ public class BackgroundSoundService extends Service {
 
         int currentPosition = mediaPlayer != null ? mediaPlayer.getCurrentPosition() : 0;
         int duration = mediaPlayer != null ? mediaPlayer.getDuration() : 0;
-        Log.e(TAG, "Current Position: " + currentPosition + ", Duration: " + duration);
 
+        // Tạo intent để xử lý click vào notification
         Intent openAppIntent = new Intent(this, MainActivity.class);
         openAppIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        openAppIntent.putExtra("NAVIGATE_TO_FRAGMENT", "FragmentHome");
         PendingIntent contentPendingIntent = PendingIntent.getActivity(this, 0, openAppIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         // Tạo intent để xử lý seek
@@ -284,10 +283,7 @@ public class BackgroundSoundService extends Service {
                     .into(new CustomTarget<Bitmap>() {
                         @Override
                         public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                            // Khi ảnh đã được tải thành công, cập nhật ảnh lớn cho notification
                             notificationBuilder.setLargeIcon(resource);
-
-                            // Hiển thị notification sau khi đã cập nhật ảnh
                             startForeground(1, notificationBuilder.build());
                         }
 

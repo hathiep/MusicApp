@@ -1,7 +1,11 @@
 package com.example.bottomnavigationapp.mainActivity;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,6 +16,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.bottomnavigationapp.screen.homeFragment.HomeFragment;
 import com.example.bottomnavigationapp.service.BackgroundSoundService;
 import com.example.bottomnavigationapp.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -36,6 +41,11 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         setOnMenuClick();
+        // Xử lý Intent nếu có khi Activity khởi tạo
+        if (getIntent() != null) {
+            handleIntent(getIntent());
+        }
+
     }
 
     private void setOnMenuClick() {
@@ -70,6 +80,22 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         transaction.commit();
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleIntent(intent);
+    }
+
+    private void handleIntent(Intent intent) {
+        if (intent != null && intent.hasExtra("NAVIGATE_TO_FRAGMENT")) {
+            String fragmentToNavigate = intent.getStringExtra("NAVIGATE_TO_FRAGMENT");
+            if ("FragmentHome".equals(fragmentToNavigate)) {
+                // Gọi phương thức để hiện thị FragmentHome
+                bottomNavigationView.setSelectedItemId(R.id.navigation_home);
+            }
+        }
+    }
 
     @Override
     protected void onDestroy() {
