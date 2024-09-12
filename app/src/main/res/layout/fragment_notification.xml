@@ -30,7 +30,8 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="10dp"
         android:layout_marginBottom="10dp"
-        android:layout_below="@+id/title">
+        android:layout_below="@+id/title"
+        android:layout_above="@+id/btn_upload">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rcv_audios"
