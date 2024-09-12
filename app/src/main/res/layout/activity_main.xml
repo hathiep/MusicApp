@@ -12,7 +12,37 @@
         android:id="@+id/frame_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/bottom_navigation"/>
+        android:layout_above="@+id/view_switcher"/>
+
+<!--    <FrameLayout-->
+<!--        android:id="@+id/frame_container_playing"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_above="@+id/bottom_navigation"-->
+<!--        android:layout_marginBottom="5dp"/>-->
+
+<!--    <include-->
+<!--        android:id="@+id/frame_container_playing"-->
+<!--        layout="@layout/fragment_playing"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="80dp"-->
+<!--        android:layout_above="@+id/bottom_navigation"-->
+<!--        android:layout_marginBottom="5dp"/>-->
+
+    <ViewSwitcher
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/view_switcher"
+        android:layout_width="match_parent"
+        android:layout_height="85dp"
+        android:layout_marginVertical="5dp"
+        android:layout_above="@+id/bottom_navigation"
+        android:paddingHorizontal="5dp"
+        android:visibility="gone">
+
+        <include layout="@layout/layout_media_playing_collapsed" />
+        <include layout="@layout/layout_media_playing_expanded" />
+
+    </ViewSwitcher>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"

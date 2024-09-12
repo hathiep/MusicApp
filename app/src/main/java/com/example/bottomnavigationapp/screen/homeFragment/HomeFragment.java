@@ -1,9 +1,8 @@
 package com.example.bottomnavigationapp.screen.homeFragment;
 
-import static android.content.ContentValues.TAG;
-import static androidx.core.content.ContextCompat.getSystemService;
 import static com.example.bottomnavigationapp.service.BackgroundSoundService.CHANNEL_ID;
 
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -23,10 +22,12 @@ import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -36,7 +37,6 @@ import android.widget.HeaderViewListAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -66,16 +66,54 @@ public class HomeFragment extends Fragment implements HomeContract.View {
     private int currentMediaPosition = 0;
     private boolean isPlaying = false, isUserSeeking, seekbarStarted, isRepeat;
     private ViewSwitcher viewSwitcher;
-    private View collapsedView, expandedView, footerView;
+    private View view, playingView, collapsedView, expandedView, footerView;
     private float currentRotation = 0f;
     private ProgressBar progressBar;
     private HomeContract.Presenter presenter;
+//    private HomeFragmentListener listener;
+//
+//    // Interface để callback về MainActivity
+//    public interface HomeFragmentListener {
+//        void showPlayingFragment();
+//        void hidePlayingFragment();
+//    }
+//
+//    @Override
+//    public void onAttach(@NonNull Context context) {
+//        super.onAttach(context);
+//        if (context instanceof HomeFragmentListener) {
+//            listener = (HomeFragmentListener) context;
+//        } else {
+//            throw new RuntimeException(context.toString()
+//                    + " must implement HomeFragmentListener");
+//        }
+//    }
+//
+//    @Override
+//    public void onDetach() {
+//        super.onDetach();
+//        listener = null;
+//    }
+//
+//    // Gọi phương thức callback khi cần hiển thị PlayingFragment
+//    private void showPlayingFragment() {
+//        if (listener != null) {
+//            listener.showPlayingFragment();
+//        }
+//    }
+//
+//    // Gọi phương thức callback khi cần ẩn PlayingFragment
+//    private void hidePlayingFragment() {
+//        if (listener != null) {
+//            listener.hidePlayingFragment();
+//        }
+//    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_home, container, false);
+        view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        init(view);
+        init();
         createNotificationChannel();
         registerReceiver();
         setOnclick();
@@ -83,27 +121,36 @@ public class HomeFragment extends Fragment implements HomeContract.View {
         return view;
     }
 
-    private void init(View view) {
+    private void init() {
         edtSearch = view.findViewById(R.id.edt_search);
         imvSearch = view.findViewById(R.id.imv_search);
         imvDelete = view.findViewById(R.id.imv_delete);
         tvNoSong = view.findViewById(R.id.tv_no_song);
         progressBar = view.findViewById(R.id.progressBar);
-        viewSwitcher = view.findViewById(R.id.view_switcher);
-        collapsedView = viewSwitcher.getChildAt(0);
-        expandedView = viewSwitcher.getChildAt(1);
-        imvPullDown = view.findViewById(R.id.imv_pull_down);
-        imvImagePlaying = collapsedView.findViewById(R.id.imv_image_playing);
-        tvTitle = collapsedView.findViewById(R.id.tv_title);
-        tvArtist = collapsedView.findViewById(R.id.tv_artist);
-        tvPosition = collapsedView.findViewById(R.id.tv_position);
-        tvDuration = collapsedView.findViewById(R.id.tv_duration);
-        imvPlay = collapsedView.findViewById(R.id.imv_play);
-        imvPrevious = collapsedView.findViewById(R.id.imv_previous);
-        imvNext = collapsedView.findViewById(R.id.imv_next);
-        imvCancel = collapsedView.findViewById(R.id.imv_cancel);
-        imvRepeat = collapsedView.findViewById(R.id.imv_repeat);
-        seekBar = collapsedView.findViewById(R.id.seekBar);
+
+        viewSwitcher = getActivity().findViewById(R.id.view_switcher);
+
+        if (viewSwitcher != null) {
+            collapsedView = viewSwitcher.getChildAt(0);
+            expandedView = viewSwitcher.getChildAt(1);
+            viewSwitcher.setDisplayedChild(0);
+
+            imvPullDown = viewSwitcher.findViewById(R.id.imv_pull_down);
+            imvImagePlaying = collapsedView.findViewById(R.id.imv_image_playing);
+            tvTitle = collapsedView.findViewById(R.id.tv_title);
+            tvArtist = collapsedView.findViewById(R.id.tv_artist);
+            tvPosition = collapsedView.findViewById(R.id.tv_position);
+            tvDuration = collapsedView.findViewById(R.id.tv_duration);
+            imvPlay = collapsedView.findViewById(R.id.imv_play);
+            imvPrevious = collapsedView.findViewById(R.id.imv_previous);
+            imvNext = collapsedView.findViewById(R.id.imv_next);
+            imvCancel = collapsedView.findViewById(R.id.imv_cancel);
+            imvRepeat = collapsedView.findViewById(R.id.imv_repeat);
+            seekBar = collapsedView.findViewById(R.id.seekBar);
+        } else {
+            Log.e("HomeFragment", "ViewSwitcher not found in MainActivity layout.");
+        }
+
         listView = view.findViewById(R.id.listView);
 
         presenter = new HomePresenter(this);
@@ -111,7 +158,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
         adapter = new SongAdapter(requireContext(), songList);
         listView.setAdapter(adapter);
         footerView = getLayoutInflater().inflate(R.layout.footer_layout, null);
-        listView.addFooterView(footerView);
+//        listView.addFooterView(footerView);
 
         rotateAnimator = ObjectAnimator.ofFloat(imvImagePlaying, "rotation", 0f, 360f);
         rotateAnimator.setDuration(10000); // thời gian quay là 10 giây
@@ -172,6 +219,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
             }
             adapter.setSelectedPosition(position); // Cập nhật vị trí của item được chọn
             currentSong = songList.get(position);  // Lưu song hiện tại
+//            showPlayingFragment();
             viewSwitcher.setVisibility(View.VISIBLE);
             updatePlayButton(isPlaying);  // Cập nhật nút play/tạm dừng
             updatePreNextButton(true);
@@ -328,6 +376,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
 
     @Override
     public void onCancelClicked() {
+//        hidePlayingFragment();
         viewSwitcher.setVisibility(View.GONE);
         adapter.setSelectedPosition(-1);
         adapter.notifyDataSetChanged();
@@ -406,19 +455,35 @@ public class HomeFragment extends Fragment implements HomeContract.View {
         imvRepeat = view.findViewById(R.id.imv_repeat);
         imvRepeat.setBackgroundResource(isRepeat ? R.drawable.ic_repeat : R.drawable.ic_unrepeat);
         seekBar = view.findViewById(R.id.seekBar);
+
         rotateAnimator.pause();
         rotateAnimator = ObjectAnimator.ofFloat(imvImagePlaying, "rotation", 0f, 360f);
         rotateAnimator.setDuration(10000); // thời gian quay là 10 giây
         rotateAnimator.setRepeatCount(ObjectAnimator.INFINITE);
         rotateAnimator.setInterpolator(new LinearInterpolator()); // Sử dụng LinearInterpolator để quay đều
         restoreRotation();
+
         updatePlayingSongInfo(currentSong);
         updatePlayButton(isPlaying);
         updatePreNextButton(i != 1);
         presenter.setIsCollapsed(i != 1);
         setOnclick();
+        imvCancel.setOnClickListener(view1 -> {
+            presenter.onCancelClicked();
+            listView.setVisibility(View.VISIBLE);
+            viewSwitcher.setDisplayedChild(0);
+            setLayoutPlayingHeight(0);
+        });
         viewSwitcher.setDisplayedChild(i);
+        setLayoutPlayingHeight(i);
         listView.setVisibility(i == 1 ? View.GONE : View.VISIBLE);
+    }
+
+    private void setLayoutPlayingHeight(int i){
+        ViewGroup.LayoutParams layoutParams = viewSwitcher.getLayoutParams();
+        layoutParams.height = i == 1 ? ViewGroup.LayoutParams.MATCH_PARENT :
+                (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 85, getResources().getDisplayMetrics());
+        viewSwitcher.setLayoutParams(layoutParams);
     }
 
     private void saveCurrentRotation() {
