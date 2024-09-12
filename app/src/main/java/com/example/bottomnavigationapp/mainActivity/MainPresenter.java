@@ -1,6 +1,7 @@
 package com.example.bottomnavigationapp.mainActivity;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import com.example.bottomnavigationapp.screen.accountFragment.AccountFragment;
 import com.example.bottomnavigationapp.screen.homeFragment.HomeFragment;
@@ -39,6 +40,7 @@ public class MainPresenter implements MainContract.Presenter {
         }
 
         if (fragmentToShow != null) {
+            view.setLayoutPlayingCollapsed();
             view.showFragment(fragmentToShow);
         }
     }

@@ -3,8 +3,7 @@ package com.example.bottomnavigationapp.mainActivity;
 public interface MainContract {
     interface View {
         void showFragment(androidx.fragment.app.Fragment fragment);
-//        void showPlayingFragment();
-//        void hidePlayingFragment();
+        void setLayoutPlayingCollapsed();
     }
 
     interface Presenter {

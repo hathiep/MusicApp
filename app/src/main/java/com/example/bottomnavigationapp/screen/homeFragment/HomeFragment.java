@@ -64,50 +64,12 @@ public class HomeFragment extends Fragment implements HomeContract.View {
     private SeekBar seekBar;
     private Handler seekBarHandler;
     private int currentMediaPosition = 0;
-    private boolean isPlaying = false, isUserSeeking, seekbarStarted, isRepeat;
+    private boolean isPlaying = false, isUserSeeking, seekbarStarted, isRepeat, isExpanded = false;
     private ViewSwitcher viewSwitcher;
-    private View view, playingView, collapsedView, expandedView, footerView;
+    private View view, collapsedView, expandedView;
     private float currentRotation = 0f;
     private ProgressBar progressBar;
     private HomeContract.Presenter presenter;
-//    private HomeFragmentListener listener;
-//
-//    // Interface để callback về MainActivity
-//    public interface HomeFragmentListener {
-//        void showPlayingFragment();
-//        void hidePlayingFragment();
-//    }
-//
-//    @Override
-//    public void onAttach(@NonNull Context context) {
-//        super.onAttach(context);
-//        if (context instanceof HomeFragmentListener) {
-//            listener = (HomeFragmentListener) context;
-//        } else {
-//            throw new RuntimeException(context.toString()
-//                    + " must implement HomeFragmentListener");
-//        }
-//    }
-//
-//    @Override
-//    public void onDetach() {
-//        super.onDetach();
-//        listener = null;
-//    }
-//
-//    // Gọi phương thức callback khi cần hiển thị PlayingFragment
-//    private void showPlayingFragment() {
-//        if (listener != null) {
-//            listener.showPlayingFragment();
-//        }
-//    }
-//
-//    // Gọi phương thức callback khi cần ẩn PlayingFragment
-//    private void hidePlayingFragment() {
-//        if (listener != null) {
-//            listener.hidePlayingFragment();
-//        }
-//    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -152,13 +114,10 @@ public class HomeFragment extends Fragment implements HomeContract.View {
         }
 
         listView = view.findViewById(R.id.listView);
-
         presenter = new HomePresenter(this);
         songList = new ArrayList<>();
         adapter = new SongAdapter(requireContext(), songList);
         listView.setAdapter(adapter);
-        footerView = getLayoutInflater().inflate(R.layout.footer_layout, null);
-//        listView.addFooterView(footerView);
 
         rotateAnimator = ObjectAnimator.ofFloat(imvImagePlaying, "rotation", 0f, 360f);
         rotateAnimator.setDuration(10000); // thời gian quay là 10 giây
@@ -209,17 +168,9 @@ public class HomeFragment extends Fragment implements HomeContract.View {
 
         // Thiết lập sự kiện click cho item trong ListView
         listView.setOnItemClickListener((parent, view, position, id) -> {
-            Adapter currentAdapter = parent.getAdapter();
-            SongAdapter adapter;
-            if (currentAdapter instanceof HeaderViewListAdapter) {
-                HeaderViewListAdapter headerAdapter = (HeaderViewListAdapter) currentAdapter;
-                adapter = (SongAdapter) headerAdapter.getWrappedAdapter(); // Lấy adapter gốc
-            } else {
-                adapter = (SongAdapter) currentAdapter; // Trường hợp không có header/footer
-            }
+            SongAdapter adapter = (SongAdapter)  parent.getAdapter();
             adapter.setSelectedPosition(position); // Cập nhật vị trí của item được chọn
             currentSong = songList.get(position);  // Lưu song hiện tại
-//            showPlayingFragment();
             viewSwitcher.setVisibility(View.VISIBLE);
             updatePlayButton(isPlaying);  // Cập nhật nút play/tạm dừng
             updatePreNextButton(true);
@@ -376,7 +327,6 @@ public class HomeFragment extends Fragment implements HomeContract.View {
 
     @Override
     public void onCancelClicked() {
-//        hidePlayingFragment();
         viewSwitcher.setVisibility(View.GONE);
         adapter.setSelectedPosition(-1);
         adapter.notifyDataSetChanged();
@@ -441,8 +391,9 @@ public class HomeFragment extends Fragment implements HomeContract.View {
         }
     };
 
-    private void updatePlayingLayout(int i, View view) {
+    public void updatePlayingLayout(int i, View view) {
         saveCurrentRotation();
+        isExpanded = (i == 1);
         imvImagePlaying = view.findViewById(R.id.imv_image_playing);
         tvTitle = view.findViewById(R.id.tv_title);
         tvArtist = view.findViewById(R.id.tv_artist);
@@ -465,8 +416,8 @@ public class HomeFragment extends Fragment implements HomeContract.View {
 
         updatePlayingSongInfo(currentSong);
         updatePlayButton(isPlaying);
-        updatePreNextButton(i != 1);
-        presenter.setIsCollapsed(i != 1);
+        updatePreNextButton(!isExpanded);
+        presenter.setIsCollapsed(!isExpanded);
         setOnclick();
         imvCancel.setOnClickListener(view1 -> {
             presenter.onCancelClicked();
@@ -476,7 +427,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
         });
         viewSwitcher.setDisplayedChild(i);
         setLayoutPlayingHeight(i);
-        listView.setVisibility(i == 1 ? View.GONE : View.VISIBLE);
+        listView.setVisibility(isExpanded ? View.GONE : View.VISIBLE);
     }
 
     private void setLayoutPlayingHeight(int i){
