@@ -28,7 +28,7 @@
             </intent-filter>
         </activity>
         <service
-            android:name=".service.BackgroundSoundService"
+            android:name=".service.PlayService"
             android:exported="false"
             android:foregroundServiceType="mediaPlayback"
             tools:ignore="ForegroundServicePermission">

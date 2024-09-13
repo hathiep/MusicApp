@@ -2,9 +2,7 @@ package com.example.bottomnavigationapp.mainActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.TypedValue;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ViewSwitcher;
 
 import androidx.activity.EdgeToEdge;
@@ -17,7 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.bottomnavigationapp.screen.homeFragment.HomeFragment;
-import com.example.bottomnavigationapp.service.BackgroundSoundService;
+import com.example.bottomnavigationapp.service.PlayService;
 import com.example.bottomnavigationapp.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -120,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     protected void onDestroy() {
         super.onDestroy();
         // Dừng dịch vụ phát nhạc
-        Intent serviceIntent = new Intent(this, BackgroundSoundService.class);
+        Intent serviceIntent = new Intent(this, PlayService.class);
         stopService(serviceIntent);
     }
 

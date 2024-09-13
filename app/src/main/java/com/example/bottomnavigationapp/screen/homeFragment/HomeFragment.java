@@ -1,8 +1,7 @@
 package com.example.bottomnavigationapp.screen.homeFragment;
 
-import static com.example.bottomnavigationapp.service.BackgroundSoundService.CHANNEL_ID;
+import static com.example.bottomnavigationapp.service.PlayService.CHANNEL_ID;
 
-import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -27,13 +26,10 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Adapter;
 import android.widget.EditText;
-import android.widget.HeaderViewListAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;

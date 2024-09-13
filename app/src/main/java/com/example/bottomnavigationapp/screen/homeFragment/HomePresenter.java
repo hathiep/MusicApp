@@ -1,19 +1,12 @@
 package com.example.bottomnavigationapp.screen.homeFragment;
 
-import static android.content.ContentValues.TAG;
-
 import android.content.Intent;
-import android.util.Log;
 
 import com.example.bottomnavigationapp.model.Song;
 import com.example.bottomnavigationapp.service.ApiResponse;
 import com.example.bottomnavigationapp.service.ApiService;
-import com.example.bottomnavigationapp.service.BackgroundSoundService;
+import com.example.bottomnavigationapp.service.PlayService;
 import com.example.bottomnavigationapp.service.RetrofitClient;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -132,7 +125,7 @@ public class HomePresenter implements HomeContract.Presenter {
     private void startPlayingCurrentSong() {
         if (currentSong != null) {
             view.updateSeekBar();
-            Intent intent = new Intent(view.getContext(), BackgroundSoundService.class);
+            Intent intent = new Intent(view.getContext(), PlayService.class);
             intent.setAction("ACTION_PLAY");
             intent.putExtra("SONG", currentSong);
             intent.putExtra("IS_REPEATING", isRepeat);
@@ -146,12 +139,12 @@ public class HomePresenter implements HomeContract.Presenter {
     }
 
     private void stopService() {
-        Intent intent = new Intent(view.getContext(), BackgroundSoundService.class);
+        Intent intent = new Intent(view.getContext(), PlayService.class);
         view.getContext().stopService(intent);
     }
 
     private void sendActionToService(String action) {
-        Intent intent = new Intent(view.getContext(), BackgroundSoundService.class);
+        Intent intent = new Intent(view.getContext(), PlayService.class);
         intent.setAction(action);
         intent.putExtra("SONG", currentSong);  // Truyền đối tượng Song
         intent.putExtra("IS_REPEATING", isRepeat);
@@ -159,7 +152,7 @@ public class HomePresenter implements HomeContract.Presenter {
     }
 
     private void sendActionToService(String action, int position) {
-        Intent intent = new Intent(view.getContext(), BackgroundSoundService.class);
+        Intent intent = new Intent(view.getContext(), PlayService.class);
         intent.setAction(action);
         intent.putExtra("SONG", currentSong);  // Truyền đối tượng Song
         intent.putExtra("MEDIA_POSITION", position);

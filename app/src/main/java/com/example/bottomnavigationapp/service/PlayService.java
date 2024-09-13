@@ -1,21 +1,17 @@
 package com.example.bottomnavigationapp.service;
 
-import static android.content.ContentValues.TAG;
 import static android.support.v4.media.MediaMetadataCompat.*;
 
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.media.MediaMetadata;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
@@ -31,9 +27,8 @@ import com.bumptech.glide.request.transition.Transition;
 import com.example.bottomnavigationapp.R;
 import com.example.bottomnavigationapp.mainActivity.MainActivity;
 import com.example.bottomnavigationapp.model.Song;
-import com.example.bottomnavigationapp.screen.homeFragment.HomeFragment;
 
-public class BackgroundSoundService extends Service {
+public class PlayService extends Service {
     public static final String CHANNEL_ID = "BackgroundMusicService";
     private MediaPlayer mediaPlayer;
     private boolean isPaused = false, isRepeat = false;
@@ -54,7 +49,7 @@ public class BackgroundSoundService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        mediaSession = new MediaSessionCompat(this, "BackgroundSoundService");
+        mediaSession = new MediaSessionCompat(this, "PlayService");
         mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
                 MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
         mediaSession.setCallback(new MediaSessionCompat.Callback() {
@@ -100,7 +95,11 @@ public class BackgroundSoundService extends Service {
 
                 if (newAudioPath != null && !newAudioPath.equals(audioPath)) {
                     if (mediaPlayer != null) {
+                        if (mediaPlayer.isPlaying()) {
+                            mediaPlayer.stop();
+                        }
                         mediaPlayer.release();
+                        mediaPlayer = null;
                     }
                     audioPath = newAudioPath;
                     mediaPlayer = MediaPlayer.create(this, Uri.parse(audioPath));
@@ -112,7 +111,7 @@ public class BackgroundSoundService extends Service {
                             sendBroadcastNext();
                         });
                     } else {
-                        Log.e("BackgroundSoundService", "MediaPlayer could not be created with the provided audio path: " + audioPath);
+                        Log.e("PlayService", "MediaPlayer could not be created with the provided audio path: " + audioPath);
                         stopSelf();
                     }
                 }
@@ -145,7 +144,7 @@ public class BackgroundSoundService extends Service {
 
     private void playAudio() {
         if (mediaPlayer == null) {
-            Log.e("BackgroundSoundService", "MediaPlayer is not initialized.");
+            Log.e("PlayService", "MediaPlayer is not initialized.");
             return;
         }
 
@@ -169,9 +168,9 @@ public class BackgroundSoundService extends Service {
             pausedPosition = mediaPlayer.getCurrentPosition(); // Lưu vị trí hiện tại
             mediaPlayer.pause();
             isPaused = true;
-            Log.d("BackgroundSoundService", "Media paused at position: " + pausedPosition);
+            Log.d("PlayService", "Media paused at position: " + pausedPosition);
         } else {
-            Log.d("BackgroundSoundService", "MediaPlayer is either null or not playing");
+            Log.d("PlayService", "MediaPlayer is either null or not playing");
         }
         updateNotification(false);
         sendBroadcastUpdate(false, pausedPosition);
@@ -200,7 +199,7 @@ public class BackgroundSoundService extends Service {
                 Intent intent = new Intent("UPDATE_SEEKBAR");
                 intent.putExtra("CURRENT_POSITION", currentPosition);
                 intent.putExtra("DURATION", duration);
-                LocalBroadcastManager.getInstance(BackgroundSoundService.this).sendBroadcast(intent);
+                LocalBroadcastManager.getInstance(PlayService.this).sendBroadcast(intent);
 
                 handler.postDelayed(this, 1000); // Cập nhật mỗi giây
             }
@@ -219,7 +218,7 @@ public class BackgroundSoundService extends Service {
     }
 
     private void updateNotification(boolean isPlaying) {
-        Intent intent = new Intent(this, BackgroundSoundService.class);
+        Intent intent = new Intent(this, PlayService.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
         String action = isPlaying ? "ACTION_PAUSE" : "ACTION_PLAY";
@@ -235,7 +234,7 @@ public class BackgroundSoundService extends Service {
         PendingIntent contentPendingIntent = PendingIntent.getActivity(this, 0, openAppIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         // Tạo intent để xử lý seek
-        Intent seekIntent = new Intent(this, BackgroundSoundService.class);
+        Intent seekIntent = new Intent(this, PlayService.class);
         seekIntent.setAction("ACTION_SEEK"); // Hành động seek
         seekIntent.putExtra("MEDIA_POSITION", currentPosition); // Gửi vị trí hiện tại
 
@@ -298,7 +297,7 @@ public class BackgroundSoundService extends Service {
     }
 
     private PendingIntent getPendingIntent(String action, int requestCode) {
-        Intent intent = new Intent(this, BackgroundSoundService.class);
+        Intent intent = new Intent(this, PlayService.class);
         intent.setAction(action);
         intent.putExtra("SONG", currentSong);
         intent.putExtra("CURRENT_POSITION", mediaPlayer.getCurrentPosition());
