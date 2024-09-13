@@ -32,8 +32,10 @@ public class NotificationPresenter implements NotificationContract.Presenter {
             view.showProgress();
 
             // Lấy tên file từ URI
-//          String fileName = "A" + String.format("%06d", audioList.size()) + "." + getFileName(audioUri); //Đặt mã là thứ tự tải lên
-            String fileName = "A" + System.currentTimeMillis() + "." + getFileName(audioUri); // Đặt mã là thời gian tải lên
+                // Đặt mã là thứ tự tải lên
+//          String fileName = "A" + String.format("%06d", audioList.size()) + "." + getFileName(audioUri);
+                // Đặt mã là thời gian tải lên
+            String fileName = "A" + System.currentTimeMillis() + "." + getFileName(audioUri);
 
             // Tham chiếu đến file với tên gốc
             StorageReference audioRef = storageReference.child(fileName);

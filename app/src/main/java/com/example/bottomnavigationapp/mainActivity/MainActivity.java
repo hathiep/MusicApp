@@ -3,6 +3,7 @@ package com.example.bottomnavigationapp.mainActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.TypedValue;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ViewSwitcher;
 
@@ -92,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
             HomeFragment homeFragment = (HomeFragment) mainPresenter.getHomeFragment();
 
             // Gọi hàm public trong HomeFragment
-            if (homeFragment != null && homeFragment.isAdded()) {
+            if (homeFragment != null && homeFragment.isAdded() && viewSwitcher.getVisibility() == View.VISIBLE) {
                 homeFragment.updatePlayingLayout(0, viewSwitcher.getChildAt(0));
             }
         }

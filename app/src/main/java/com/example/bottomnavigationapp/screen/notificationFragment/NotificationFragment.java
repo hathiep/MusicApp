@@ -72,9 +72,9 @@ public class NotificationFragment extends Fragment implements NotificationContra
         });
 
         btnUpload.setOnClickListener(view -> {
-            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-            intent.setType("audio/*");
-            startActivityForResult(intent, PICK_AUDIO_REQUEST);
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT); // Tạo intent truy cập dữ liệu của thiết bị
+            intent.setType("audio/*"); // Đặt định dạng file khả dụng là audio
+            startActivityForResult(intent, PICK_AUDIO_REQUEST); // Gửi request lấy file audio
         });
     }
 
