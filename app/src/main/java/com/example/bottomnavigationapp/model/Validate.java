@@ -174,13 +174,13 @@ public class Validate {
             @Override
             public void afterTextChanged(Editable editable) {
                 String email = edt.getText().toString().trim();
-
+                layoutEdt.setErrorEnabled(true);
                 if (email.isEmpty()) {
                     layoutEdt.setError("Email không được để trống");
                 } else if (!validateEmail(email)) {
                     layoutEdt.setError("Email không hợp lệ!");
                 } else {
-                    layoutEdt.setError(null); // Xóa lỗi nếu dữ liệu hợp lệ
+                    layoutEdt.setErrorEnabled(false);  // Tắt chế độ hiển thị lỗi để không có khoảng trống
                 }
             }
         });
@@ -198,6 +198,7 @@ public class Validate {
             @Override
             public void afterTextChanged(Editable editable) {
                 String password = edt.getText().toString().trim();
+                layoutEdt.setErrorEnabled(true);
                 ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) imv.getLayoutParams();
                 int marginInPx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 30, context.getResources().getDisplayMetrics());
                 if (password.isEmpty()) {
@@ -205,7 +206,7 @@ public class Validate {
                 } else if (!validatePassword(password)) {
                     layoutEdt.setError("Mật khẩu dài 8 - 20 kí tự, gồm cả chữ hoa, chữ thường và số");
                 } else {
-                    layoutEdt.setError(null); // Xóa lỗi nếu dữ liệu hợp lệ
+                    layoutEdt.setErrorEnabled(false);  // Tắt chế độ hiển thị lỗi để không có khoảng trống
                     marginInPx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, context.getResources().getDisplayMetrics());
                 }
                 params.setMargins(params.leftMargin, params.topMargin, marginInPx, params.bottomMargin);
@@ -226,6 +227,7 @@ public class Validate {
             @Override
             public void afterTextChanged(Editable editable) {
                 String password = edt1.getText().toString().trim();
+                layoutEdt.setErrorEnabled(true);
                 ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) imv.getLayoutParams();
                 int marginInPx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 30, context.getResources().getDisplayMetrics());
                 if (password.isEmpty()) {
@@ -235,7 +237,7 @@ public class Validate {
                 } else if (!password.equals(edt2.getText().toString().trim())) {
                     layoutEdt.setError("Mật khẩu không trùng khớp");
                 } else {
-                    layoutEdt.setError(null); // Xóa lỗi nếu dữ liệu hợp lệ
+                    layoutEdt.setErrorEnabled(false);  // Tắt chế độ hiển thị lỗi để không có khoảng trống
                     marginInPx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, context.getResources().getDisplayMetrics());
                 }
                 params.setMargins(params.leftMargin, params.topMargin, marginInPx, params.bottomMargin);
@@ -256,11 +258,11 @@ public class Validate {
             @Override
             public void afterTextChanged(Editable editable) {
                 String fullName = edt.getText().toString().trim();
-
+                layoutEdt.setErrorEnabled(true);
                 if (fullName.isEmpty()) {
                     layoutEdt.setError("Họ và tên không được để trống");
                 } else {
-                    layoutEdt.setError(null); // Xóa lỗi nếu dữ liệu hợp lệ
+                    layoutEdt.setErrorEnabled(false);  // Tắt chế độ hiển thị lỗi để không có khoảng trống
                 }
             }
         });
@@ -279,12 +281,13 @@ public class Validate {
             public void afterTextChanged(Editable editable) {
                 String phone = edt.getText().toString().trim();
 
+                layoutEdt.setErrorEnabled(true);
                 if (phone.isEmpty()) {
                     layoutEdt.setError("Số điện thoại không được để trống");
                 } else if (!validatePhone(phone)) {
                     layoutEdt.setError("Số điện thoại không đúng");
                 } else {
-                    layoutEdt.setError(null); // Xóa lỗi nếu dữ liệu hợp lệ
+                    layoutEdt.setErrorEnabled(false);  // Tắt chế độ hiển thị lỗi để không có khoảng trống
                 }
             }
         });
