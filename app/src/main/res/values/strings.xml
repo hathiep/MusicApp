@@ -3,11 +3,14 @@
     // Login - Register
 
     <string name="login">Đăng nhập</string>
-    <string name="login_button2">ZALO</string>
-    <string name="login_button3">FACEBOOK</string>
-    <string name="login_button4">GOOGLE</string>
     <string name="login_email_hint">Email</string>
     <string name="login_password_hint">Mật khẩu</string>
+    <string name="message_login_fail">Thông tin không đúng, vui lòng thử lại!</string>
+    <string name="message_login_success">Đăng nhập thành công!</string>
+    <string name="message_confirm_email">Vui lòng xác thực email của bạn trước khi đăng nhập!</string>
+    <string name="message_email_exist">Email đã được sử dụng.Vui lòng thử nhập email khác!</string>
+    <string name="message_wrong_email">Không thể gửi email xác thực. Vui lòng kiểm tra lại email!</string>
+    <string name="message_register_success">Tạo tài khoản thành công. Email xác thực đã được gửi đến email của bạn\nVui lòng truy cập email để xác nhận!</string>
     <string name="email">Email</string>
     <string name="password">Mật khẩu</string>
     <string name="password_again">Nhập lại mật khẩu</string>

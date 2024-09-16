@@ -1,4 +1,5 @@
 package com.example.bottomnavigationapp.screen.login;
+
 import static android.content.ContentValues.TAG;
 
 import android.app.ProgressDialog;
@@ -39,7 +40,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextInputEditText edtEmail, edtPassword;
     private Button btnLogin;
     private TextView tvForgotPassword, tvRegister, tvPolicy;
-//    ProgressBar progressBar;
+    //    ProgressBar progressBar;
     private FirebaseAuth mAuth;
     private ImageView imvEye;
     private Integer eye;
@@ -75,8 +76,9 @@ public class LoginActivity extends AppCompatActivity {
         // Gọi các onClickListener
         onClickListener();
     }
+
     // Hàm ánh xạ view
-    private void initUi(){
+    private void initUi() {
         mAuth = FirebaseAuth.getInstance();
         edtEmail = findViewById(R.id.edt_email);
         edtPassword = findViewById(R.id.edt_password);
@@ -86,13 +88,14 @@ public class LoginActivity extends AppCompatActivity {
 //        tvPolicy = findViewById(R.id.tv_policy);
         btnLogin = findViewById(R.id.btn_login);
     }
+
     // Hàm logic ẩn mật khẩu
-    private void setUiEye(){
+    private void setUiEye() {
         eye = 0;
         imvEye.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(eye == 0){
+                if (eye == 0) {
                     // Chuyển icon unhide thành hide
                     imvEye.setImageResource(R.drawable.ic_hide);
                     // Chuyển txt từ hide thành unhide
@@ -100,8 +103,7 @@ public class LoginActivity extends AppCompatActivity {
                     // Đặt con trỏ nháy ở cuối input đã nhập
                     edtPassword.setSelection(edtPassword.getText().length());
                     eye = 1;
-                }
-                else {
+                } else {
                     // Chuyển icon hide thành unhide
                     imvEye.setImageResource(R.drawable.ic_unhide);
                     // Chuyển text từ unhide thành hide
@@ -114,8 +116,9 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
+
     // Hàm gọi các onClick
-    private void onClickListener(){
+    private void onClickListener() {
         // OnClick đổi mật khẩu
         tvForgotPassword.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -152,11 +155,11 @@ public class LoginActivity extends AppCompatActivity {
                 password = edtPassword.getText().toString();
                 // Gọi đối tượng validate
                 Validate validate = new Validate(LoginActivity.this);
-                if(!validate.validateLogin(email, password)) return;
+                if (!validate.validateLogin(email, password)) return;
                 // Check đăng nhập
 //                progressBar.setVisibility(View.VISIBLE);
                 mAuth.signInWithEmailAndPassword(email, password)
-                        .addOnCompleteListener( new OnCompleteListener<AuthResult>() {
+                        .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
 //                                progressBar.setVisibility(View.GONE);
@@ -164,21 +167,21 @@ public class LoginActivity extends AppCompatActivity {
                                     checkVerified();
                                 } else {
                                     // If sign in fails, display a message to the user.
-                                    show_dialog("Thông tin không đúng, vui lòng thử lại!", 2);
-
+                                    show_dialog(getString(R.string.message_login_fail), 2);
                                 }
                             }
                         });
             }
         });
     }
+
     // Hàm kiểm tra đã xác thực email chưa
-    private void checkVerified(){
+    private void checkVerified() {
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
             if (user.isEmailVerified()) {
                 // Email đã được xác thực, chuyển hướng người dùng đến màn hình chính
-                show_dialog("Đăng nhập thành công!", 1);
+                show_dialog(getString(R.string.message_login_success), 1);
 
                 new Handler().postDelayed(new Runnable() {
                     @Override
@@ -192,12 +195,13 @@ public class LoginActivity extends AppCompatActivity {
 
             } else {
                 // Email chưa được xác thực, hiển thị thông báo hoặc hướng dẫn người dùng xác thực email
-                show_dialog("Vui lòng xác thực email của bạn trước khi đăng nhập!", 3);
+                show_dialog(getString(R.string.message_confirm_email), 3);
             }
         }
     }
+
     // Hàm hiển thị thông báo
-    private void show_dialog(String s, int time){
+    private void show_dialog(String s, int time) {
         ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this);
         progressDialog.setTitle("Thông báo");
         progressDialog.setMessage(s);
@@ -210,41 +214,4 @@ public class LoginActivity extends AppCompatActivity {
             }
         }, time * 1000);
     }
-
-    // Hàm lưu token thiết bị của user
-    private void saveTokenToFirestore(String token) {
-        // Lấy email của người dùng hiện tại
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        String email = auth.getCurrentUser().getEmail();
-
-        if (email != null) {
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
-            db.collection("users")
-                    .whereEqualTo("email", email)
-                    .get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                            String userId = task.getResult().getDocuments().get(0).getId();
-
-                            // Cập nhật token cho user
-                            db.collection("users").document(userId)
-                                    .update("token", token)
-                                    .addOnSuccessListener(aVoid -> {
-                                        Log.d(TAG, "Token successfully written!");
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        Log.w(TAG, "Error writing token", e);
-                                    });
-                        } else {
-                            Log.w(TAG, "No user found with email: " + email);
-                        }
-                    })
-                    .addOnFailureListener(e -> {
-                        Log.w(TAG, "Error finding user by email", e);
-                    });
-        } else {
-            Log.w(TAG, "User email is null");
-        }
-    }
-
 }

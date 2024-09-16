@@ -108,7 +108,7 @@ public class Validate {
         }
         return true;
     }
-    // Hàm validate mật khẩu đúng định dạng độ dài từ 8 đến 20, bao gồm cả chữ cái viết hoa, chữ cái viết thường và số
+    // Hàm validate mật khẩu đúng định dạng độ dài từ 8 đến 20, bao gồm cả chữ hoa, chữ thường và số
     public boolean validatePassword(String password) {
         // Kiểm tra độ dài phù hợp của mật khẩu
         if (password.length() < 8 || password.length() > 20) {
@@ -132,10 +132,10 @@ public class Validate {
 
         return hasLowerCase && hasUpperCase && hasDigit;
     }
-    // Hàm thông báo validate phone
+    // Hàm thông báo validate password
     public boolean checkValidatePassword(String password){
         if(!validatePassword(password)){
-            show_dialog("Mật khẩu dài từ 8 đến 20 kí tự, bao gồm cả chữ cái viết hoa, chữ cái viết thường và số. Vui lòng nhập lại!", 3);
+            show_dialog("Mật khẩu dài từ 8 đến 20 kí tự, bao gồm cả chữ hoa, chữ thường và số. Vui lòng nhập lại!", 3);
             return false;
         }
         return true;

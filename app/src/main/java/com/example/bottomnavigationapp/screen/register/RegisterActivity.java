@@ -60,66 +60,30 @@ public class RegisterActivity extends AppCompatActivity {
             return insets;
         });
         initUi();
-        eye1 = 0;
-        eye2 = 0;
-        setUiEye(imV_eye1, editTextPassword, 1);
-        setUiEye(imV_eye2, editTextPasswordAgain, 2);
         setOnClickListener();
     }
 
     // Ánh xạ view
-    private void initUi(){
+    private void initUi() {
         editTextEmail = findViewById(R.id.email);
         editTextName = findViewById(R.id.fullname);
         editTextPhone = findViewById(R.id.phone);
         editTextPassword = findViewById(R.id.password);
         editTextPasswordAgain = findViewById(R.id.password_again);
         btnRegister = findViewById(R.id.btn_register);
-//        progressBar = findViewById(R.id.progress_bar);
         imV_back = findViewById(R.id.imV_back);
         imV_eye1 = findViewById(R.id.imV_eye1);
         imV_eye2 = findViewById(R.id.imV_eye2);
+        eye1 = 0;
+        eye2 = 0;
         auth = FirebaseAuth.getInstance();
         progressDialog = new ProgressDialog(this);
     }
 
-    // Set trạng thái mắt cho mật khẩu
-    private void setUiEye(ImageView imv_eye, EditText edt, int x){
-        imv_eye.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                int eye = 0;
-                if(x==1) eye = eye1;
-                if(x==2) eye = eye2;
-                if(eye == 0){
-                    // Chuyển icon unhide thành hide
-                    imv_eye.setImageResource(R.drawable.ic_hide);
-                    // Chuyển text từ hide thành unhide
-                    edt.setInputType(InputType.TYPE_CLASS_TEXT);
-                    // Đặt con trỏ nháy ở cuối input đã nhập
-                    edt.setSelection(edt.getText().length());
-                    // Đảo lại trạng thái mắt
-                    if(x==1) eye1 = 1;
-                    else eye2 = 1;
-                }
-                else {
-                    // Chuyển icon hide thành unhide
-                    imv_eye.setImageResource(R.drawable.ic_unhide);
-                    // Chuyển text từ unhide thành hide
-                    int inputType = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD;
-                    edt.setInputType(inputType);
-                    // Đặt con trỏ nháy ở cuối input đã nhập
-                    edt.setSelection(edt.getText().length());
-                    // Đảo lại trạng thái mắt
-                    if(x==1) eye1 = 0;
-                    else eye2 = 0;
-                }
-            }
-        });
-    }
-
     // Set onclick cho các button
-    private void setOnClickListener(){
+    private void setOnClickListener() {
+        setUiEye(imV_eye1, editTextPassword, 1);
+        setUiEye(imV_eye2, editTextPasswordAgain, 2);
         imV_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -141,19 +105,51 @@ public class RegisterActivity extends AppCompatActivity {
                 passwordagain = editTextPasswordAgain.getText().toString().trim();
                 // Gọi đối tượng validate
                 Validate validate = new Validate(RegisterActivity.this);
-                if(!validate.validateRegister(name, email, phone, password, passwordagain)) return;
+                if (!validate.validateRegister(name, email, phone, password, passwordagain)) return;
                 // Hiển thị ProgressDialog với thông báo "Đang xử lý"
                 show_dialog("Đang xử lý...", 0);
                 // Check đăng ký
                 createUserWithEmailAndPassword(email, password);
             }
+        });
+    }
 
-
+    // Set trạng thái mắt cho mật khẩu
+    private void setUiEye(ImageView imv_eye, EditText edt, int x) {
+        imv_eye.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int eye = 0;
+                if (x == 1) eye = eye1;
+                if (x == 2) eye = eye2;
+                if (eye == 0) {
+                    // Chuyển icon unhide thành hide
+                    imv_eye.setImageResource(R.drawable.ic_hide);
+                    // Chuyển text từ hide thành unhide
+                    edt.setInputType(InputType.TYPE_CLASS_TEXT);
+                    // Đặt con trỏ nháy ở cuối input đã nhập
+                    edt.setSelection(edt.getText().length());
+                    // Đảo lại trạng thái mắt
+                    if (x == 1) eye1 = 1;
+                    else eye2 = 1;
+                } else {
+                    // Chuyển icon hide thành unhide
+                    imv_eye.setImageResource(R.drawable.ic_unhide);
+                    // Chuyển text từ unhide thành hide
+                    int inputType = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD;
+                    edt.setInputType(inputType);
+                    // Đặt con trỏ nháy ở cuối input đã nhập
+                    edt.setSelection(edt.getText().length());
+                    // Đảo lại trạng thái mắt
+                    if (x == 1) eye1 = 0;
+                    else eye2 = 0;
+                }
+            }
         });
     }
 
     // Kiểm tra email và đăng ký
-    private void createUserWithEmailAndPassword(String email, String password){
+    private void createUserWithEmailAndPassword(String email, String password) {
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
@@ -167,7 +163,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                         } else {
                             // Email đã tồn tại. Hiển thị thông báo
-                            show_dialog("Email đã được sử dụng.Vui lòng thử nhập email khác!", 2);
+                            show_dialog(getString(R.string.message_email_exist), 2);
                             new Handler().postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
@@ -181,13 +177,13 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     // Hiển thị thông báo v gửi email xc tực
-    private void sendEmailVerify(String email){
+    private void sendEmailVerify(String email) {
         user.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
                     // Email xác thực đã được gửi thành công
-                    show_dialog("Tạo tài khoản thành công. Email xác thực đã được gửi đến " + email + "\nVui lòng truy cập email để xác nhận!", 3);
+                    show_dialog(getString(R.string.message_register_success), 3);
                     // Lưu thông tin user vào Firestore Database
                     insertUserToFirestoreDatabase();
                     //Trở về trang đăng nhập
@@ -201,7 +197,7 @@ public class RegisterActivity extends AppCompatActivity {
                     }, 3000);
                 } else {
                     // Không thể gửi email xác thực
-                    show_dialog("Không thể gửi email xác thực. Vui lòng kiểm tra lại email!", 3);
+                    show_dialog(getString(R.string.message_wrong_email), 3);
                 }
             }
         });
@@ -236,14 +232,13 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
 
-
-    private void show_dialog(String s, int time){
+    private void show_dialog(String s, int time) {
         progressDialog.setTitle("Thông báo");
         progressDialog.setMessage(s);
         progressDialog.show();
 
         // Sử dụng Handler để gửi một tin nhắn hoạt động sau một khoảng thời gian
-        if(time != 0){
+        if (time != 0) {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
