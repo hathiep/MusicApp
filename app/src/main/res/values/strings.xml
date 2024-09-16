@@ -11,6 +11,8 @@
     <string name="message_email_exist">Email đã được sử dụng.Vui lòng thử nhập email khác!</string>
     <string name="message_wrong_email">Không thể gửi email xác thực. Vui lòng kiểm tra lại email!</string>
     <string name="message_register_success">Tạo tài khoản thành công. Email xác thực đã được gửi đến email của bạn\nVui lòng truy cập email để xác nhận!</string>
+    <string name="message_getPassword_success">Đã gửi email thành công. Vui lòng truy cập email để đổi mật khẩu!</string>
+    <string name="message_exception">Đã có lỗi xảy ra. Vui lòng thử lại!</string>
     <string name="email">Email</string>
     <string name="password">Mật khẩu</string>
     <string name="password_again">Nhập lại mật khẩu</string>
@@ -45,5 +47,12 @@
     <string name="search_song">Nhập tên bài hát/ca sĩ</string>
     <string name="toast_search">Vui lòng nhập tên bài hát/ca sĩ</string>
     <string name="no_song">Không tìm thấy bài hát nào!</string>
+
+    // Account Fragment
+    <string name="edit_profile">Cập nhật tài khoản</string>
+    <string name="update">Cập nhật</string>
+    <string name="update_confirm_message">Bạn có chắc chắn muốn cập nhật tài khoản</string>
+    <string name="updating">Đang cập nhật dữ liệu...</string>
+    <string name="update_success">Cập nhật thành công</string>
 
 </resources>

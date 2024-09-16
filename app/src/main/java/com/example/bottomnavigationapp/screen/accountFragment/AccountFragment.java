@@ -1,66 +1,121 @@
 package com.example.bottomnavigationapp.screen.accountFragment;
 
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
 
 import com.example.bottomnavigationapp.R;
+import com.example.bottomnavigationapp.model.User;
+import com.example.bottomnavigationapp.screen.editProfileFragment.EditProfileFragment;
+import com.example.bottomnavigationapp.screen.login.LoginActivity;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link AccountFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+
 public class AccountFragment extends Fragment {
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public AccountFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment AccountFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static AccountFragment newInstance(String param1, String param2) {
-        AccountFragment fragment = new AccountFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    private ImageView imvInformation, imvEdit;
+    private TextView tvFullName, btnLogout;
+    private FirebaseFirestore db;
+    private FirebaseAuth auth;
+    private FirebaseUser currentUser;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_account, container, false);
+
+        // Gọi hàm ánh xạ view
+        init(view);
+
+        // Gọi hàm lấy user hiện tại
+        getCurrentUser();
+
+        return view;
+    }
+
+    // Hàm ánh xạ view
+    private void init(View view){
+        imvInformation = view.findViewById(R.id.imv_information);
+        imvEdit = view.findViewById(R.id.imv_edit);
+        tvFullName = view.findViewById(R.id.tv_fullName);
+        btnLogout = view.findViewById(R.id.btn_logout);
+        db = FirebaseFirestore.getInstance();
+        auth = FirebaseAuth.getInstance();
+        currentUser = auth.getCurrentUser();
+
+        setOnclick(imvEdit, new EditProfileFragment());
+
+        btnLogout.setOnClickListener(v -> showLogoutDialog());
+    }
+
+    // Hàm bắt sự kiện click chuyển hướng các Fragment
+    private void setOnclick(ImageView imv, Fragment fragment){
+        imv.setOnClickListener(v -> {
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, fragment)
+                    .addToBackStack(fragment.getClass().getSimpleName())
+                    .commit();
+        });
+    }
+
+    // Hàm lấy user hiện tại
+    private void getCurrentUser(){
+
+        if (currentUser != null) {
+            String userEmail = currentUser.getEmail();
+            db.collection("users").whereEqualTo("email", userEmail)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                            DocumentSnapshot userDoc = task.getResult().getDocuments().get(0);
+                            User user = userDoc.toObject(User.class);
+                            tvFullName.setText(user.getFullName());
+                        }
+                    });
         }
+
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_account, container, false);
+    // Hàm thông báo xác nhận đăng xuất
+    private void showLogoutDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Bạn có muốn đăng xuất?");
+        builder.setMessage("Xác nhận đăng xuất khỏi ứng dụng?");
+
+        builder.setPositiveButton("Yes", (dialog, which) -> {
+            auth.signOut();
+            dialog.dismiss();
+            show_dialog("Đăng xuất thành công!", 1);
+            new Handler().postDelayed(() -> {
+                Intent intent = new Intent(getContext(), LoginActivity.class);
+                startActivity(intent);
+            }, 1000);
+        });
+
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+
+        // Hiển thị Dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void show_dialog(String s, int time){
+        ProgressDialog progressDialog = new ProgressDialog(getContext());
+        progressDialog.setTitle("Thông báo");
+        progressDialog.setMessage(s);
+        progressDialog.show();
+
+        new Handler().postDelayed(progressDialog::dismiss, time * 1000);
     }
 }

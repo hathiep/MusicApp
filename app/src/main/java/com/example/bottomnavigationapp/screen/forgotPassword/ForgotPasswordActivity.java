@@ -63,6 +63,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                 startActivity(intent);
                 finish();
+                overridePendingTransition(0, 0);
             }
         });
 
@@ -87,23 +88,22 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         progressDialog.setMessage("Đang gửi email xác nhận!");
         progressDialog.show();
         FirebaseAuth auth = FirebaseAuth.getInstance();
-        auth.sendPasswordResetEmail(email)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        progressDialog.dismiss();
-                        if (task.isSuccessful()) {
-                            Toast.makeText(ForgotPasswordActivity.this, "Đã gửi email thành công. Vui lòng truy cập email để đổi mật khẩu!",
-                                    Toast.LENGTH_LONG).show();
-                            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-                            startActivity(intent);
-                            finish();
-                        }
-                        else{
-                            Toast.makeText(ForgotPasswordActivity.this, "Đã có lỗi xảy ra. Vui lòng thử lại!",
-                                    Toast.LENGTH_LONG).show();
-                        }
-                    }
-                });
+        auth.sendPasswordResetEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                progressDialog.dismiss();
+                if (task.isSuccessful()) {
+                    Toast.makeText(ForgotPasswordActivity.this, getString(R.string.message_getPassword_success),
+                            Toast.LENGTH_LONG).show();
+                    Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+                else{
+                    Toast.makeText(ForgotPasswordActivity.this, getString(R.string.message_exception),
+                            Toast.LENGTH_LONG).show();
+                }
+            }
+        });
     }
 }

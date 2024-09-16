@@ -36,6 +36,9 @@
         <activity
             android:name=".screen.forgotPassword.ForgotPasswordActivity"
             android:exported="false" />
+        <activity
+            android:name=".screen.changePassword.ChangePasswordActivity"
+            android:exported="false" />
         <service
             android:name=".service.PlayService"
             android:exported="false"
