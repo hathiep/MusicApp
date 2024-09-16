@@ -2,17 +2,14 @@ package com.example.bottomnavigationapp.screen.register;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
-import android.view.WindowInsetsController;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -27,19 +24,18 @@ import com.example.bottomnavigationapp.screen.login.LoginActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.firebase.Timestamp;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class RegisterActivity extends AppCompatActivity {
-    private TextInputEditText editTextName, editTextEmail, editTextPhone, editTextPassword, editTextPasswordAgain;
+    private TextInputLayout layoutEmail, layoutFullName, layoutPhone, layoutPassword, layoutPasswordAg;
+    private TextInputEditText edtFullName, edtEmail, edtPhone, edtPassword, edtPasswordAgain;
     private Button btnRegister;
     private ImageView imV_back, imV_eye1, imV_eye2;
     private ProgressDialog progressDialog;
@@ -47,6 +43,7 @@ public class RegisterActivity extends AppCompatActivity {
     private FirebaseUser user;
     private Integer eye1, eye2;
     private FirebaseFirestore db;
+    private Validate validate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,15 +62,26 @@ public class RegisterActivity extends AppCompatActivity {
 
     // Ánh xạ view
     private void initUi() {
-        editTextEmail = findViewById(R.id.email);
-        editTextName = findViewById(R.id.fullname);
-        editTextPhone = findViewById(R.id.phone);
-        editTextPassword = findViewById(R.id.password);
-        editTextPasswordAgain = findViewById(R.id.password_again);
+        layoutEmail = findViewById(R.id.layout_email);
+        layoutFullName = findViewById(R.id.layout_fullName);
+        layoutPhone = findViewById(R.id.layout_phone);
+        layoutPassword = findViewById(R.id.layout_password);
+        layoutPasswordAg = findViewById(R.id.layout_password_ag);
+        edtEmail = findViewById(R.id.email);
+        edtFullName = findViewById(R.id.fullname);
+        edtPhone = findViewById(R.id.phone);
+        edtPassword = findViewById(R.id.password);
+        edtPasswordAgain = findViewById(R.id.password_again);
         btnRegister = findViewById(R.id.btn_register);
         imV_back = findViewById(R.id.imV_back);
         imV_eye1 = findViewById(R.id.imV_eye1);
         imV_eye2 = findViewById(R.id.imV_eye2);
+        validate = new Validate(this);
+        validate.validateEmail(layoutEmail, edtEmail);
+        validate.validateFullName(layoutFullName, edtFullName);
+        validate.validatePhone(layoutPhone, edtPhone);
+        validate.validatePassword(layoutPassword, edtPassword, imV_eye1);
+        validate.validatePassword(layoutPasswordAg, edtPasswordAgain, imV_eye2);
         eye1 = 0;
         eye2 = 0;
         auth = FirebaseAuth.getInstance();
@@ -82,8 +90,8 @@ public class RegisterActivity extends AppCompatActivity {
 
     // Set onclick cho các button
     private void setOnClickListener() {
-        setUiEye(imV_eye1, editTextPassword, 1);
-        setUiEye(imV_eye2, editTextPasswordAgain, 2);
+        setUiEye(imV_eye1, edtPassword, 1);
+        setUiEye(imV_eye2, edtPasswordAgain, 2);
         imV_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -98,11 +106,11 @@ public class RegisterActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // Lấy các giá trị từ input
                 String name, email, phone, password, passwordagain;
-                name = editTextName.getText().toString().trim();
-                email = editTextEmail.getText().toString().trim();
-                phone = editTextPhone.getText().toString().trim();
-                password = editTextPassword.getText().toString().trim();
-                passwordagain = editTextPasswordAgain.getText().toString().trim();
+                name = edtFullName.getText().toString().trim();
+                email = edtEmail.getText().toString().trim();
+                phone = edtPhone.getText().toString().trim();
+                password = edtPassword.getText().toString().trim();
+                passwordagain = edtPasswordAgain.getText().toString().trim();
                 // Gọi đối tượng validate
                 Validate validate = new Validate(RegisterActivity.this);
                 if (!validate.validateRegister(name, email, phone, password, passwordagain)) return;
@@ -167,8 +175,8 @@ public class RegisterActivity extends AppCompatActivity {
                             new Handler().postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
-                                    editTextEmail.requestFocus(); // Yêu cầu EditText edt_name nhận focus
-                                    editTextEmail.setSelection(editTextEmail.getText().length()); // Di chuyển con trỏ nháy đến cuối của edt_name
+                                    edtEmail.requestFocus(); // Yêu cầu EditText edt_name nhận focus
+                                    edtEmail.setSelection(edtEmail.getText().length()); // Di chuyển con trỏ nháy đến cuối của edt_name
                                 }
                             }, 100);
                         }
@@ -212,9 +220,9 @@ public class RegisterActivity extends AppCompatActivity {
 
             // Tạo Map chứa thông tin người dùng
             Map<String, Object> userMap = new HashMap<>();
-            userMap.put("fullName", editTextName.getText().toString());
-            userMap.put("email", editTextEmail.getText().toString());
-            userMap.put("phone", editTextPhone.getText().toString());
+            userMap.put("fullName", edtFullName.getText().toString());
+            userMap.put("email", edtEmail.getText().toString());
+            userMap.put("phone", edtPhone.getText().toString());
             userMap.put("avatarUrl", "avatar");
 
             // Lưu user vào Firestore với ID là UID của họ

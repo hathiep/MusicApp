@@ -21,14 +21,16 @@ import com.example.bottomnavigationapp.screen.login.LoginActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class ForgotPasswordActivity extends AppCompatActivity {
-
+    private TextInputLayout layoutEmail;
     private ImageView imV_back;
-    private TextInputEditText editTextEmail;
+    private TextInputEditText edtEmail;
     private ProgressDialog progressDialog;
     private Button btnGetPassword;
+    private Validate validate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +52,10 @@ public class ForgotPasswordActivity extends AppCompatActivity {
     // Hàm ánh xạ view
     private void initUi(){
         imV_back = findViewById(R.id.imV_back);
-        editTextEmail = findViewById(R.id.edt_email);
+        layoutEmail = findViewById(R.id.layout_email);
+        edtEmail = findViewById(R.id.edt_email);
+        validate = new Validate(this);
+        validate.validateEmail(layoutEmail, edtEmail);
         btnGetPassword = findViewById(R.id.btn_get_password);
         progressDialog = new ProgressDialog(this);
     }
@@ -70,7 +75,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         btnGetPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String email = editTextEmail.getText().toString().trim();
+                String email = edtEmail.getText().toString().trim();
                 if(email == null || email == ""){
                     Toast.makeText(ForgotPasswordActivity.this, "Vui lòng nhập email!", Toast.LENGTH_SHORT).show();
                     return;

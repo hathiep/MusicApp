@@ -8,7 +8,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowInsetsController;
@@ -31,12 +33,14 @@ import com.example.bottomnavigationapp.screen.register.RegisterActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class LoginActivity extends AppCompatActivity {
+    private TextInputLayout layoutEmail, layoutPassword;
     private TextInputEditText edtEmail, edtPassword;
     private Button btnLogin;
     private TextView tvForgotPassword, tvRegister, tvPolicy;
@@ -44,6 +48,7 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private ImageView imvEye;
     private Integer eye;
+    private Validate validate;
 
     // Hàm check tài khoản đã đăng nhập trên thiết bị
 //    @Override
@@ -80,11 +85,16 @@ public class LoginActivity extends AppCompatActivity {
     // Hàm ánh xạ view
     private void initUi() {
         mAuth = FirebaseAuth.getInstance();
+        layoutEmail = findViewById(R.id.layout_email);
+        layoutPassword = findViewById(R.id.layout_password);
         edtEmail = findViewById(R.id.edt_email);
         edtPassword = findViewById(R.id.edt_password);
         imvEye = findViewById(R.id.imV_eye);
         tvForgotPassword = findViewById(R.id.tv_forgot_password);
         tvRegister = findViewById(R.id.tv_register);
+        validate = new Validate(this);
+        validate.validateEmail(layoutEmail, edtEmail);
+        validate.validatePassword(layoutPassword, edtPassword, imvEye);
 //        tvPolicy = findViewById(R.id.tv_policy);
         btnLogin = findViewById(R.id.btn_login);
     }

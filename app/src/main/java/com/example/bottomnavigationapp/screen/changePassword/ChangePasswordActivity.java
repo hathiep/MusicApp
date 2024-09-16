@@ -2,12 +2,10 @@ package com.example.bottomnavigationapp.screen.changePassword;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.InputType;
 import android.view.View;
-import android.view.WindowInsetsController;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -25,18 +23,21 @@ import com.example.bottomnavigationapp.screen.login.LoginActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class ChangePasswordActivity extends AppCompatActivity {
-    private TextInputEditText edt_old_password, edt_new_password, edt_new_password_again;
-    private Button btn_change_password;
-    private ImageView imV_back, imV_eye1, imV_eye2, imV_eye3;
+    private TextInputLayout layoutOldPassword, layoutNewPassword, layoutNewPasswordAgain;
+    private TextInputEditText edtOldPassword, edtNewPassword, edtNewPasswordAgain;
+    private Button btnChangePassword;
+    private ImageView imvBack, imvEye1, imvEye2, imvEye3;
     private FirebaseAuth auth;
     private FirebaseUser user;
     private Integer eye1, eye2, eye3;
+    private Validate validate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,20 +58,27 @@ public class ChangePasswordActivity extends AppCompatActivity {
 
     // Hàm ánh xạ view
     private void initUi(){
-        edt_old_password = findViewById(R.id.edt_old_password);
-        edt_new_password = findViewById(R.id.edt_new_password);
-        edt_new_password_again = findViewById(R.id.edt_new_password_again);
-        btn_change_password = findViewById(R.id.btn_change_password);
-        imV_back = findViewById(R.id.imV_back);
-        imV_eye1 = findViewById(R.id.imV_eye1);
-        imV_eye2 = findViewById(R.id.imV_eye2);
-        imV_eye3 = findViewById(R.id.imV_eye3);
+        layoutOldPassword = findViewById(R.id.layout_pw_old);
+        layoutNewPassword = findViewById(R.id.layout_pw_new);
+        layoutNewPasswordAgain = findViewById(R.id.layout_pw_new_ag);
+        edtOldPassword = findViewById(R.id.edt_old_password);
+        edtNewPassword = findViewById(R.id.edt_new_password);
+        edtNewPasswordAgain = findViewById(R.id.edt_new_password_again);
+        validate = new Validate(this);
+        validate.validatePassword(layoutOldPassword, edtOldPassword, imvEye1);
+        validate.validatePassword(layoutNewPassword, edtNewPassword, imvEye2);
+        validate.validatePassword(layoutNewPasswordAgain, edtNewPasswordAgain, imvEye3);
+        btnChangePassword = findViewById(R.id.btn_change_password);
+        imvBack = findViewById(R.id.imV_back);
+        imvEye1 = findViewById(R.id.imV_eye1);
+        imvEye2 = findViewById(R.id.imV_eye2);
+        imvEye3 = findViewById(R.id.imV_eye3);
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
         eye1 = eye2 = eye3 = 0;
-        setUiEye(imV_eye1, edt_old_password, 1);
-        setUiEye(imV_eye2, edt_new_password, 2);
-        setUiEye(imV_eye3, edt_new_password_again, 3);
+        setUiEye(imvEye1, edtOldPassword, 1);
+        setUiEye(imvEye2, edtNewPassword, 2);
+        setUiEye(imvEye3, edtNewPasswordAgain, 3);
     }
 
     // Hàm hiển thị trạng thái mắt
@@ -113,18 +121,18 @@ public class ChangePasswordActivity extends AppCompatActivity {
 
     // Hàm bắt sự kiện các button
     private void setOnClickListener(){
-        imV_back.setOnClickListener(view -> {
+        imvBack.setOnClickListener(view -> {
             finish();
             overridePendingTransition(0, 0);
         });
 
-        btn_change_password.setOnClickListener(new View.OnClickListener() {
+        btnChangePassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Gọi đối tượng validate
                 Validate validate = new Validate(ChangePasswordActivity.this);
-                if(!validate.validateChangePassword(getInput(edt_old_password),
-                        getInput(edt_new_password), getInput(edt_new_password_again))) return;
+                if(!validate.validateChangePassword(getInput(edtOldPassword),
+                        getInput(edtNewPassword), getInput(edtNewPasswordAgain))) return;
                 // Check đổi mật khẩu
                 reAuthenticateUser();
             }
@@ -136,13 +144,13 @@ public class ChangePasswordActivity extends AppCompatActivity {
 
     // Hàm check đổi mật khẩu
     private void reAuthenticateUser(){
-        AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), getInput(edt_old_password));
+        AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), getInput(edtOldPassword));
         user.reauthenticate(credential)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if(task.isSuccessful()){
-                            if(getInput(edt_old_password).equals(getInput(edt_new_password))){
+                            if(getInput(edtOldPassword).equals(getInput(edtNewPassword))){
                                 show_dialog("Vui lòng nhập mật khẩu mới khác mật khẩu cũ!", 2);
                                 return;
                             }
@@ -157,7 +165,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
 
     // Hàm đổi mật khẩu trên Authentication
     private void onClickChangePassword(){
-        user.updatePassword(getInput(edt_new_password))
+        user.updatePassword(getInput(edtNewPassword))
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {

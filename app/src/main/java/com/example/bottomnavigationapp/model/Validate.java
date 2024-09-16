@@ -3,7 +3,17 @@ package com.example.bottomnavigationapp.model;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Handler;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.util.TypedValue;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageView;
+
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -12,7 +22,6 @@ public class Validate {
     private Context context;
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
     private static final Pattern PHONE_NUMBER_PATTERN = Pattern.compile("^\\d{10}$");
-
     public Validate() {
     }
 
@@ -152,6 +161,105 @@ public class Validate {
         }
         return true;
     }
+
+    public void validateEmail(TextInputLayout layoutEdt, TextInputEditText edt){
+        edt.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                String email = edt.getText().toString().trim();
+
+                if (email.isEmpty()) {
+                    layoutEdt.setError("Email không được để trống");
+                } else if (!validateEmail(email)) {
+                    layoutEdt.setError("Email không hợp lệ!");
+                } else {
+                    layoutEdt.setError(null); // Xóa lỗi nếu dữ liệu hợp lệ
+                }
+            }
+        });
+    }
+
+    public void validatePassword(TextInputLayout layoutEdt, TextInputEditText edt, ImageView imv){
+        edt.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                String password = edt.getText().toString().trim();
+                ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) imv.getLayoutParams();
+                int marginInPx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 30, context.getResources().getDisplayMetrics());
+                if (password.isEmpty()) {
+                    layoutEdt.setError("Mật khẩu không được để trống");
+                } else if (!validatePassword(password)) {
+                    layoutEdt.setError("Mật khẩu dài 8 - 20 kí tự, gồm cả chữ hoa, chữ thường và số");
+                } else {
+                    layoutEdt.setError(null); // Xóa lỗi nếu dữ liệu hợp lệ
+                    marginInPx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, context.getResources().getDisplayMetrics());
+                }
+                params.setMargins(params.leftMargin, params.topMargin, marginInPx, params.bottomMargin);
+                imv.setLayoutParams(params);
+            }
+        });
+    }
+
+    public void validateFullName(TextInputLayout layoutEdt, TextInputEditText edt){
+        edt.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                String fullName = edt.getText().toString().trim();
+
+                if (fullName.isEmpty()) {
+                    layoutEdt.setError("Họ và tên không được để trống");
+                } else {
+                    layoutEdt.setError(null); // Xóa lỗi nếu dữ liệu hợp lệ
+                }
+            }
+        });
+    }
+
+    public void validatePhone(TextInputLayout layoutEdt, TextInputEditText edt){
+        edt.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                String phone = edt.getText().toString().trim();
+
+                if (phone.isEmpty()) {
+                    layoutEdt.setError("Số điện thoại không được để trống");
+                } else if (!validatePhone(phone)) {
+                    layoutEdt.setError("Số điện thoại không đúng");
+                } else {
+                    layoutEdt.setError(null); // Xóa lỗi nếu dữ liệu hợp lệ
+                }
+            }
+        });
+    }
+
     public boolean validateLogin(String email, String password){
         if(!checkValidateEmpty(email, password) || !checkValidateEmail(email) || !checkValidatePassword(password)) return false;
         return true;

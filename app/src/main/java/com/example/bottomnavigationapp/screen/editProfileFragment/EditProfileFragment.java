@@ -7,6 +7,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,6 +30,7 @@ import com.example.bottomnavigationapp.model.User;
 import com.example.bottomnavigationapp.model.Validate;
 import com.example.bottomnavigationapp.screen.changePassword.ChangePasswordActivity;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -39,6 +42,7 @@ public class EditProfileFragment extends Fragment {
     private static final int PICK_IMAGE_REQUEST = 1;
     private static final int STORAGE_PERMISSION_CODE = 123;
 
+    private TextInputLayout layoutFullName, layoutPhone;
     private TextInputEditText edtEmail, edtFullName, edtPhone;
     private TextView btnUpdate, btnChangePassword;
     private ImageView imVBack, imvAvatar, imvCamera;
@@ -47,6 +51,7 @@ public class EditProfileFragment extends Fragment {
     private FirebaseFirestore db;
     private ProgressDialog progressDialog;
     private Uri imageUri;
+    private Validate validate;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -78,6 +83,8 @@ public class EditProfileFragment extends Fragment {
         currentUser = auth.getCurrentUser();
         db = FirebaseFirestore.getInstance();
 
+        layoutFullName = view.findViewById(R.id.layout_fullName);
+        layoutPhone = view.findViewById(R.id.layout_phone);
         edtEmail = view.findViewById(R.id.edt_email);
         edtFullName = view.findViewById(R.id.edt_fullName);
         edtPhone = view.findViewById(R.id.edt_phone);
@@ -86,6 +93,9 @@ public class EditProfileFragment extends Fragment {
         imVBack = view.findViewById(R.id.imV_back);
         imvAvatar = view.findViewById(R.id.imv_avatar);
         imvCamera = view.findViewById(R.id.imv_camera);
+        validate = new Validate(getContext());
+        validate.validateFullName(layoutFullName, edtFullName);
+        validate.validatePhone(layoutPhone, edtPhone);
     }
 
     // Hàm hiển thị thông tin user hiện tại
