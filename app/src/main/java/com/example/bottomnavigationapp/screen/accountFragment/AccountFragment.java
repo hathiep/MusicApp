@@ -13,6 +13,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
 import com.example.bottomnavigationapp.R;
 import com.example.bottomnavigationapp.model.User;
 import com.example.bottomnavigationapp.screen.editProfileFragment.EditProfileFragment;
@@ -24,7 +25,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 
 public class AccountFragment extends Fragment {
-    private ImageView imvInformation, imvEdit;
+    private ImageView imvInformation, imvAvatar, imvEdit;
     private TextView tvFullName, btnLogout;
     private FirebaseFirestore db;
     private FirebaseAuth auth;
@@ -45,7 +46,8 @@ public class AccountFragment extends Fragment {
 
     // Hàm ánh xạ view
     private void init(View view){
-        imvInformation = view.findViewById(R.id.imv_information);
+//        imvInformation = view.findViewById(R.id.imv_information);
+        imvAvatar = view.findViewById(R.id.imv_avatar);
         imvEdit = view.findViewById(R.id.imv_edit);
         tvFullName = view.findViewById(R.id.tv_fullName);
         btnLogout = view.findViewById(R.id.btn_logout);
@@ -69,8 +71,7 @@ public class AccountFragment extends Fragment {
     }
 
     // Hàm lấy user hiện tại
-    private void getCurrentUser(){
-
+    private void getCurrentUser() {
         if (currentUser != null) {
             String userEmail = currentUser.getEmail();
             db.collection("users").whereEqualTo("email", userEmail)
@@ -79,12 +80,24 @@ public class AccountFragment extends Fragment {
                         if (task.isSuccessful() && !task.getResult().isEmpty()) {
                             DocumentSnapshot userDoc = task.getResult().getDocuments().get(0);
                             User user = userDoc.toObject(User.class);
+
+                            // Lấy URL ảnh avatar từ Firestore và hiển thị vào ImageView
+                            String avatarUrl = user.getAvatarUrl();
+                            if (avatarUrl != null && !avatarUrl.isEmpty()) {
+                                // Sử dụng Glide để tải và hiển thị ảnh
+                                Glide.with(getContext())
+                                        .load(avatarUrl)
+                                        .placeholder(R.drawable.avatar_alt)  // Ảnh placeholder khi tải ảnh
+                                        .error(R.drawable.avatar_alt)        // Ảnh mặc định khi lỗi
+                                        .into(imvAvatar);
+                            }
+
                             tvFullName.setText(user.getFullName());
                         }
                     });
         }
-
     }
+
 
     // Hàm thông báo xác nhận đăng xuất
     private void showLogoutDialog() {

@@ -54,5 +54,6 @@
     <string name="update_confirm_message">Bạn có chắc chắn muốn cập nhật tài khoản</string>
     <string name="updating">Đang cập nhật dữ liệu...</string>
     <string name="update_success">Cập nhật thành công</string>
+    <string name="message_uploading">Đang tải lên</string>
 
 </resources>

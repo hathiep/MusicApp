@@ -1,16 +1,17 @@
 package com.example.bottomnavigationapp.model;
 
 public class User {
-    private String id, fullName, email, phone;
+    private String id, fullName, email, phone, avatarUrl;
 
     public User() {
     }
 
-    public User(String id, String fullName, String email, String phone) {
+    public User(String id, String fullName, String email, String phone, String avatarUrl) {
         this.id = id;
         this.fullName = fullName;
         this.email = email;
         this.phone = phone;
+        this.avatarUrl = avatarUrl;
     }
 
     public String getId() {
@@ -43,5 +44,13 @@ public class User {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 }

@@ -215,6 +215,7 @@ public class RegisterActivity extends AppCompatActivity {
             userMap.put("fullName", editTextName.getText().toString());
             userMap.put("email", editTextEmail.getText().toString());
             userMap.put("phone", editTextPhone.getText().toString());
+            userMap.put("avatarUrl", "avatar");
 
             // Lưu user vào Firestore với ID là UID của họ
             db.collection("users")
