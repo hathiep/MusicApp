@@ -18,7 +18,7 @@
         android:theme="@style/Theme.BottomNavigationApp"
         tools:targetApi="31">
         <activity
-            android:name=".mainActivity.MainActivity"
+            android:name=".screen.login.LoginActivity"
             android:windowSoftInputMode="stateHidden|adjustResize"
             android:exported="true">
             <intent-filter>
@@ -27,6 +27,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".mainActivity.MainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".screen.register.RegisterActivity"
+            android:exported="false" />
+        <activity
+            android:name=".screen.forgotPassword.ForgotPasswordActivity"
+            android:exported="false" />
         <service
             android:name=".service.PlayService"
             android:exported="false"

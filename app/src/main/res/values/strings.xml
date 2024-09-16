@@ -1,4 +1,34 @@
 <resources>
+
+    // Login - Register
+
+    <string name="login">Đăng nhập</string>
+    <string name="login_button2">ZALO</string>
+    <string name="login_button3">FACEBOOK</string>
+    <string name="login_button4">GOOGLE</string>
+    <string name="login_email_hint">Email</string>
+    <string name="login_password_hint">Mật khẩu</string>
+    <string name="email">Email</string>
+    <string name="password">Mật khẩu</string>
+    <string name="password_again">Nhập lại mật khẩu</string>
+    <string name="register">Tạo tài khoản</string>
+    <string name="fullname">Họ và tên</string>
+    <string name="phone">Số điện thoại</string>
+    <string name="forgot">Quên mật khẩu?</string>
+    <string name="get_password">Đặt lại mật khẩu</string>
+    <string name="login_otherway">Hoặc đăng nhập với tài khoản</string>
+    <string name="suggest">Bạn chưa có tài khoản?</string>
+    <string name="suggest_register">Bạn chưa có tài khoản? Đăng ký tại đây</string>
+    <string name="policy">Điều khoản và chính sách</string>
+    <string name="logout">Đăng xuất</string>
+    <string name="update_profile">Sửa Profile</string>
+    <string name="change_password">Đổi mật khẩu</string>
+    <string name="old_password">Mật khẩu cũ</string>
+    <string name="new_password">Mật khẩu mới</string>
+    <string name="new_password_again">Nhập lại mật khẩu mới</string>
+    <string name="save_profile">Lưu thông tin</string>
+
+    // Main
     <string name="app_name">Music Tina</string>
     <string name="navigation_home">Trang chủ</string>
     <string name="navigation_notification">Thông báo</string>
@@ -6,6 +36,9 @@
     <string name="cancel_app">Bạn có chắc chắn muốn thoát ứng dụng không?</string>
     <string name="no">Không</string>
     <string name="yes">Có</string>
+
+
+    // Home Fragment
     <string name="search_song">Nhập tên bài hát/ca sĩ</string>
     <string name="toast_search">Vui lòng nhập tên bài hát/ca sĩ</string>
     <string name="no_song">Không tìm thấy bài hát nào!</string>
