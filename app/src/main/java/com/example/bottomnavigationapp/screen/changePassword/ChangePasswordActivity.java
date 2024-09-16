@@ -67,7 +67,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
         validate = new Validate(this);
         validate.validatePassword(layoutOldPassword, edtOldPassword, imvEye1);
         validate.validatePassword(layoutNewPassword, edtNewPassword, imvEye2);
-        validate.validatePassword(layoutNewPasswordAgain, edtNewPasswordAgain, imvEye3);
+        validate.validatePassword(layoutNewPasswordAgain, edtNewPasswordAgain, edtNewPassword, imvEye3);
         btnChangePassword = findViewById(R.id.btn_change_password);
         imvBack = findViewById(R.id.imV_back);
         imvEye1 = findViewById(R.id.imV_eye1);

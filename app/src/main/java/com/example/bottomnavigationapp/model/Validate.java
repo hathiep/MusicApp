@@ -214,6 +214,36 @@ public class Validate {
         });
     }
 
+    public void validatePassword(TextInputLayout layoutEdt, TextInputEditText edt1, TextInputEditText edt2, ImageView imv){
+        edt1.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                String password = edt1.getText().toString().trim();
+                ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) imv.getLayoutParams();
+                int marginInPx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 30, context.getResources().getDisplayMetrics());
+                if (password.isEmpty()) {
+                    layoutEdt.setError("Mật khẩu không được để trống");
+                } else if (!validatePassword(password)) {
+                    layoutEdt.setError("Mật khẩu dài 8 - 20 kí tự, gồm cả chữ hoa, chữ thường và số");
+                } else if (!password.equals(edt2.getText().toString().trim())) {
+                    layoutEdt.setError("Mật khẩu không trùng khớp");
+                } else {
+                    layoutEdt.setError(null); // Xóa lỗi nếu dữ liệu hợp lệ
+                    marginInPx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, context.getResources().getDisplayMetrics());
+                }
+                params.setMargins(params.leftMargin, params.topMargin, marginInPx, params.bottomMargin);
+                imv.setLayoutParams(params);
+            }
+        });
+    }
+
     public void validateFullName(TextInputLayout layoutEdt, TextInputEditText edt){
         edt.addTextChangedListener(new TextWatcher() {
             @Override

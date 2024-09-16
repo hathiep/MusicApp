@@ -81,7 +81,7 @@ public class RegisterActivity extends AppCompatActivity {
         validate.validateFullName(layoutFullName, edtFullName);
         validate.validatePhone(layoutPhone, edtPhone);
         validate.validatePassword(layoutPassword, edtPassword, imV_eye1);
-        validate.validatePassword(layoutPasswordAg, edtPasswordAgain, imV_eye2);
+        validate.validatePassword(layoutPasswordAg, edtPasswordAgain, edtPassword, imV_eye2);
         eye1 = 0;
         eye2 = 0;
         auth = FirebaseAuth.getInstance();
