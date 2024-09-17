@@ -18,6 +18,7 @@ import com.example.bottomnavigationapp.R;
 import com.example.bottomnavigationapp.model.User;
 import com.example.bottomnavigationapp.screen.editProfileFragment.EditProfileFragment;
 import com.example.bottomnavigationapp.screen.login.LoginActivity;
+import com.example.bottomnavigationapp.service.PlayService;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -110,6 +111,8 @@ public class AccountFragment extends Fragment {
             dialog.dismiss();
             show_dialog("Đăng xuất thành công!", 1);
             new Handler().postDelayed(() -> {
+                Intent serviceIntent = new Intent(getContext(), PlayService.class);
+                getContext().stopService(serviceIntent);
                 Intent intent = new Intent(getContext(), LoginActivity.class);
                 startActivity(intent);
             }, 1000);

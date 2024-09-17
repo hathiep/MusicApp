@@ -44,7 +44,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextInputEditText edtEmail, edtPassword;
     private Button btnLogin;
     private TextView tvForgotPassword, tvRegister, tvPolicy;
-    //    ProgressBar progressBar;
+    private ProgressDialog progressDialog;
     private FirebaseAuth mAuth;
     private ImageView imvEye;
     private Integer eye;
@@ -97,6 +97,7 @@ public class LoginActivity extends AppCompatActivity {
         validate.validatePassword(layoutPassword, edtPassword, imvEye);
 //        tvPolicy = findViewById(R.id.tv_policy);
         btnLogin = findViewById(R.id.btn_login);
+        progressDialog = new ProgressDialog(LoginActivity.this);
     }
 
     // Hàm logic ẩn mật khẩu
@@ -167,7 +168,7 @@ public class LoginActivity extends AppCompatActivity {
                 Validate validate = new Validate(LoginActivity.this);
                 if (!validate.validateLogin(email, password)) return;
                 // Check đăng nhập
-//                progressBar.setVisibility(View.VISIBLE);
+                show_dialog("Đang xử lý...", 0);
                 mAuth.signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                             @Override
@@ -212,16 +213,19 @@ public class LoginActivity extends AppCompatActivity {
 
     // Hàm hiển thị thông báo
     private void show_dialog(String s, int time) {
-        ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this);
         progressDialog.setTitle("Thông báo");
         progressDialog.setMessage(s);
         progressDialog.show();
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                progressDialog.dismiss();
-            }
-        }, time * 1000);
+        // Sử dụng Handler để gửi một tin nhắn hoạt động sau một khoảng thời gian
+        if (time != 0) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    // Ẩn Dialog sau khi đã qua một khoảng thời gian nhất định
+                    progressDialog.dismiss();
+                }
+            }, time * 1000); // Số milliseconds Dialog biến mất sau đó
+        }
     }
 }

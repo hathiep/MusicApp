@@ -117,17 +117,21 @@ public class Validate {
         }
         return true;
     }
-    // Hàm validate mật khẩu đúng định dạng độ dài từ 8 đến 20, bao gồm cả chữ hoa, chữ thường và số
+    // Hàm validate mật khẩu đúng định dạng độ dài từ 8 đến 20, bao gồm cả chữ hoa, chữ thường, số và kí tự đặc biệt
     public boolean validatePassword(String password) {
         // Kiểm tra độ dài phù hợp của mật khẩu
         if (password.length() < 8 || password.length() > 20) {
             return false;
         }
 
-        // Kiểm tra sự tồn tại của ít nhất một chữ cái viết thường, một chữ cái viết hoa và số
+        // Kiểm tra sự tồn tại của ít nhất một chữ cái viết thường, một chữ cái viết hoa, số và ký tự đặc biệt
         boolean hasLowerCase = false;
         boolean hasUpperCase = false;
         boolean hasDigit = false;
+        boolean hasSpecialChar = false;
+
+        // Ký tự đặc biệt có thể tùy chỉnh theo yêu cầu
+        String specialChars = "!@#$%^&*()-+";
 
         for (char ch : password.toCharArray()) {
             if (Character.isLowerCase(ch)) {
@@ -136,15 +140,18 @@ public class Validate {
                 hasUpperCase = true;
             } else if (Character.isDigit(ch)) {
                 hasDigit = true;
+            } else if (specialChars.contains(String.valueOf(ch))) {
+                hasSpecialChar = true;
             }
         }
 
-        return hasLowerCase && hasUpperCase && hasDigit;
+        return hasLowerCase && hasUpperCase && hasDigit && hasSpecialChar;
     }
+
     // Hàm thông báo validate password
     public boolean checkValidatePassword(String password){
         if(!validatePassword(password)){
-            show_dialog("Mật khẩu dài từ 8 đến 20 kí tự, bao gồm cả chữ hoa, chữ thường và số. Vui lòng nhập lại!", 3);
+            show_dialog("Mật khẩu dài từ 8 đến 20 kí tự, bao gồm cả chữ hoa, chữ thường, số và kí tự đặc biệt. Vui lòng nhập lại!", 3);
             return false;
         }
         return true;
@@ -204,7 +211,7 @@ public class Validate {
                 if (password.isEmpty()) {
                     layoutEdt.setError("Mật khẩu không được để trống");
                 } else if (!validatePassword(password)) {
-                    layoutEdt.setError("Mật khẩu dài 8 - 20 kí tự, gồm cả chữ hoa, chữ thường và số");
+                    layoutEdt.setError("Mật khẩu dài 8 - 20 kí tự, gồm cả chữ hoa, chữ thường, số và kí tự đặc biệt");
                 } else {
                     layoutEdt.setErrorEnabled(false);  // Tắt chế độ hiển thị lỗi để không có khoảng trống
                     marginInPx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, context.getResources().getDisplayMetrics());
@@ -233,7 +240,7 @@ public class Validate {
                 if (password.isEmpty()) {
                     layoutEdt.setError("Mật khẩu không được để trống");
                 } else if (!validatePassword(password)) {
-                    layoutEdt.setError("Mật khẩu dài 8 - 20 kí tự, gồm cả chữ hoa, chữ thường và số");
+                    layoutEdt.setError("Mật khẩu dài 8 - 20 kí tự, gồm cả chữ hoa, chữ thường, số và kí tự đặc biệt");
                 } else if (!password.equals(edt2.getText().toString().trim())) {
                     layoutEdt.setError("Mật khẩu không trùng khớp");
                 } else {

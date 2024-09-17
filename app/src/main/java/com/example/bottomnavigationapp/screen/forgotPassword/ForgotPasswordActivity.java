@@ -26,7 +26,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class ForgotPasswordActivity extends AppCompatActivity {
     private TextInputLayout layoutEmail;
-    private ImageView imV_back;
+    private ImageView imvBack;
     private TextInputEditText edtEmail;
     private ProgressDialog progressDialog;
     private Button btnGetPassword;
@@ -51,9 +51,9 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
     // Hàm ánh xạ view
     private void initUi(){
-        imV_back = findViewById(R.id.imV_back);
+        imvBack = findViewById(R.id.imV_back);
         layoutEmail = findViewById(R.id.layout_email);
-        edtEmail = findViewById(R.id.edt_email);
+        edtEmail = findViewById(R.id.edt_old_password);
         validate = new Validate(this);
         validate.validateEmail(layoutEmail, edtEmail);
         btnGetPassword = findViewById(R.id.btn_get_password);
@@ -62,7 +62,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
     // Hàm bắt sự kiện click button
     private void onClickListener(){
-        imV_back.setOnClickListener(new View.OnClickListener() {
+        imvBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
@@ -105,7 +105,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                     finish();
                 }
                 else{
-                    Toast.makeText(ForgotPasswordActivity.this, getString(R.string.message_exception),
+                    Toast.makeText(ForgotPasswordActivity.this, getString(R.string.message_wrong_email),
                             Toast.LENGTH_LONG).show();
                 }
             }

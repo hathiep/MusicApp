@@ -75,7 +75,6 @@
                 android:layout_height="30dp"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentBottom="true"
-                android:layout_marginBottom="5dp"
                 android:src="@drawable/ic_camera" />
 
         </RelativeLayout>
