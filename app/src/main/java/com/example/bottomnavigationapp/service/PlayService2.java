@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.media.MediaMetadata;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
@@ -26,17 +27,10 @@ import com.bumptech.glide.request.transition.Transition;
 import com.example.bottomnavigationapp.R;
 import com.example.bottomnavigationapp.mainActivity.MainActivity;
 import com.example.bottomnavigationapp.model.Song;
-import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.PlaybackParameters;
-import com.google.android.exoplayer2.audio.AudioAttributes;
 
-
-public class PlayService extends Service {
+public class PlayService2 extends Service {
     public static final String CHANNEL_ID = "BackgroundMusicService";
-    private ExoPlayer exoPlayer;
+    private MediaPlayer mediaPlayer;
     private boolean isPaused = false, isRepeat = false;
     private Handler handler = new Handler();
     private Song currentSong;
@@ -86,22 +80,6 @@ public class PlayService extends Service {
             }
         });
         mediaSession.setActive(true);
-
-        // Initialize ExoPlayer
-        exoPlayer = new ExoPlayer.Builder(this).build();
-        exoPlayer.setAudioAttributes(
-                new AudioAttributes.Builder().setContentType(C.CONTENT_TYPE_MUSIC).build(),
-                true
-        );
-        exoPlayer.addListener(new Player.Listener() {
-            @Override
-            public void onPlaybackStateChanged(int state) {
-                if (state == Player.STATE_ENDED) {
-                    // Gửi broadcast để chuyển bài tiếp theo khi phát xong
-                    sendBroadcastNext();
-                }
-            }
-        });
     }
 
     @Override
@@ -116,15 +94,26 @@ public class PlayService extends Service {
                 String newAudioPath = song.getAudioPath();
 
                 if (newAudioPath != null && !newAudioPath.equals(audioPath)) {
-                    if (exoPlayer.isPlaying()) {
-                        exoPlayer.stop();
+                    if (mediaPlayer != null) {
+                        if (mediaPlayer.isPlaying()) {
+                            mediaPlayer.stop();
+                        }
+                        mediaPlayer.release();
+                        mediaPlayer = null;
                     }
                     audioPath = newAudioPath;
-
-                    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(audioPath));
-                    exoPlayer.setMediaItem(mediaItem);
-                    exoPlayer.setRepeatMode(isRepeat ? Player.REPEAT_MODE_ONE : Player.REPEAT_MODE_OFF);
-                    exoPlayer.prepare();
+                    mediaPlayer = MediaPlayer.create(this, Uri.parse(audioPath));
+                    if (mediaPlayer != null) {
+                        mediaPlayer.setVolume(100, 100);
+                        mediaPlayer.setLooping(isRepeat);
+                        mediaPlayer.setOnCompletionListener(mp -> {
+                            // Gửi broadcast để chuyển bài tiếp theo
+                            sendBroadcastNext();
+                        });
+                    } else {
+                        Log.e("PlayService", "MediaPlayer could not be created with the provided audio path: " + audioPath);
+                        stopSelf();
+                    }
                 }
             }
 
@@ -146,7 +135,7 @@ public class PlayService extends Service {
                     break;
                 case "ACTION_TOGGLE_REPEAT": // New action to handle repeat toggle
                     isRepeat = intent.getBooleanExtra("IS_REPEATING", false);
-                    exoPlayer.setRepeatMode(isRepeat ? Player.REPEAT_MODE_ONE : Player.REPEAT_MODE_OFF);
+                    mediaPlayer.setLooping(isRepeat);
                     break;
             }
         }
@@ -154,59 +143,63 @@ public class PlayService extends Service {
     }
 
     private void playAudio() {
-        if (exoPlayer == null) {
-            Log.e("PlayService", "ExoPlayer is not initialized.");
+        if (mediaPlayer == null) {
+            Log.e("PlayService", "MediaPlayer is not initialized.");
             return;
         }
 
         if (isPaused) {
-            exoPlayer.seekTo(pausedPosition); // Phát từ vị trí đã lưu khi tạm dừng
-            exoPlayer.play();
+            Log.e("A", "PausedPosition: " + pausedPosition);
+            mediaPlayer.seekTo(pausedPosition); // Phát từ vị trí đã lưu khi tạm dừng
+            mediaPlayer.start();
             isPaused = false;
-        } else if (!exoPlayer.isPlaying()) {
-            exoPlayer.seekTo(pausedPosition); // Phát từ vị trí đã lưu khi tạm dừng
-            exoPlayer.play();
+        } else if (!mediaPlayer.isPlaying()) {
+            mediaPlayer.seekTo(pausedPosition); // Phát từ vị trí đã lưu khi tạm dừng
+            mediaPlayer.start();
         }
 
         handler.post(updateProgress);
         updateNotification(true);
-        sendBroadcastUpdate(true, (int) exoPlayer.getCurrentPosition());
+        sendBroadcastUpdate(true, mediaPlayer.getCurrentPosition());
     }
 
     private void pauseAudio() {
-        if (exoPlayer != null && exoPlayer.isPlaying()) {
-            pausedPosition = (int) exoPlayer.getCurrentPosition(); // Lưu vị trí hiện tại
-            exoPlayer.pause();
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            pausedPosition = mediaPlayer.getCurrentPosition(); // Lưu vị trí hiện tại
+            mediaPlayer.pause();
             isPaused = true;
+            Log.d("PlayService", "Media paused at position: " + pausedPosition);
+        } else {
+            Log.d("PlayService", "MediaPlayer is either null or not playing");
         }
         updateNotification(false);
         sendBroadcastUpdate(false, pausedPosition);
     }
 
     private void seekAudio(int newPosition){
-        if (exoPlayer != null && newPosition >= 0 && newPosition <= exoPlayer.getDuration()) {
-            exoPlayer.seekTo(newPosition);
+        if (mediaPlayer != null && newPosition >= 0 && newPosition <= mediaPlayer.getDuration()) {
+            mediaPlayer.seekTo(newPosition);
             pausedPosition = newPosition;
-            sendBroadcastUpdate(exoPlayer.isPlaying(), (int) exoPlayer.getCurrentPosition());
-            updateNotification(exoPlayer.isPlaying());
+            sendBroadcastUpdate(mediaPlayer.isPlaying(), mediaPlayer.getCurrentPosition());
+            updateNotification(mediaPlayer.isPlaying());
         }
     }
 
     private Runnable updateProgress = new Runnable() {
         @Override
         public void run() {
-            if (exoPlayer != null && exoPlayer.isPlaying()) {
-                int currentPosition = (int) exoPlayer.getCurrentPosition();
-                int duration = (int) exoPlayer.getDuration();
+            if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                int currentPosition = mediaPlayer.getCurrentPosition();
+                int duration = mediaPlayer.getDuration();
 
                 // Cập nhật progress của notification
-                updateNotification(exoPlayer.isPlaying());
+                updateNotification(mediaPlayer.isPlaying());
 
                 // Gửi broadcast để cập nhật SeekBar trên UI
                 Intent intent = new Intent("UPDATE_SEEKBAR");
                 intent.putExtra("CURRENT_POSITION", currentPosition);
                 intent.putExtra("DURATION", duration);
-                LocalBroadcastManager.getInstance(PlayService.this).sendBroadcast(intent);
+                LocalBroadcastManager.getInstance(PlayService2.this).sendBroadcast(intent);
 
                 handler.postDelayed(this, 1000); // Cập nhật mỗi giây
             }
@@ -215,10 +208,10 @@ public class PlayService extends Service {
 
     @Override
     public void onDestroy() {
-        if (exoPlayer != null) {
-            exoPlayer.stop();
-            exoPlayer.release();
-            exoPlayer = null;
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+            mediaPlayer.release();
+            mediaPlayer = null;
         }
         handler.removeCallbacks(updateProgress);
         super.onDestroy();
@@ -231,14 +224,21 @@ public class PlayService extends Service {
         String action = isPlaying ? "ACTION_PAUSE" : "ACTION_PLAY";
         int icon = isPlaying ? R.drawable.ic_pause : R.drawable.ic_play;
 
-        int currentPosition = exoPlayer != null ? (int) exoPlayer.getCurrentPosition() : 0;
-        int duration = exoPlayer != null ? (int) exoPlayer.getDuration() : 0;
+        int currentPosition = mediaPlayer != null ? mediaPlayer.getCurrentPosition() : 0;
+        int duration = mediaPlayer != null ? mediaPlayer.getDuration() : 0;
 
         // Tạo intent để xử lý click vào notification
         Intent openAppIntent = new Intent(this, MainActivity.class);
         openAppIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         openAppIntent.putExtra("NAVIGATE_TO_FRAGMENT", "FragmentHome");
         PendingIntent contentPendingIntent = PendingIntent.getActivity(this, 0, openAppIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        // Tạo intent để xử lý seek
+        Intent seekIntent = new Intent(this, PlayService.class);
+        seekIntent.setAction("ACTION_SEEK"); // Hành động seek
+        seekIntent.putExtra("MEDIA_POSITION", currentPosition); // Gửi vị trí hiện tại
+
+        PendingIntent seekPendingIntent = PendingIntent.getService(this, 0, seekIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         mediaSession.setPlaybackState(
                 new PlaybackStateCompat.Builder()
@@ -255,47 +255,59 @@ public class PlayService extends Service {
                 new Builder()
                         .putString(MediaMetadata.METADATA_KEY_TITLE, currentSong.getTitle())
                         .putString(MediaMetadata.METADATA_KEY_ARTIST, currentSong.getArtist())
-                        .putLong(MediaMetadata.METADATA_KEY_DURATION, duration)
+                        .putLong(MediaMetadata.METADATA_KEY_DURATION, duration) // 4
+
                         .build()
         );
         notificationBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_logo)
-                .setContentTitle(currentSong.getTitle())
-                .setContentText(currentSong.getArtist())
-                .setPriority(NotificationCompat.PRIORITY_LOW)
-                .setOnlyAlertOnce(true)
-                .setContentIntent(contentPendingIntent)
-                .setAutoCancel(true)
-                .addAction(R.drawable.ic_previous, "Previous", getPendingIntent(this, "ACTION_PREVIOUS"))
-                .addAction(icon, "Play/Pause", getPendingIntent(this, action))
-                .addAction(R.drawable.ic_next, "Next", getPendingIntent(this, "ACTION_NEXT"))
+                .setContentTitle(currentSong != null ? currentSong.getTitle() : "No Song Playing")
+                .setContentText(currentSong != null ? currentSong.getArtist() : "")
+//                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.image_background)) //Ảnh nền mặc định
+                .addAction(R.drawable.ic_previous, "Previous", getPendingIntent("ACTION_PREVIOUS", 0))
+                .addAction(icon, isPlaying ? "Pause" : "Play", getPendingIntent(action, 1))  // Nút Play/Pause
+                .addAction(R.drawable.ic_next, "Next", getPendingIntent("ACTION_NEXT", 2))
                 .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
                         .setShowActionsInCompactView(0, 1, 2)
-                        .setMediaSession(mediaSession.getSessionToken()));
+                        .setMediaSession(mediaSession.getSessionToken())
+                        .setShowCancelButton(true))
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setContentIntent(seekPendingIntent)
+                .setContentIntent(contentPendingIntent);
 
-        // Load ảnh của bài hát
-        Glide.with(getApplicationContext()).asBitmap().load(currentSong.getImageUrl()).into(new CustomTarget<Bitmap>() {
-            @Override
-            public void onResourceReady(@NonNull Bitmap bitmap, @Nullable Transition<? super Bitmap> transition) {
-                notificationBuilder.setLargeIcon(bitmap);
-                startForeground(1, notificationBuilder.build());
-            }
+        if (currentSong != null && currentSong.getImageUrl() != null) {
+            Glide.with(this)
+                    .asBitmap()
+                    .load(currentSong.getImageUrl()) // URL của ảnh bài hát
+                    .into(new CustomTarget<Bitmap>() {
+                        @Override
+                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                            notificationBuilder.setLargeIcon(resource);
+                            startForeground(1, notificationBuilder.build());
+                        }
 
-            @Override
-            public void onLoadCleared(@Nullable Drawable placeholder) {
-                // Xử lý khi load ảnh không thành công
-            }
-        });
+                        @Override
+                        public void onLoadCleared(@Nullable Drawable placeholder) {
+                        }
+                    });
+        } else {
+            // Hiển thị notification không có ảnh nếu không có URL
+            startForeground(1, notificationBuilder.build());
+        }
     }
 
-    private PendingIntent getPendingIntent(Service service, String action) {
-        Intent intent = new Intent(service, PlayService.class);
+    private PendingIntent getPendingIntent(String action, int requestCode) {
+        Intent intent = new Intent(this, PlayService.class);
         intent.setAction(action);
-        return PendingIntent.getService(service, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        intent.putExtra("SONG", currentSong);
+        intent.putExtra("CURRENT_POSITION", mediaPlayer.getCurrentPosition());
+        return PendingIntent.getService(this, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
-    private void sendBroadcastNext() {
-        Intent intent = new Intent("ACTION_NEXT");
+    private void sendBroadcastUpdate(boolean isPlaying, int position) {
+        Intent intent = new Intent("UPDATE_PLAY_STATE");
+        intent.putExtra("isPlaying", isPlaying);
+        intent.putExtra("CURRENT_POSITION", position);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
@@ -304,10 +316,8 @@ public class PlayService extends Service {
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
-    private void sendBroadcastUpdate(boolean isPlaying, int mediaPosition) {
-        Intent intent = new Intent("UPDATE_PLAYBACK_STATUS");
-        intent.putExtra("MEDIA_POSITION", mediaPosition);
-        intent.putExtra("IS_PLAYING", isPlaying);
+    private void sendBroadcastNext() {
+        Intent intent = new Intent("ACTION_NEXT");
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 }
