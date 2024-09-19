@@ -175,8 +175,8 @@ public class RegisterActivity extends AppCompatActivity {
                             new Handler().postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
-                                    edtEmail.requestFocus(); // Yêu cầu EditText edt_name nhận focus
-                                    edtEmail.setSelection(edtEmail.getText().length()); // Di chuyển con trỏ nháy đến cuối của edt_name
+                                    edtEmail.requestFocus(); // Yêu cầu EditText nhận focus
+                                    edtEmail.setSelection(edtEmail.getText().length()); // Di chuyển con trỏ nháy đến cuối của EditText
                                 }
                             }, 100);
                         }
@@ -184,7 +184,7 @@ public class RegisterActivity extends AppCompatActivity {
                 });
     }
 
-    // Hiển thị thông báo v gửi email xc tực
+    // Hiển thị thông báo gửi email xác thực
     private void sendEmailVerify(String email) {
         user.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override

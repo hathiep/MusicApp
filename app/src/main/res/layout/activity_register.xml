@@ -66,148 +66,174 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="30dp"
             android:orientation="vertical"
-            android:gravity="center">
-
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/layout_email"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="5dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/email"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:paddingVertical="0dp"
-                    android:hint="@string/email"
-                    android:inputType="textEmailAddress">
-
-                </com.google.android.material.textfield.TextInputEditText>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/layout_fullName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="5dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/fullname"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:paddingVertical="0dp"
-                    android:hint="@string/fullname"
-                    android:inputType="textEmailAddress">
-
-                </com.google.android.material.textfield.TextInputEditText>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/layout_phone"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="5dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/phone"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:paddingVertical="0dp"
-                    android:hint="@string/phone"
-                    android:inputType="number">
-
-                </com.google.android.material.textfield.TextInputEditText>
-            </com.google.android.material.textfield.TextInputLayout>
-
+            android:gravity="center_horizontal">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="5dp">
+                android:paddingHorizontal="30dp"
+                android:maxWidth="600dp">
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/layout_password"
-                    android:layout_width="0dp"
+                    android:id="@+id/layout_email"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    tools:ignore="MissingConstraints"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent">
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:paddingVertical="5dp">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/password"
+                        android:id="@+id/email"
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
-                        android:hint="@string/password"
-                        android:inputType="textPassword" />
+                        android:paddingVertical="0dp"
+                        android:hint="@string/email"
+                        android:inputType="textEmailAddress">
 
+                    </com.google.android.material.textfield.TextInputEditText>
                 </com.google.android.material.textfield.TextInputLayout>
-
-                <ImageView
-                    android:id="@+id/imV_eye1"
-                    android:layout_width="40dp"
-                    android:layout_height="50dp"
-                    android:src="@drawable/ic_unhide"
-                    android:layout_gravity="center_vertical"
-                    app:layout_constraintTop_toTopOf="@id/layout_password"
-                    android:layout_marginTop="5dp"
-                    app:layout_constraintEnd_toEndOf="@id/layout_password"
-                    android:layout_marginRight="10dp"/>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="5dp">
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/layout_password_ag"
-                    android:layout_width="0dp"
+                    android:id="@+id/layout_fullName"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    tools:ignore="MissingConstraints"
-                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/layout_email"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent">
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:paddingVertical="5dp">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/password_again"
+                        android:id="@+id/fullname"
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
-                        android:hint="@string/password_again"
-                        android:inputType="textPassword" />
+                        android:paddingVertical="0dp"
+                        android:hint="@string/fullname"
+                        android:inputType="textEmailAddress">
 
+                    </com.google.android.material.textfield.TextInputEditText>
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <ImageView
-                    android:id="@+id/imV_eye2"
-                    android:layout_width="40dp"
-                    android:layout_height="50dp"
-                    android:src="@drawable/ic_unhide"
-                    android:layout_gravity="center_vertical"
-                    app:layout_constraintTop_toTopOf="@id/layout_password_ag"
-                    android:layout_marginTop="5dp"
-                    app:layout_constraintEnd_toEndOf="@id/layout_password_ag"
-                    android:layout_marginRight="10dp"/>
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layout_phone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/layout_fullName"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:paddingVertical="5dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/phone"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:paddingVertical="0dp"
+                        android:hint="@string/phone"
+                        android:inputType="number">
+
+                    </com.google.android.material.textfield.TextInputEditText>
+                </com.google.android.material.textfield.TextInputLayout>
+
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/layout_cst_pw"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/layout_phone"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:paddingVertical="5dp">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layout_password"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        tools:ignore="MissingConstraints"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/password"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:hint="@string/password"
+                            android:inputType="textPassword" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <ImageView
+                        android:id="@+id/imV_eye1"
+                        android:layout_width="40dp"
+                        android:layout_height="50dp"
+                        android:src="@drawable/ic_unhide"
+                        android:layout_gravity="center_vertical"
+                        app:layout_constraintTop_toTopOf="@id/layout_password"
+                        android:layout_marginTop="5dp"
+                        app:layout_constraintEnd_toEndOf="@id/layout_password"
+                        android:layout_marginRight="10dp"/>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/layout_cst_pw_ag"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/layout_cst_pw"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:paddingVertical="5dp">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layout_password_ag"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        tools:ignore="MissingConstraints"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/password_again"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:hint="@string/password_again"
+                            android:inputType="textPassword" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <ImageView
+                        android:id="@+id/imV_eye2"
+                        android:layout_width="40dp"
+                        android:layout_height="50dp"
+                        android:src="@drawable/ic_unhide"
+                        android:layout_gravity="center_vertical"
+                        app:layout_constraintTop_toTopOf="@id/layout_password_ag"
+                        android:layout_marginTop="5dp"
+                        app:layout_constraintEnd_toEndOf="@id/layout_password_ag"
+                        android:layout_marginRight="10dp"/>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <Button
+                    android:id="@+id/btn_register"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/layout_cst_pw_ag"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:layout_marginVertical="10dp"
+                    android:background="@drawable/border_button_fill"
+                    android:gravity="center"
+                    android:textColor="@color/white"
+                    android:textAllCaps="true"
+                    android:text="@string/register"
+                    android:textSize="16sp"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <Button
-                android:id="@+id/btn_register"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="10dp"
-                android:background="@drawable/border_button_fill"
-                android:gravity="center"
-                android:textColor="@color/white"
-                android:textAllCaps="true"
-                android:text="@string/register"
-                android:textSize="16sp" />
 
         </LinearLayout>
 

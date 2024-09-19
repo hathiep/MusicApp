@@ -6,12 +6,11 @@
     android:id="@+id/layout_playing_expand"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/border_corner"
-    android:backgroundTint="@android:color/holo_purple"
+    android:background="@drawable/border_gradient"
     android:gravity="center_vertical"
     android:orientation="vertical"
     android:padding="10dp"
-    android:visibility="gone">
+    android:visibility="visible">
 
     <RelativeLayout
         android:layout_width="match_parent"
