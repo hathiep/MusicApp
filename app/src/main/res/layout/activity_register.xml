@@ -73,11 +73,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="30dp"
-                android:maxWidth="600dp">
+                android:maxWidth="500dp">
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/layout_email"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -97,7 +97,7 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/layout_fullName"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     app:layout_constraintTop_toBottomOf="@id/layout_email"
                     app:layout_constraintStart_toStartOf="parent"
@@ -117,7 +117,7 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/layout_phone"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     app:layout_constraintTop_toBottomOf="@id/layout_fullName"
                     app:layout_constraintStart_toStartOf="parent"
@@ -138,7 +138,7 @@
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/layout_cst_pw"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     app:layout_constraintTop_toBottomOf="@id/layout_phone"
                     app:layout_constraintStart_toStartOf="parent"
@@ -147,7 +147,7 @@
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/layout_password"
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         tools:ignore="MissingConstraints"
@@ -179,7 +179,7 @@
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/layout_cst_pw_ag"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     app:layout_constraintTop_toBottomOf="@id/layout_cst_pw"
                     app:layout_constraintStart_toStartOf="parent"
@@ -220,7 +220,7 @@
 
                 <Button
                     android:id="@+id/btn_register"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     app:layout_constraintTop_toBottomOf="@id/layout_cst_pw_ag"
                     app:layout_constraintStart_toStartOf="parent"

@@ -48,7 +48,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/header"
         android:padding="20dp"
-        android:maxWidth="600dp">
+        android:maxWidth="500dp">
 
         <RelativeLayout
             android:id="@+id/avatar_layout"
