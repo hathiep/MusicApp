@@ -28,7 +28,7 @@ import com.example.bottomnavigationapp.R;
 import com.example.bottomnavigationapp.mainActivity.MainActivity;
 import com.example.bottomnavigationapp.model.Song;
 
-public class PlayService2 extends Service {
+public class PlayServiceMedia extends Service {
     public static final String CHANNEL_ID = "BackgroundMusicService";
     private MediaPlayer mediaPlayer;
     private boolean isPaused = false, isRepeat = false;
@@ -191,7 +191,7 @@ public class PlayService2 extends Service {
             if (mediaPlayer != null && mediaPlayer.isPlaying()) {
                 int currentPosition = mediaPlayer.getCurrentPosition();
                 int duration = mediaPlayer.getDuration();
-
+                Log.e("CurrentPosition", "CurrentPosition" + mediaPlayer.getCurrentPosition());
                 // Cập nhật progress của notification
                 updateNotification(mediaPlayer.isPlaying());
 
@@ -199,7 +199,7 @@ public class PlayService2 extends Service {
                 Intent intent = new Intent("UPDATE_SEEKBAR");
                 intent.putExtra("CURRENT_POSITION", currentPosition);
                 intent.putExtra("DURATION", duration);
-                LocalBroadcastManager.getInstance(PlayService2.this).sendBroadcast(intent);
+                LocalBroadcastManager.getInstance(PlayServiceMedia.this).sendBroadcast(intent);
 
                 handler.postDelayed(this, 1000); // Cập nhật mỗi giây
             }
@@ -218,7 +218,7 @@ public class PlayService2 extends Service {
     }
 
     private void updateNotification(boolean isPlaying) {
-        Intent intent = new Intent(this, PlayService.class);
+        Intent intent = new Intent(this, PlayServiceMedia.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
         String action = isPlaying ? "ACTION_PAUSE" : "ACTION_PLAY";
@@ -234,7 +234,7 @@ public class PlayService2 extends Service {
         PendingIntent contentPendingIntent = PendingIntent.getActivity(this, 0, openAppIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         // Tạo intent để xử lý seek
-        Intent seekIntent = new Intent(this, PlayService.class);
+        Intent seekIntent = new Intent(this, PlayServiceMedia.class);
         seekIntent.setAction("ACTION_SEEK"); // Hành động seek
         seekIntent.putExtra("MEDIA_POSITION", currentPosition); // Gửi vị trí hiện tại
 
@@ -297,7 +297,7 @@ public class PlayService2 extends Service {
     }
 
     private PendingIntent getPendingIntent(String action, int requestCode) {
-        Intent intent = new Intent(this, PlayService.class);
+        Intent intent = new Intent(this, PlayServiceMedia.class);
         intent.setAction(action);
         intent.putExtra("SONG", currentSong);
         intent.putExtra("CURRENT_POSITION", mediaPlayer.getCurrentPosition());
