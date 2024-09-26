@@ -124,12 +124,6 @@ public class PlayService extends Service {
                                     Log.e("ExoPlayer", "Playback ended");
                                     sendBroadcastNext();
                                     break;
-                                case Player.STATE_BUFFERING:
-                                    Log.e("ExoPlayer", "Player is buffering");
-                                    break;
-                                case Player.STATE_IDLE:
-                                    Log.e("ExoPlayer", "Player is idle");
-                                    break;
                             }
                         }
                     });
@@ -223,7 +217,7 @@ public class PlayService extends Service {
                 intent.putExtra("DURATION", duration);
                 LocalBroadcastManager.getInstance(PlayService.this).sendBroadcast(intent);
 
-                handler.postDelayed(this, 1000); // Cập nhật mỗi giây
+                handler.postDelayed(this, 100);
             }
         }
     };

@@ -167,10 +167,8 @@ public class HomeFragment extends Fragment implements HomeContract.View {
             SongAdapter adapter = (SongAdapter)  parent.getAdapter();
             adapter.setSelectedPosition(position); // Cập nhật vị trí của item được chọn
             currentSong = songList.get(position);  // Lưu song hiện tại
-            viewSwitcher.setVisibility(View.VISIBLE);
-            updatePlayButton(isPlaying);  // Cập nhật nút play/tạm dừng
-            updatePreNextButton(true);
             presenter.onSongSelected(songList.get(position));
+            updatePlayingLayout(0, viewSwitcher.getChildAt(0));
         });
 
         imvPlay.setOnClickListener(view -> presenter.onPlayPauseClicked());
@@ -323,6 +321,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
 
     @Override
     public void onCancelClicked() {
+        viewSwitcher.setDisplayedChild(0);
         viewSwitcher.setVisibility(View.GONE);
         adapter.setSelectedPosition(-1);
         adapter.notifyDataSetChanged();
@@ -389,6 +388,7 @@ public class HomeFragment extends Fragment implements HomeContract.View {
 
     public void updatePlayingLayout(int i, View view) {
         saveCurrentRotation();
+        viewSwitcher.setVisibility(View.VISIBLE);
         isExpanded = (i == 1);
         imvImagePlaying = view.findViewById(R.id.imv_image_playing);
         tvTitle = view.findViewById(R.id.tv_title);
@@ -413,17 +413,18 @@ public class HomeFragment extends Fragment implements HomeContract.View {
         updatePlayingSongInfo(currentSong);
         updatePlayButton(isPlaying);
         updatePreNextButton(!isExpanded);
+        updateSeekBar();
         presenter.setIsCollapsed(!isExpanded);
         setOnclick();
-        imvCancel.setOnClickListener(view1 -> {
-            presenter.onCancelClicked();
-            listView.setVisibility(View.VISIBLE);
-            viewSwitcher.setDisplayedChild(0);
-            setLayoutPlayingHeight(0);
-        });
         viewSwitcher.setDisplayedChild(i);
         setLayoutPlayingHeight(i);
         listView.setVisibility(isExpanded ? View.GONE : View.VISIBLE);
+        imvCancel.setOnClickListener(view1 -> {
+            presenter.onCancelClicked();
+            presenter.setIsCollapsed(true);
+            listView.setVisibility(View.VISIBLE);
+            setLayoutPlayingHeight(0);
+        });
     }
 
     private void setLayoutPlayingHeight(int i){
