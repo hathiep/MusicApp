@@ -174,8 +174,12 @@ public class EditProfileFragment extends Fragment {
 
     // Hàm trở về fragment trước đó
     private void goBackToAccountFragment() {
-        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
-        fragmentManager.popBackStack();
+        Bundle result = new Bundle();
+        result.putBoolean("profile_updated", true);
+        getParentFragmentManager().setFragmentResult("editProfileKey", result);
+
+        // Quay trở về AccountFragment
+        requireActivity().getSupportFragmentManager().popBackStack();
     }
 
     // Hàm hiển thị thông báo và cập nhật thông tin user

@@ -39,7 +39,14 @@ public class AccountFragment extends Fragment {
         // Gọi hàm ánh xạ view
         init(view);
 
-        // Gọi hàm lấy user hiện tại
+        getParentFragmentManager().setFragmentResultListener("editProfileKey", this, (requestKey, bundle) -> {
+            boolean isUpdated = bundle.getBoolean("profile_updated");
+            if (isUpdated) {
+                // Nếu profile đã được cập nhật, gọi lại hàm lấy dữ liệu user
+                getCurrentUser();
+            }
+        });
+
         getCurrentUser();
 
         return view;
@@ -134,4 +141,14 @@ public class AccountFragment extends Fragment {
 
         new Handler().postDelayed(progressDialog::dismiss, time * 1000);
     }
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        if (!hidden) {
+            // Fragment này đang hiển thị lại, làm mới dữ liệu
+            getCurrentUser();
+        }
+    }
+
 }

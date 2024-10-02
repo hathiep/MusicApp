@@ -72,6 +72,7 @@
                 android:layout_height="30dp"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentRight="true"
+                android:background="@drawable/border_corner"
                 android:src="@drawable/ic_edit"/>
 
         </RelativeLayout>

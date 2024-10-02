@@ -60,7 +60,7 @@ public class PlayService extends Service {
         mediaSession.setCallback(new MediaSessionCompat.Callback() {
             @Override
             public void onPlay() {
-                playAudio();
+                handler.postDelayed(() -> playAudio(), 1000);
             }
 
             @Override
