@@ -43,6 +43,7 @@ dependencies {
     implementation(libs.firebase.storage)
     implementation(libs.swiperefreshlayout)
     implementation(libs.firebase.auth)
+    implementation(libs.media3.exoplayer)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

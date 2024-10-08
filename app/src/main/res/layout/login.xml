@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="#0A0736">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="104dp"
+        android:paddingHorizontal="20dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:text="Đăng nhập"
+                android:fontFamily="sans-serif-medium"
+                android:textFontWeight="600"
+                android:textSize="32sp"
+                android:lineHeight="24dp"
+                android:textColor="#FFFFFF"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="10dp"
+                    android:text="Người dùng mới?"
+                    android:fontFamily="sans-serif-medium"
+                    android:textFontWeight="400"
+                    android:textSize="16sp"
+                    android:lineHeight="24px"
+                    android:textColor="#FFFFFF"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Đăng ký"
+                    android:fontFamily="sans-serif-medium"
+                    android:textFontWeight="400"
+                    android:textSize="16sp"
+                    android:lineHeight="24px"
+                    android:textColor="@color/violet"/>
+
+            </LinearLayout>
+            
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="30dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/border_bottom_light">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="10dp"
+                    android:gravity="center"
+                    android:background="@drawable/border_bottom_violet">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Địa chỉ Email"
+                        android:fontFamily="sans-serif-medium"
+                        android:textFontWeight="600"
+                        android:textSize="16sp"
+                        android:gravity="center"
+                        android:lineHeight="24dp"
+                        android:textColor="@color/violet"/>
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="10dp"
+                    android:gravity="center">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Địa chỉ Email"
+                        android:fontFamily="sans-serif-medium"
+                        android:textFontWeight="600"
+                        android:textSize="16sp"
+                        android:gravity="center"
+                        android:lineHeight="24dp"
+                        android:textColor="@color/white"/>
+
+                </RelativeLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="20dp"
+                android:orientation="vertical">
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Nhập địa chỉ email"
+                    android:textColorHint="@color/white"
+                    android:fontFamily="sans-serif-medium"
+                    android:textFontWeight="600"
+                    android:textSize="16sp"
+                    android:paddingHorizontal="20dp"
+                    android:gravity="left"
+                    android:lineHeight="24dp"
+                    android:textColor="@color/white"/>
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Mật khẩu"
+                    android:textColorHint="@color/white"
+                    android:fontFamily="sans-serif-medium"
+                    android:textFontWeight="600"
+                    android:textSize="16sp"
+                    android:paddingHorizontal="20dp"
+                    android:gravity="left"
+                    android:lineHeight="24dp"
+                    android:textColor="@color/white"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:paddingHorizontal="20dp"
+                android:background="@drawable/button"
+                android:text="Đăng nhập"
+                android:fontFamily="sans-serif-medium"
+                android:textFontWeight="600"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:lineHeight="24dp"
+                android:textColor="@color/white">
+            </TextView>
+
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+</RelativeLayout>

@@ -2,13 +2,13 @@ package com.example.bottomnavigationapp.service;
 
 import static android.support.v4.media.MediaMetadataCompat.*;
 
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.media.MediaMetadata;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
@@ -20,6 +20,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.media3.common.MimeTypes;
+import androidx.media3.common.util.UnstableApi;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
@@ -31,7 +33,10 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+
 import com.google.android.exoplayer2.audio.AudioAttributes;
+import com.google.android.exoplayer2.audio.AudioCapabilities;
 
 public class PlayService extends Service {
     public static final String CHANNEL_ID = "BackgroundMusicService";
@@ -42,6 +47,8 @@ public class PlayService extends Service {
     private String audioPath;
     private int pausedPosition = 0;
     private NotificationCompat.Builder notificationBuilder;
+    @SuppressLint("UnsafeOptInUsageError")
+    private DefaultTrackSelector trackSelector;
 
     @Nullable
     @Override
@@ -51,6 +58,7 @@ public class PlayService extends Service {
 
     private MediaSessionCompat mediaSession;
 
+    @UnstableApi
     @Override
     public void onCreate() {
         super.onCreate();
@@ -85,8 +93,11 @@ public class PlayService extends Service {
             }
         });
         mediaSession.setActive(true);
+
+        setMode();
     }
 
+    @SuppressLint("Range")
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null && intent.getAction() != null) {
@@ -107,11 +118,14 @@ public class PlayService extends Service {
                         exoPlayer = null;
                     }
 
-                    exoPlayer = new ExoPlayer.Builder(this).build();
-                    exoPlayer.setAudioAttributes(
-                            new AudioAttributes.Builder().setContentType(C.AUDIO_CONTENT_TYPE_MUSIC).build(),
-                            true
-                    );
+                    exoPlayer = new ExoPlayer.Builder(this)
+                            .setTrackSelector(trackSelector)
+                            .build();
+                    AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                            .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
+                            .setUsage(C.USAGE_MEDIA)
+                            .build();
+                    exoPlayer.setAudioAttributes(audioAttributes,true);
                     exoPlayer.addListener(new Player.Listener() {
                         @Override
                         public void onPlaybackStateChanged(int state) {
@@ -161,6 +175,37 @@ public class PlayService extends Service {
         return START_STICKY;
     }
 
+    @UnstableApi
+    private void setMode(){
+        trackSelector = new DefaultTrackSelector(getApplicationContext());
+
+        // Kiểm tra thiết bị hỗ trợ định dạng âm thanh nào
+        AudioCapabilities audioCapabilities = AudioCapabilities.getCapabilities(getApplicationContext());
+
+        if (audioCapabilities.supportsEncoding(C.ENCODING_AC3)) {
+            // Thiết bị hỗ trợ Dolby Digital (AC3)
+            trackSelector.setParameters(
+                    trackSelector.buildUponParameters()
+                            .setPreferredAudioMimeType(MimeTypes.AUDIO_AC3)  // Ưu tiên AC3
+            );
+            Log.e("SupportsEncoding", "AC3");
+        } else if (audioCapabilities.supportsEncoding(C.ENCODING_E_AC3)) {
+            // Thiết bị hỗ trợ Dolby Digital Plus (EAC3)
+            trackSelector.setParameters(
+                    trackSelector.buildUponParameters()
+                            .setPreferredAudioMimeType(MimeTypes.AUDIO_E_AC3)  // Ưu tiên EAC3
+            );
+            Log.e("SupportsEncoding", "EAC3");
+        } else {
+            // Thiết bị không hỗ trợ các định dạng âm thanh vòm, sử dụng âm thanh tiêu chuẩn
+            trackSelector.setParameters(
+                    trackSelector.buildUponParameters()
+                            .setPreferredAudioMimeType(MimeTypes.AUDIO_AAC)
+            );
+            Log.e("SupportsEncoding", "ACC");
+        }
+    }
+
     private void playAudio() {
         if (exoPlayer == null) {
             Log.e("PlayService", "ExoPlayer is not initialized.");
@@ -206,7 +251,6 @@ public class PlayService extends Service {
             if (exoPlayer != null && exoPlayer.isPlaying()) {
                 int currentPosition = (int) exoPlayer.getCurrentPosition();
                 int duration = (int) exoPlayer.getDuration();
-                Log.e("CurrentPosition", "CurrentPosition" + exoPlayer.getCurrentPosition());
 
                 // Cập nhật progress của notification
                 updateNotification(exoPlayer.isPlaying());
